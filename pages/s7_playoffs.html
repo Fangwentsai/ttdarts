@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>難找的聯賽 第七屆季後賽</title>
+<link rel="canonical" href="https://dev.ttdarts.com/pages/s7_playoffs.html">
+<meta name="description" content="難找的聯賽第七屆季後賽：團隊八強對戰表、例行賽最終名次，以及個人季後賽正取 16 人名單。">
+<style>
+:root {
+    --bg-color: #0F0F0F;
+    --card-bg: #1A1A1A;
+    --gold: #C9A063;
+    --gold-gradient: linear-gradient(135deg, #C9A063 0%, #F0D398 50%, #C9A063 100%);
+    --text-white: #FFFFFF;
+    --text-grey: #888888;
+    --highlight: #D93025;
+  }
+  body { margin:0; padding:0; background-color:var(--bg-color); font-family:'Helvetica Neue',Arial,sans-serif; color:var(--text-white); }
+  .container { width:100%; max-width:420px; background-color:var(--bg-color); padding-bottom:40px; box-shadow:0 0 20px rgba(0,0,0,0.5); }
+  .header { text-align:center; padding:35px 20px; background:radial-gradient(circle at top,#2a2a2a 0%,#0f0f0f 70%); border-bottom:2px solid var(--gold); }
+  .header h1 { margin:0; font-size:32px; text-transform:uppercase; font-weight:900; background:var(--gold-gradient); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:1px; }
+  .header p { color:#E0E0E0; font-size:16px; font-weight:700; margin-top:8px; letter-spacing:2px; text-transform:uppercase; }
+
+  .section-title { display:flex; align-items:center; margin:30px 20px 15px; color:var(--gold); font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+  .section-title::after { content:''; flex:1; height:1px; background:#333; margin-left:10px; }
+
+  /* Leader cards — 兩欄 grid */
+  .leader-list { padding:0 15px; display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+
+  .leader-card-wrap { border-radius:4px; overflow:hidden; }
+
+  .leader-card {
+    display:flex; justify-content:space-between; align-items:center;
+    background-color:var(--card-bg); padding:10px 12px;
+    border-left:3px solid var(--gold); min-height:50px;
+    cursor:pointer; user-select:none;
+    transition: background 0.2s;
+  }
+  .leader-card:hover { background:#242424; }
+
+  .card-main { display:flex; justify-content:space-between; align-items:center; flex:1; }
+  .card-info { display:flex; flex-direction:column; overflow:hidden; }
+  .player-name { font-size:15px; font-weight:bold; color:#fff; letter-spacing:0.5px; white-space:nowrap; }
+  .team-name { font-size:10px; color:#AAAAAA; margin-top:3px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .stats { text-align:right; min-width:40px; }
+  .win-count { font-size:18px; font-weight:800; color:var(--gold); font-family:'Impact',sans-serif; }
+  .win-label { font-size:8px; color:#888; font-weight:bold; }
+
+  .chevron { font-size:10px; color:#666; margin-left:8px; transition:transform 0.3s ease; flex-shrink:0; }
+  .leader-card.open .chevron { transform:rotate(180deg); }
+
+  /* 展開區 */
+  .sub-players {
+    max-height:0; overflow:hidden;
+    transition:max-height 0.35s ease;
+    background:#141414; border-left:3px solid #333;
+  }
+  .sub-players.open { max-height:120px; }
+  .sub-player-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:7px 14px 7px 18px; border-bottom:1px solid #1e1e1e;
+  }
+  .sub-player-row:last-child { border-bottom:none; }
+  .sub-rank { font-size:10px; color:#666; width:16px; flex-shrink:0; }
+  .sub-name { font-size:13px; color:#ccc; flex:1; }
+  .sub-wins { font-size:13px; color:#888; font-family:'Impact',sans-serif; }
+
+  /* Elite 2欄 */
+  .player-list { padding:0 15px; display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .card { display:flex; justify-content:space-between; align-items:center; background-color:var(--card-bg); padding:10px 12px; border-radius:4px; border-left:3px solid var(--gold); min-height:50px; }
+  .card.elite { border-left-color:var(--highlight); background:linear-gradient(90deg,#1A1A1A 0%,#251010 100%); }
+  .card .card-info { display:flex; flex-direction:column; overflow:hidden; }
+
+  /* 說明區 */
+  .note-box { margin:0 20px 0; background:#111; border:1px solid #2a2a2a; border-radius:6px; padding:14px 16px; font-size:11px; color:#999; line-height:1.8; }
+  .note-box strong { color:#C9A063; }
+
+  /* 賽事資訊 */
+  .info-section { padding:0 20px; margin-top:10px; }
+  .info-box { background-color:#161616; border:1px solid #333; border-radius:6px; padding:20px; margin-bottom:15px; }
+  .info-header { font-size:15px; color:var(--gold); font-weight:bold; margin-bottom:12px; display:flex; align-items:center; border-bottom:1px solid #333; padding-bottom:8px; }
+  .info-content { font-size:12px; color:#ccc; line-height:1.8; }
+  .rule-row { display:flex; justify-content:space-between; margin-bottom:4px; }
+  .rule-label { color:#888; min-width:60px; }
+  .rule-val { text-align:right; font-weight:500; }
+  .reward-list { list-style:none; padding:0; margin:0; }
+  .reward-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px dashed #2a2a2a; }
+  .reward-item:last-child { border-bottom:none; }
+  .place { font-size:12px; font-weight:bold; color:#fff; }
+  .prize { font-size:13px; color:#ddd; }
+  .prize.gold { color:var(--gold); font-weight:bold; font-size:15px; }
+  .footer { text-align:center; margin-top:30px; padding-top:20px; border-top:1px solid #1a1a1a; font-size:9px; color:#555; letter-spacing:1px; }
+
+  .close-btn { position:fixed; top:15px; right:15px; width:40px; height:40px; background:rgba(0,0,0,0.7); border:2px solid var(--gold); border-radius:50%; color:var(--gold); font-size:24px; font-weight:bold; cursor:pointer; z-index:1000; display:flex; align-items:center; justify-content:center; transition:all 0.3s ease; }
+  .close-btn:hover { background:var(--gold); color:#000; transform:scale(1.1); }
+
+  .loader-container { display:flex; justify-content:center; align-items:center; height:80px; grid-column:1/-1; width:100%; }
+  .loader { border:3px solid #333; border-top:3px solid var(--gold); border-radius:50%; width:28px; height:28px; animation:spin 1s linear infinite; }
+  @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+
+  /* ===== 頁籤：團隊 / 個人 ===== */
+  .pane-tabs { display:flex; gap:8px; padding:16px 15px 0; position:sticky; top:0; z-index:5;
+               background:var(--bg-color); }
+  .pane-tab { flex:1; font:inherit; font-size:13px; font-weight:700; letter-spacing:1px;
+              padding:11px 6px; border:1px solid #333; border-radius:8px; background:#161616;
+              color:#999; cursor:pointer; transition:all .18s; }
+  .pane-tab:hover { color:#ddd; border-color:#444; }
+  .pane-tab.on { background:var(--gold-gradient); border-color:var(--gold); color:#2b1d00; }
+  .pane[hidden] { display:none; }
+
+  /* ===== 第七屆新增：團隊季後賽 ===== */
+  .bracket-wrap { padding:0 15px; }
+  .bracket-wrap img { width:100%; height:auto; display:block; border-radius:6px; border:1px solid #2a2a2a; cursor:zoom-in; }
+  .bracket-hint { text-align:center; font-size:10px; color:#666; margin-top:6px; letter-spacing:1px; }
+  /* 圖片燈箱：樣式沿用 gallery.html，在 iframe 內以 fixed 置中展開 */
+  .lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:1000;
+              align-items:center; justify-content:center; }
+  .lightbox.active { display:flex; }
+  .lightbox-content { max-width:94vw; max-height:92vh; position:relative; }
+  .lightbox-content img { max-width:100%; max-height:88vh; object-fit:contain; border-radius:4px; }
+  .lightbox-close { position:absolute; top:14px; right:14px; width:36px; height:36px;
+                    background:rgba(0,0,0,0.7); border:2px solid var(--gold); border-radius:50%;
+                    color:var(--gold); font-size:22px; line-height:1; cursor:pointer; z-index:1001; }
+  .lightbox-cap { position:absolute; bottom:14px; left:0; right:0; text-align:center;
+                  font-size:10px; color:#999; letter-spacing:1px; }
+
+  /* 對戰卡：沿用首頁「上週戰況」的排版 —— 編號在左、@場地在右上，隊伍一列三欄 */
+  .tie-list { padding:0 15px; display:grid; gap:10px; }
+  .po-match { background:var(--card-bg); border:1px solid #2a2a2a; border-radius:8px; padding:10px 14px; }
+  .po-head { display:flex; justify-content:space-between; align-items:center;
+             margin-bottom:6px; font-size:13px; line-height:1.2; }
+  .po-code { font-weight:bold; color:#ddd; font-size:13px; }
+  .po-venue { font-style:italic; color:#8a8a8a; font-size:12px; text-align:right; }
+  .po-teams { display:flex; align-items:center; justify-content:space-between; }
+  .po-team { display:flex; flex-direction:row; align-items:center; gap:7px; flex:1; min-width:0; }
+  .po-team.l { justify-content:flex-start; }
+  .po-team.r { justify-content:flex-end; }
+  /* min-width:0 讓名字能在 flex 裡正常收縮，否則長隊名會把格子撐爆 */
+  .po-name { font-weight:bold; font-size:15px; white-space:nowrap; overflow:hidden;
+             text-overflow:ellipsis; letter-spacing:-0.3px; color:#fff; min-width:0; }
+  .po-seed { width:20px; height:20px; flex-shrink:0; border-radius:4px; display:flex;
+             align-items:center; justify-content:center; font-size:11px; font-weight:900; font-style:italic; }
+  .po-seed.d { background:#fff; color:#111; }
+  .po-seed.b { background:var(--gold); color:#4a3200; }
+  .po-host { font-size:9px; font-weight:900; color:#4a3200; background:var(--gold);
+             border-radius:3px; padding:1px 4px; flex-shrink:0; letter-spacing:0; }
+  .po-vs { font-size:12px; color:#666; font-weight:600; flex-shrink:0; padding:0 10px; }
+  /* 打完的對戰：中間放比分，敗隊整格淡掉 */
+  .po-score { font-size:14px; font-weight:900; color:var(--gold); flex-shrink:0; padding:0 10px;
+              white-space:nowrap; letter-spacing:1px; }
+  .po-team.lose { opacity:0.45; }
+  .po-team.win .po-name { color:var(--gold); }
+
+  .grp-key { display:flex; justify-content:center; gap:16px; font-size:10px; color:#888; margin:10px 0 0; }
+  .grp-key span { display:flex; align-items:center; gap:5px; }
+  .grp-key i { width:11px; height:11px; border-radius:3px; display:inline-block; }
+
+  .final-tbl { width:100%; border-collapse:collapse; font-size:12px; }
+  .final-tbl th { color:#888; font-weight:500; text-align:left; padding:5px 4px; border-bottom:1px solid #333; font-size:10px; }
+  .final-tbl td { padding:6px 4px; border-bottom:1px solid #1e1e1e; color:#ddd; }
+  .final-tbl tr:last-child td { border-bottom:none; }
+  .final-tbl .r { text-align:right; font-family:'Impact',sans-serif; color:var(--gold); }
+  .final-tbl .pos { width:20px; color:#666; font-style:italic; font-weight:900; }
+  .final-tbl .q td { color:#fff; }
+  .final-tbl .q .pos { color:var(--gold); }
+
+  .award { display:flex; justify-content:space-between; align-items:center;
+            padding:11px 0; border-bottom:1px dashed #2a2a2a; }
+  .award:last-child { border-bottom:none; }
+  .award-l { display:flex; flex-direction:column; gap:3px; min-width:0; }
+  .award-t { font-size:11px; color:#888; letter-spacing:1px; }
+  .award-w { font-size:15px; font-weight:bold; color:#fff; }
+  .award-w small { font-size:11px; color:#999; font-weight:normal; margin-left:5px; }
+  .award-r { text-align:right; flex-shrink:0; margin-left:10px; }
+  .award-v { font-size:15px; font-weight:bold; color:var(--gold); font-family:'Impact',sans-serif; }
+  .award-v.txt { font-family:inherit; font-size:12px; color:#ddd; font-weight:600; }
+  /* 劃掉的獎項：整列加刪除線並淡化 */
+  .award.struck { opacity:0.5; }
+  .award.struck .award-w, .award.struck .award-t, .award.struck .award-v { text-decoration:line-through; }
+  .pending { color:#777 !important; font-style:italic; }
+
+  .lady-card { margin:0 15px; background:linear-gradient(90deg,#1A1A1A 0%,#2a1020 100%);
+               border-left:3px solid #e35d9a; border-radius:4px; padding:12px 14px;
+               display:flex; justify-content:space-between; align-items:center; }
+</style>
+</head>
+<body>
+<button class="close-btn" onclick="closeModal()" title="關閉 (ESC)">&times;</button>
+
+<div class="container" style="margin:0 auto;">
+  <div class="header">
+    <h1>難找的聯賽</h1>
+    <p>第七屆季後賽</p>
+    <p style="font-size:12px; color:#bbb; margin-top:5px;">例行賽 60 場全部結束，名次確定</p>
+  </div>
+
+  <div class="pane-tabs">
+    <button class="pane-tab on" data-pane="pane-team">🏆 團隊季後賽</button>
+    <button class="pane-tab" data-pane="pane-solo">👑 個人季後賽</button>
+  </div>
+
+  <div class="pane" id="pane-team">
+  <!-- ===================== 團隊季後賽 ===================== -->
+  <div class="section-title">🏆 Team Playoffs (團隊季後賽)</div>
+
+  <div class="bracket-wrap">
+    <img src="../images/s7_playoffs.webp" alt="第七屆團隊季後賽賽制圖"
+         onclick="openLightbox(this.src)">
+    <div class="bracket-hint">點圖可放大</div>
+  </div>
+
+  <div class="section-title" style="font-size:12px;">🏆 最終名次</div>
+  <div class="info-section">
+    <div class="info-box">
+      <div class="award">
+        <div class="award-l"><span class="award-t">🥇 冠軍</span>
+          <span class="award-w">軟飯揪團中<small>13 戰全勝，整季未嘗敗績</small></span></div>
+        <div class="award-r"><div class="award-v">NT$ 8,000</div></div>
+      </div>
+      <div class="award">
+        <div class="award-l"><span class="award-t">🥈 亞軍</span>
+          <span class="award-w">逃生Zoo口<small>整季唯一一敗在冠軍戰</small></span></div>
+        <div class="award-r"><div class="award-v">NT$ 5,000</div></div>
+      </div>
+      <div class="award">
+        <div class="award-l"><span class="award-t">🥉 季軍</span>
+          <span class="award-w">有點傻<small>例行賽靶外組第三</small></span></div>
+        <div class="award-r"><div class="award-v">NT$ 3,000</div></div>
+      </div>
+      <div class="award">
+        <div class="award-l"><span class="award-t">🍺 第二段冠軍</span>
+          <span class="award-w">人生揪難亮<small>第二段兩戰全勝</small></span></div>
+        <div class="award-r"><div class="award-v">NT$ 2,000</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="font-size:12px;">🏆 冠軍戰 ‧ 季軍戰 結果 (11/17)</div>
+  <div class="tie-list" id="final-list"></div>
+
+  <div class="section-title" style="font-size:12px;">🔥 四強結果 (11/10)</div>
+  <div class="tie-list" id="sf-list"></div>
+
+  <div class="section-title" style="font-size:12px;">⚔️ 八強結果 (11/3)</div>
+  <div class="tie-list" id="tie-list"></div>
+  <div class="note-box" style="margin-top:10px;font-size:11px;">
+    八強主場為例行賽<strong>勝分較高</strong>的一方。<br>
+    <strong>四強起改看上一輪的季後賽勝分</strong>——在八強拿到較高分數的隊伍為主場。<br>
+    若晉級的兩隊<strong>勝分相同</strong>，則由上一場<strong>飲酒點數較多</strong>的隊伍為主場。
+  </div>
+  <div class="grp-key">
+    <span><i style="background:#fff"></i>掉鏢組</span>
+    <span><i style="background:#C9A063"></i>靶外組</span>
+  </div>
+
+  <div class="section-title" style="font-size:12px;color:#888;">🍺 第二段決賽 (11/10)</div>
+  <div class="tie-list" id="lf-list"></div>
+  <div class="note-box" style="margin-top:10px;font-size:11px;">
+    第二段冠軍：<strong>人生揪難亮</strong>　NT$ 2,000
+  </div>
+
+  <div class="section-title" style="font-size:12px;color:#888;">🍺 第二段首輪結果 (11/3)</div>
+  <div class="tie-list" id="lower-list"></div>
+
+  <div class="section-title" style="font-size:12px;">📊 例行賽最終名次</div>
+  <div class="info-section">
+    <div class="info-box">
+      <div class="info-header">掉鏢組</div>
+      <table class="final-tbl" id="tbl-d"></table>
+    </div>
+    <div class="info-box">
+      <div class="info-header">靶外組</div>
+      <table class="final-tbl" id="tbl-b"></table>
+    </div>
+    <div class="info-box">
+      <div class="info-header" style="color:#ff4d4d;">🎁 團隊獎金</div>
+      <ul class="reward-list">
+        <li class="reward-item"><span class="place">冠軍</span><span class="prize gold">NT$ 8,000</span></li>
+        <li class="reward-item"><span class="place">亞軍</span><span class="prize">NT$ 5,000</span></li>
+        <li class="reward-item"><span class="place">季軍</span><span class="prize">NT$ 3,000</span></li>
+        <li class="reward-item"><span class="place">第二段冠軍</span><span class="prize">NT$ 2,000</span></li>
+        <li class="reward-item"><span class="place">飲酒獎金</span><span class="prize">NT$ 8,000</span></li>
+      </ul>
+      <div class="info-content" style="margin-top:10px;color:#888;font-size:11px;">
+        八強 11/3 ‧ 四強 11/10 ‧ 冠軍戰 11/17
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">🍺 Drinking Awards (飲酒獎金)</div>
+  <div class="info-section">
+    <div class="info-box">
+      <div class="award">
+        <div class="award-l"><span class="award-t">40 分</span>
+          <span class="award-w">軟飯揪團中<small>8/10 場</small></span></div>
+        <div class="award-r"><div class="award-v">NT$ 2,000</div></div>
+      </div>
+      <div class="award">
+        <div class="award-l"><span class="award-t">40 分</span>
+          <span class="award-w">匪類里民一直喝<small>8/10 場</small></span></div>
+        <div class="award-r"><div class="award-v">NT$ 2,000</div></div>
+      </div>
+      <div class="award">
+        <div class="award-l"><span class="award-t">40 分</span>
+          <span class="award-w">傑克紅心<small>8/10 場</small></span></div>
+        <div class="award-r"><div class="award-v">NT$ 2,000</div></div>
+      </div>
+      <div class="award">
+        <div class="award-l"><span class="award-t">35 分</span>
+          <span class="award-w">逃生Zoo口<small>7/10 場</small></span></div>
+        <div class="award-r"><div class="award-v">NT$ 1,000</div></div>
+      </div>
+      <div class="award">
+        <div class="award-l"><span class="award-t">35 分</span>
+          <span class="award-w">哈哈隊<small>7/10 場</small></span></div>
+        <div class="award-r"><div class="award-v">NT$ 1,000</div></div>
+      </div>
+    </div>
+    <div class="note-box">
+      40 分三隊同列第一，依排名邏輯等於包辦前三名，35 分兩隊從第四名起算，
+      因此原本的「冠軍 5,000／亞軍 3,000」無法直接套用。隊長會議未及討論此情況，
+      為求公平改採此分配：<strong>40 分每隊 2,000、35 分每隊 1,000</strong>，
+      總額 8,000 與原獎金相同。
+    </div>
+  </div>
+
+  </div><!-- /pane-team -->
+
+  <div class="pane" id="pane-solo" hidden>
+  <!-- ===================== 個人季後賽 ===================== -->
+  <div class="section-title">👑 Individual Playoffs (個人季後賽)</div>
+  <div class="note-box" style="margin-bottom:4px;">
+    正取 <strong>16 人</strong>：各隊勝場最高 <strong>12 人</strong> ＋ <strong>Top Lady</strong> ＋ 其餘選手勝場前三。<br>
+    <span style="color:#777;">點任一張卡片可展開該隊第 2、3 名的勝場。</span>
+  </div>
+
+  <div class="section-title">🏅 Season Awards (例行賽獎項．已確定)</div>
+  <div class="info-section">
+    <div class="info-box">
+      <div class="award">
+        <div class="award-l"><span class="award-t">🎯 聯賽勝場王</span>
+          <span class="award-w">小倫<small>逃生Zoo口 ‧ 48 勝</small></span></div>
+        <div class="award-r"><div class="award-v">NT$ 1,000</div></div>
+      </div>
+      <div class="award">
+        <div class="award-l"><span class="award-t">🌹 Top Lady</span>
+          <span class="award-w">小喬<small>逃生Zoo口 ‧ 31 勝</small></span></div>
+        <div class="award-r"><div class="award-v">NT$ 1,000</div></div>
+      </div>
+      <div class="award struck">
+        <div class="award-l"><span class="award-t">💀 地獄倒霉鬼</span>
+          <span class="award-w">小象<small>軟飯揪團中 ‧ 先攻率 20.00%</small></span></div>
+        <div class="award-r"><div class="award-v txt">專屬卡套<br>客店首次 shot 招待</div></div>
+      </div>
+      <div class="award">
+        <div class="award-l"><span class="award-t">🏆 大力神盃</span>
+          <span class="award-w pending">老丹處理</span></div>
+        <div class="award-r"><div class="award-v">NT$ 2,000</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title" style="font-size:12px;">👑 Team Leader (各隊第一)</div>
+  <div id="leaders-container" class="leader-list">
+    <div class="loader-container"><div class="loader"></div></div>
+  </div>
+
+  <div class="section-title" style="font-size:12px;color:#e35d9a;">🌹 Top Lady</div>
+  <div id="lady-container"></div>
+
+  <div class="section-title" style="font-size:12px;color:#D93025;">🔥 Global Elite (剩餘勝場前三)</div>
+  <div id="elites-container" class="player-list">
+    <div class="loader-container"><div class="loader"></div></div>
+  </div>
+
+  <div class="section-title">📜 Tournament Info (賽事資訊)</div>
+  <div class="info-section">
+    <div class="info-box">
+      <div class="info-header">🏆 個人季後賽規則</div>
+      <div class="info-content">
+        <div class="rule-row"><span class="rule-label">日期</span><span class="rule-val">11/24</span></div>
+        <div class="rule-row"><span class="rule-label">地點</span><span class="rule-val">樂源 a.k.a 兩杯<br><span style="color:#888;font-size:11px;">團隊季後賽冠軍 軟飯揪團中 主場</span></span></div>
+        <div class="rule-row"><span class="rule-label">資格</span><span class="rule-val">各隊勝場最高 ＋ Top Lady ＋ 勝場前三</span></div>
+        <hr style="border:0;border-top:1px solid #333;margin:10px 0;">
+        <div class="rule-row"><span class="rule-label">初賽</span><span class="rule-val">501 單淘汰 (讓級讓分/OI/MO)</span></div>
+      </div>
+    </div>
+    <div class="info-box">
+      <div class="info-header" style="color:#ff4d4d;">🎁 個人獎勵</div>
+      <ul class="reward-list">
+        <li class="reward-item"><span class="place">季後賽冠軍</span><span class="prize gold">NT$ 2,000</span></li>
+        <li class="reward-item"><span class="place">季後賽亞軍</span><span class="prize">🍺 啤酒一手</span></li>
+        <li class="reward-item"><span class="place">季後賽季軍</span><span class="prize">🍺 啤酒三支</span></li>
+        <li class="reward-item"><span class="place">季後賽殿軍</span><span class="prize">🍺 啤酒兩支</span></li>
+      </ul>
+    </div>
+  </div>
+
+  </div><!-- /pane-solo -->
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+  <div class="lightbox-content"><img id="lightbox-img" src="" alt="第七屆團隊季後賽賽制圖"></div>
+  <div class="lightbox-cap">點背景或按 ESC 關閉</div>
+</div>
+
+  <div class="footer">© 2026 難找的聯賽. All rights reserved.</div>
+</div>
+
+<script src="../config/config.js?v=20260812_13"></script>
+<script>
+
+function closeModal() {
+    try {
+        if (window.parent && window.parent !== window) {
+            if (typeof window.parent.closePlayoffsModal === 'function') { window.parent.closePlayoffsModal(); return; }
+            if (typeof window.parent.closeNewsPlayoffsModal === 'function') { window.parent.closeNewsPlayoffsModal(); return; }
+        }
+        if (window.history.length > 1) window.history.back();
+    } catch (e) {
+        try { window.parent.postMessage({ action: 'closeModal' }, '*'); } catch (e2) {}
+    }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function toggleLeader(clickedCard) {
+    // 檢查點擊的卡片是否已經展開
+    const isOpen = clickedCard.classList.contains('open');
+    const cards = document.querySelectorAll('.leader-card');
+    const subs = document.querySelectorAll('.sub-players');
+    
+    if (isOpen) {
+        cards.forEach(c => c.classList.remove('open'));
+        subs.forEach(s => s.classList.remove('open'));
+    } else {
+        cards.forEach(c => c.classList.add('open'));
+        subs.forEach(s => s.classList.add('open'));
+    }
+}
+
+// ===== 團隊季後賽：例行賽 60 場打完後的最終名次，寫死 =====
+// 對戰規則：左半區 掉鏢1 vs 靶外4、靶外2 vs 掉鏢3；右半區 靶外1 vs 掉鏢4、掉鏢2 vs 靶外3
+const FINAL = {
+    d: [['軟飯揪團中',257],['匪類里民一直喝',205],['酒空組',174],['Tonight29發財隊',157],['人生揪難亮',147],['傑克紅心',137]],
+    b: [['逃生Zoo口',258],['哈哈隊',189],['有點傻',172],['傑克黑桃',170],['嘻嘻隊',161],['Tonight29恭喜隊',129]]
+};
+// 隊伍主場。與 preview_generator.getVenueFromTeam 一致，並用實際 60 場賽果驗證過。
+const VENUE = {
+    '軟飯揪團中': '樂源 a.k.a 兩杯', '匪類里民一直喝': 'R8串燒 Metro Bar', '酒空組': '逃生入口Bar',
+    'Tonight29發財隊': 'Tonight29', '人生揪難亮': 'No.5 飛鏢Bar', '傑克紅心': 'JACK BAR',
+    '逃生Zoo口': '逃生入口Bar', '哈哈隊': 'Vivi Bar', '有點傻': 'No.5 飛鏢Bar',
+    '傑克黑桃': 'JACK BAR', '嘻嘻隊': 'Vivi Bar', 'Tonight29恭喜隊': 'Tonight29'
+};
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const teamCell = (grp, seed, pos, isHost) => {
+    const [name] = FINAL[grp][seed - 1];
+    const badge = `<div class="po-seed ${grp}">${seed}</div>`;
+    const host = isHost ? '<span class="po-host">主</span>' : '';
+    const nm = `<div class="po-name">${esc(name)}</div>`;
+    // 種子號靠格子外側，和賽制圖的擺法一致；主場標記貼在名字旁
+    return `<div class="po-team ${pos}">${pos === 'l' ? badge + nm + host : host + nm + badge}</div>`;
+};
+
+// 場地一律由主場隊伍推導，不會出現「主場是甲隊、場地卻在乙隊店裡」。
+// L2 嘻嘻隊 vs 傑克紅心：照勝分規則是嘻嘻隊主場（161 ＞ 137）、場地 Vivi Bar，
+// 但同一天 QF2 已排在 Vivi Bar 撞場，所以主場改由傑克紅心擔任，移到 JACK BAR。
+
+// 頁籤切換：切完捲回頂端，不然從長頁面切過去會停在半空中
+// 圖片燈箱。這一頁是在首頁的 modal 裡用 iframe 載入，
+// fixed 覆蓋範圍就是 iframe 的可視區，剛好對齊 modal 本身。
+function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+    document.body.style.overflow = '';
+}
+document.getElementById('lightbox').addEventListener('click', function (e) {
+    // 只有點到背景或圖片本身才關，避免點關閉鈕時觸發兩次
+    if (e.target === this || e.target.id === 'lightbox-img') closeLightbox();
+});
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && document.getElementById('lightbox').classList.contains('active')) {
+        closeLightbox();
+    }
+});
+
+document.querySelectorAll('.pane-tab').forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll('.pane-tab').forEach(b => b.classList.toggle('on', b === btn));
+        document.querySelectorAll('.pane').forEach(p => { p.hidden = p.id !== btn.dataset.pane; });
+        window.scrollTo({ top: 0 });
+    };
+});
+
+// ===== 11/3 第一輪賽果。分數是含勝場與飲酒加成的總分，和例行賽同一套算法 =====
+const R1 = {
+    QF1: { a: ['d',1], b: ['b',4], sa: 31, sb:  5 },   // G61 軟飯揪團中 vs 傑克黑桃
+    QF2: { a: ['b',2], b: ['d',3], sa: 25, sb: 11 },   // G62 哈哈隊 vs 酒空組
+    QF3: { a: ['b',1], b: ['d',4], sa: 22, sb: 14 },   // G63 逃生Zoo口 vs Tonight29發財隊
+    QF4: { a: ['d',2], b: ['b',3], sa: 16, sb: 20 },   // G64 匪類里民一直喝 vs 有點傻
+    L1:  { a: ['d',5], b: ['b',6], sa: 24, sb: 12 },   // G65 人生揪難亮 vs Tonight29恭喜隊
+    L2:  { a: ['b',5], b: ['d',6], sa: 27, sb:  9, host: '傑克紅心' }, // G66 嘻嘻隊 vs 傑克紅心
+    // 四強起的主場是上一輪勝分推出來的，不能再用例行賽總分判斷，所以直接寫明
+    SF1: { a: ['d',1], b: ['b',2], sa: 22, sb: 14, host: '軟飯揪團中' }, // G67 軟飯揪團中 vs 哈哈隊
+    SF2: { a: ['b',1], b: ['b',3], sa: 26, sb: 10, host: '逃生Zoo口' },  // G68 逃生Zoo口 vs 有點傻
+    LF:  { a: ['d',5], b: ['b',5], sa: 19, sb: 17, host: '嘻嘻隊' },     // G69 人生揪難亮 vs 嘻嘻隊
+    F:   { a: ['d',1], b: ['b',1], sa: 19, sb: 17, host: '逃生Zoo口' },  // G70 軟飯揪團中 vs 逃生Zoo口
+    TP:  { a: ['b',3], b: ['b',2], sa: 20, sb: 16, host: '哈哈隊' }      // G71 有點傻 vs 哈哈隊
+};
+
+// 已打完的對戰：中間改放比分，勝隊金字、敗隊淡化
+const played = (label, key) => {
+    const r = R1[key];
+    const A = FINAL[r.a[0]][r.a[1] - 1], B = FINAL[r.b[0]][r.b[1] - 1];
+    const host = r.host || (A[1] >= B[1] ? A : B)[0];
+    const cls = w => w ? 'win' : 'lose';
+    const cell = (side, seed, pos, name, win) =>
+        teamCell(side, seed, pos, name === host).replace('po-team ' + pos, 'po-team ' + pos + ' ' + cls(win));
+    return `<div class="po-match">
+      <div class="po-head"><span class="po-code">${esc(label)}</span>
+        <span class="po-venue">@${esc(VENUE[host] || '待定')}</span></div>
+      <div class="po-teams">${cell(r.a[0], r.a[1], 'l', A[0], r.sa > r.sb)}
+        <div class="po-score">${r.sa} : ${r.sb}</div>${cell(r.b[0], r.b[1], 'r', B[0], r.sb > r.sa)}</div>
+    </div>`;
+};
+
+document.getElementById('tie-list').innerHTML =
+      played('QF1', 'QF1') + played('QF2', 'QF2')
+    + played('QF3', 'QF3') + played('QF4', 'QF4');
+document.getElementById('lower-list').innerHTML =
+      played('L1', 'L1') + played('L2', 'L2');
+document.getElementById('sf-list').innerHTML =
+      played('SF1', 'SF1') + played('SF2', 'SF2');
+document.getElementById('lf-list').innerHTML = played('LF', 'LF');
+document.getElementById('final-list').innerHTML =
+      played('冠軍戰', 'F') + played('季軍戰', 'TP');
+
+for (const grp of ['d', 'b']) {
+    document.getElementById('tbl-' + grp).innerHTML =
+        '<tr><th class="pos"></th><th>隊伍</th><th style="text-align:right">總分</th></tr>'
+        + FINAL[grp].map(([n, p], i) =>
+            `<tr class="${i < 4 ? 'q' : ''}"><td class="pos">${i + 1}</td><td>${esc(n)}</td><td class="r">${p}</td></tr>`
+          ).join('');
+}
+
+// ===== 個人季後賽：讀試算表 personal 分頁 =====
+function fail(msg) {
+    ['leaders-container', 'elites-container'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = `<div style="grid-column:1/-1;color:#888;font-size:12px;padding:10px 5px">${esc(msg)}</div>`;
+    });
+}
+
+async function loadPlayers() {
+    if (typeof SEASONS === 'undefined' || typeof CURRENT_SEASON === 'undefined') {
+        fail('設定檔未載入，無法取得個人成績'); return;
+    }
+    const s = SEASONS[CURRENT_SEASON];
+    let rows;
+    try {
+        const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${s.sheetId}/values/personal!A1:N300?key=${s.apiKey}&t=${Date.now()}`);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        rows = ((await res.json()).values || []).slice(1);
+    } catch (e) {
+        fail('個人成績讀取失敗，請稍後再試'); return;
+    }
+
+    const P = rows.filter(r => (r[1] || '').trim()).map(r => ({
+        team: (r[0] || '').trim(), name: (r[1] || '').trim(),
+        wins: parseInt(r[6]) || 0, games: parseInt(r[12]) || 0,
+        rate: parseFloat(String(r[7] || '').replace('%', '')) || 0,
+        gender: (r[13] || '').trim()
+    })).filter(p => p.games > 0);
+    if (!P.length) { fail('目前沒有個人成績資料'); return; }
+
+    const sortFn = (a, b) => b.wins - a.wins || b.rate - a.rate;
+    P.sort(sortFn);
+
+    // 各隊前三，供展開用
+    const top3 = {};
+    P.forEach(p => { (top3[p.team] = top3[p.team] || []).length < 3 && top3[p.team].push(p); });
+
+    // 各隊第一 → leaders，其餘 → rest
+    const seen = {}, leaders = [], rest = [];
+    P.forEach(p => { if (!seen[p.team]) { seen[p.team] = 1; leaders.push(p); } else rest.push(p); });
+
+    // Top Lady：全聯盟女生勝場最高。已在各隊第一裡就不重複佔名額
+    const lady = P.filter(p => p.gender === '女')[0] || null;
+    const isLady = p => lady && p.name === lady.name && p.team === lady.team;
+    const ladyInLeaders = leaders.some(isLady);
+    const pool = rest.filter(p => !isLady(p));
+    const elites = pool.slice(0, 3);
+
+    document.getElementById('leaders-container').innerHTML = leaders.map(p => {
+        const [, s2, s3] = top3[p.team] || [];
+        const more = s2 || s3;
+        return `<div class="leader-card-wrap">
+          <div class="leader-card" onclick="toggleLeader(this)"${more ? '' : ' style="cursor:default"'}>
+            <div class="card-main">
+              <div class="card-info"><span class="player-name">${esc(p.name)}</span>
+                <span class="team-name">${esc(p.team)}</span></div>
+              <div class="stats"><div class="win-count">${p.wins}</div><div class="win-label">WINS</div></div>
+            </div>${more ? '<span class="chevron">▼</span>' : ''}
+          </div>
+          <div class="sub-players">${[s2, s3].filter(Boolean).map((x, i) =>
+            `<div class="sub-player-row"><span class="sub-rank">${i + 2}</span>
+             <span class="sub-name">${esc(x.name)}</span><span class="sub-wins">${x.wins}</span></div>`).join('')}
+          </div></div>`;
+    }).join('');
+
+    document.getElementById('lady-container').innerHTML = lady ? `
+        <div class="lady-card">
+          <div class="card-info"><span class="player-name">${esc(lady.name)}</span>
+            <span class="team-name">${esc(lady.team)}${ladyInLeaders ? ' ‧ 同時為該隊第一' : ''}</span></div>
+          <div class="stats"><div class="win-count" style="color:#e35d9a">${lady.wins}</div>
+            <div class="win-label">WINS</div></div>
+        </div>` : '';
+
+    document.getElementById('elites-container').innerHTML = elites.map(p => `
+        <div class="card elite"><div class="card-info">
+          <span class="player-name">${esc(p.name)}</span><span class="team-name">${esc(p.team)}</span></div>
+          <div class="stats"><div class="win-count">${p.wins}</div><div class="win-label">WINS</div></div>
+        </div>`).join('');
+
+}
+loadPlayers();
+</script>
+</body>
+</html>

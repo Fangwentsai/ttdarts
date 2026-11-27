@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>難找的聯賽 - 管理後台</title>
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- 外部 CSS 檔案 -->
+    <link rel="stylesheet" href="styles/admin.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="login-mode">
+    <!-- 登入頁面 -->
+    <div class="login-container" id="loginContainer">
+        <div class="header">
+            <h1>難找的聯賽</h1>
+            <p>比賽管理系統</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">帳號</label>
+                <input type="text" id="username" name="username" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">密碼</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary login-btn">登入</button>
+            
+            <div class="error-message" id="errorMessage">
+                帳號或密碼錯誤！
+            </div>
+        </form>
+    </div>
+
+    <!-- 管理後台 -->
+    <div class="admin-dashboard" id="adminDashboard">
+        <div class="admin-header">
+            <h1>比賽管理系統</h1>
+            <button class="btn btn-secondary logout-btn" onclick="logout()">登出</button>
+        </div>
+        
+        <!-- 功能按鈕列 -->
+        <div class="function-nav">
+            <button class="fn-btn fn-btn-match active" id="btnMatchSection" onclick="showSection('match')">🎯 比賽登錄</button>
+            <button class="fn-btn fn-btn-add" id="btnAddPlayer" onclick="showSection('player')">➕ 新增隊員</button>
+            <button class="fn-btn fn-btn-bind" id="btnBindCard" onclick="showSection('bind')">🎴 綁定卡片<br />(Beta)</button>
+        </div>
+
+        <div class="admin-content">
+            <!-- 比賽登錄區塊 -->
+            <div id="matchSection" style="display: none;">
+            <!-- 比賽選擇區域 -->
+            <div class="game-selector" id="gameSelectorSection">
+                <h2>選擇比賽</h2>
+                <div class="form-group">
+                    <select class="game-select" id="gameSelect">
+                        <option value="">請選擇比賽...</option>
+                    </select>
+                </div>
+                <div class="loading" id="loadingGames">載入比賽資料中...</div>
+
+                <!-- 熱身賽測試才需要選隊伍：正式場次的兩隊由賽程表決定 -->
+                <div class="warmup-picker" id="warmupPicker" style="display: none;">
+                    <div class="warmup-note">熱身賽測試：自行選擇對戰的兩隊，填完不會送出成績</div>
+                    <div class="warmup-selects">
+                        <label>主隊
+                            <select id="warmupHome"></select>
+                        </label>
+                        <label>客隊
+                            <select id="warmupAway"></select>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 比賽詳情區域 -->
+            <div class="game-details" id="gameDetails">
+                <!-- 拍照辨識分紙：選好場次後才有意義，所以放在 gameDetails 內 -->
+                <!-- 拍照與上傳辨識分紙 -->
+                <div class="ocr-panel">
+                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+                        <button class="ocr-shoot" style="flex:1; width:auto; padding:12px 6px; font-size:14px; white-space:nowrap;" onclick="startScoresheetCapture()">📷 拍照辨識分紙</button>
+                        <button class="ocr-shoot" style="flex:1; width:auto; padding:12px 6px; font-size:14px; white-space:nowrap; background: #28a745;" onclick="startScoresheetUpload()">📁 上傳照片辨識</button>
+                        <input type="file" id="scoresheetFileInput" accept="image/*" style="display:none" onchange="handleScoresheetFileSelect(event)">
+                    </div>
+                    <div class="ocr-status" id="ocrStatus">
+                        拍照或上傳照片對齊四角後辨識。帶入結果：<b>黃底</b>需確認、<b>紅底</b>需手動選擇。
+                    </div>
+                </div>
+
+                <!-- 新的遊戲佈局 -->
+                <div class="game-board">
+                    <div class="game-board-header">
+                        <div class="header-cell">SET</div>
+                        <div class="header-cell">主場</div>
+                        <div class="header-cell">客場</div>
+                        <div class="header-cell">先攻</div>
+                        <div class="header-cell">勝負</div>
+                    </div>
+                    <div class="game-board-body">
+                        <div id="gameRows">
+                            <!-- SET行將動態生成 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 飲酒加成 -->
+                <div class="bonus-simple">
+                    <h3>🍺 飲酒加成 (+5分)</h3>
+                    <div class="bonus-buttons">
+                        <button class="bonus-btn" data-team="home" onclick="selectBonus('home')" id="homeBonusBtn">
+                            主場隊伍
+                        </button>
+                        <button class="bonus-btn" data-team="away" onclick="selectBonus('away')" id="awayBonusBtn">
+                            客場隊伍
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 比賽成績試算 -->
+                <div class="score-calculation">
+                    <h3>比賽成績</h3>
+                    <div class="score-summary">
+                        <div class="score-row">
+                            <div class="team-info">
+                                <span class="team-name home-team" id="homeTeamScoreName">主場隊伍</span>
+                                <span class="score-detail">比賽成績: <span id="homeOriginalScore">0</span></span>
+                                <span class="score-detail">勝方加分: <span id="homeWinBonus">0</span></span>
+                                <span class="score-detail">飲酒加成: <span id="homeDrinkBonus">0</span></span>
+                                <span class="total-score home-total">總分: <span id="homeTotalScore">0</span></span>
+                            </div>
+                            <div class="vs-divider">VS</div>
+                            <div class="team-info">
+                                <span class="team-name away-team" id="awayTeamScoreName">客場隊伍</span>
+                                <span class="score-detail">比賽成績: <span id="awayOriginalScore">0</span></span>
+                                <span class="score-detail">勝方加分: <span id="awayWinBonus">0</span></span>
+                                <span class="score-detail">飲酒加成: <span id="awayDrinkBonus">0</span></span>
+                                <span class="total-score away-total">總分: <span id="awayTotalScore">0</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 操作按鈕區域 -->
+                <div class="save-section">
+                    <!-- 開發用自動填寫功能 (生產環境已隱藏) -->
+                    <!-- <button class="preview-btn" onclick="autoFillTestData()">🎲 自動填入測試資料</button> -->
+                    <button class="preview-btn" onclick="showGamePreview()">預覽比賽</button>
+                    <button class="save-btn" onclick="saveGameData()">保存比賽</button>
+                </div>
+                </div>
+            </div>
+
+            <!-- 新增隊員區塊 -->
+            <div id="playerSection" style="display: none;">
+                <div class="add-player-panel" id="addPlayerPanel">
+                    <div class="add-player-header">
+                        <h2>➕ 新增隊員</h2>
+                    </div>
+                    <div class="add-player-body">
+                        <div class="form-group">
+                            <label for="teamSelect">選擇隊伍</label>
+                            <select id="teamSelect" class="add-player-select" onchange="onTeamSelectChange()">
+                                <option value="">載入中...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPlayerName">新隊員姓名</label>
+                            <input type="text" id="newPlayerName" class="add-player-input" placeholder="輸入姓名..." maxlength="20">
+                        </div>
+                        <div class="add-player-footer">
+                            <button class="add-player-submit" id="addPlayerSubmit" onclick="submitAddPlayer()">送出</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 綁定卡片區塊：見 js/admin-bind-card.js -->
+                <!-- 隊伍名單顯示區塊 (動態更新) -->
+                <div class="team-roster-panel" id="teamRosterPanel" style="display: none;">
+                    <div class="team-roster-header">
+                        <h3 id="rosterTitle">📋 隊伍名單</h3>
+                        <span class="roster-count" id="rosterCount">0 人</span>
+                    </div>
+                    <div class="team-roster-body">
+                        <div class="roster-tags" id="rosterTags">
+                            <!-- 隊員標籤將動態渲染 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 綁定卡片區塊 -->
+            <div id="bindSection" style="display: none;">
+                <div class="add-player-panel">
+                    <div class="add-player-header">
+                        <h2>🎴 綁定 PhoenixDarts 卡片</h2>
+                    </div>
+                    <div class="add-player-body">
+                        <div class="form-group">
+                            <label for="bindTeamSelect">選擇隊伍</label>
+                            <select id="bindTeamSelect" class="add-player-select">
+                                <option value="">載入中...</option>
+                            </select>
+                        </div>
+                        <div class="bind-hint" id="bindHint">
+                            點選隊員後搜尋卡片名稱。<b>綁定後不可修改</b>，已綁定的隊員會變成灰色。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="team-roster-panel" id="bindListPanel" style="display: none;">
+                    <div class="team-roster-header">
+                        <h3>📋 隊員綁定狀態</h3>
+                        <span class="roster-count" id="bindCount">0 / 0</span>
+                    </div>
+                    <div class="team-roster-body">
+                        <div id="bindList"><!-- 隊員列動態渲染 --></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    <!-- 選手選擇彈窗 -->
+    <div class="modal" id="playerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">選擇選手</h3>
+                <p class="modal-subtitle" id="modalSubtitle">SET1 - 501 (OI/MO)</p>
+            </div>
+            <div class="modal-body">
+                <div class="player-list" id="playerList">
+                    <!-- 選手列表將動態生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- 引入外部 JavaScript 模組 -->
+    <script src="../config/config.js?v=20260812_13"></script>
+    <script src="../js/admin-sheets-api.js"></script>
+    <script src="../js/admin-ui.js"></script>
+    <script src="../js/preview_generator.js"></script>
+    <script src="../js/github-api.js"></script>
+    
+    <!-- 主要業務邏輯 -->
+    <script src="../js/admin-main.js"></script>
+    <script src="../js/scoresheet-camera.js"></script>
+    <script src="../js/admin-ocr.js?v=20260909_2"></script>
+    <script src="../js/admin-bind-card.js"></script>
+
+    <!-- 新增隊員功能 -->
+    <script>
+    // ===== 新增隊員功能 =====
+
+    let playerJsonData = null; // 快取的 player.json
+
+    /**
+     * 動態計算當前賽季（CURRENT_SEASON）的加人截止日（最後一場比賽前 1 個月）。
+     */
+    function getAddPlayerCutoffDate() {
+        try {
+            const season = (typeof SEASONS !== 'undefined' && typeof CURRENT_SEASON !== 'undefined')
+                ? SEASONS[CURRENT_SEASON]
+                : null;
+            if (season && season.endDate) {
+                const end = new Date(season.endDate);
+                if (!isNaN(end.getTime())) {
+                    // 往前推算 1 個月
+                    const cutoff = new Date(end);
+                    cutoff.setMonth(cutoff.getMonth() - 1);
+                    return cutoff;
+                }
+            }
+        } catch(e) {}
+        return null;
+    }
+
+    /**
+     * 新增隊員開放狀態判斷：
+     * 1. 賽前籌備期（now < startDate）：全時開放新增隊員（開打前的賽前報名期）。
+     * 2. 賽事最後一個月鎖定（now >= cutoffDate）：由當季最後一場比賽往前動態推算 1 個月鎖定。
+     * 3. 賽程進行期間（startDate <= now < cutoffDate）：每週二（比賽日）、週三（對帳日）暫停，週四至下週一開放。
+     */
+    function isAddPlayerAllowed() {
+        const now = new Date();
+        const season = (typeof SEASONS !== 'undefined' && typeof CURRENT_SEASON !== 'undefined')
+            ? SEASONS[CURRENT_SEASON]
+            : null;
+
+        if (season) {
+            // 1. 開打前籌備期判定：未到開打日 (startDate) 前，全時開放報名
+            if (season.startDate) {
+                const start = new Date(season.startDate);
+                start.setHours(0, 0, 0, 0); // 設為開打日 00:00
+                if (now < start) {
+                    return { allowed: true, phase: 'preSeason' };
+                }
+            }
+
+            // 2. 動態最後一個月截止日判定
+            const cutoffDate = getAddPlayerCutoffDate();
+            if (cutoffDate && now >= cutoffDate) {
+                return { allowed: false, reason: 'cutoff', cutoffDate };
+            }
+        }
+
+        // 3. 賽程進行期間：每週二、三比賽對帳鎖定 (0=日 1=一 2=二 3=三)
+        const day = now.getDay();
+        if (day === 2 || day === 3) {
+            return { allowed: false, reason: 'gameDay' };
+        }
+
+        return { allowed: true, phase: 'inSeason' };
+    }
+
+    /** 切換顯示區塊 */
+    async function showSection(section) {
+        if (section === 'player') {
+            const check = isAddPlayerAllowed();
+            if (!check.allowed) {
+                if (check.reason === 'cutoff') {
+                    const y = check.cutoffDate.getFullYear();
+                    const m = String(check.cutoffDate.getMonth() + 1).padStart(2, '0');
+                    const d = String(check.cutoffDate.getDate()).padStart(2, '0');
+                    alert(`搜哩！\n比賽結束前最後一個月（${y}/${m}/${d} 起）不可以新增隊員，\n報名功能已暫停開放。`);
+                } else {
+                    alert('⛔ 新增隊員功能僅在每週四至下週一開放。\n比賽期間（週二、週三）暫停開放，請於賽後再行新增。');
+                }
+                showSection('match');
+                return;
+            }
+        }
+
+        document.getElementById('matchSection').style.display = (section === 'match') ? 'block' : 'none';
+        document.getElementById('playerSection').style.display = (section === 'player') ? 'block' : 'none';
+        document.getElementById('bindSection').style.display = (section === 'bind') ? 'block' : 'none';
+
+        const btnMatch = document.getElementById('btnMatchSection');
+        const btnAdd = document.getElementById('btnAddPlayer');
+        const btnBind = document.getElementById('btnBindCard');
+        if (btnMatch && btnAdd) {
+            btnMatch.classList.toggle('active', section === 'match');
+            btnAdd.classList.toggle('active', section === 'player');
+        }
+        if (btnBind) btnBind.classList.toggle('active', section === 'bind');
+
+        // 綁定卡片：名單與索引都在 admin-bind-card.js 裡自己載入
+        if (section === 'bind' && typeof initBindCard === 'function') await initBindCard();
+
+        if (section === 'player') {
+            // 載入當前賽季 (CURRENT_SEASON) 的選手名單 (data/player.json)
+            try {
+                const res = await fetch('../data/player.json?_=' + Date.now());
+                playerJsonData = await res.json();
+                
+                // 填入當前賽季隊伍選單 (以 optgroup 主分類區分組別)
+                const sel = document.getElementById('teamSelect');
+                const curSelected = sel.value;
+                sel.innerHTML = '<option value="">請選擇隊伍...</option>';
+
+                // 取得當前賽季資訊（如分組訊息）
+                const curSeasonObj = (typeof SEASONS !== 'undefined' && typeof CURRENT_SEASON !== 'undefined')
+                    ? SEASONS[CURRENT_SEASON]
+                    : null;
+
+                if (curSeasonObj && curSeasonObj.groups) {
+                    const addedTeams = new Set();
+                    for (const [gName, tList] of Object.entries(curSeasonObj.groups)) {
+                        const groupEl = document.createElement('optgroup');
+                        groupEl.label = `--- ${gName} ---`;
+
+                        tList.forEach(team => {
+                            if (playerJsonData[team]) {
+                                const opt = document.createElement('option');
+                                opt.value = team;
+                                opt.textContent = `${team}（${playerJsonData[team].length} 人）`;
+                                groupEl.appendChild(opt);
+                                addedTeams.add(team);
+                            }
+                        });
+
+                        if (groupEl.children.length > 0) {
+                            sel.appendChild(groupEl);
+                        }
+                    }
+
+                    // 處理未在 groups 定義的其他隊伍
+                    const remainingTeams = Object.keys(playerJsonData).filter(t => !addedTeams.has(t));
+                    if (remainingTeams.length > 0) {
+                        const otherGroup = document.createElement('optgroup');
+                        otherGroup.label = '--- 其他隊伍 ---';
+                        remainingTeams.forEach(team => {
+                            const opt = document.createElement('option');
+                            opt.value = team;
+                            opt.textContent = `${team}（${playerJsonData[team].length} 人）`;
+                            otherGroup.appendChild(opt);
+                        });
+                        sel.appendChild(otherGroup);
+                    }
+                } else {
+                    Object.keys(playerJsonData).forEach(team => {
+                        const opt = document.createElement('option');
+                        opt.value = team;
+                        opt.textContent = `${team}（${playerJsonData[team].length} 人）`;
+                        sel.appendChild(opt);
+                    });
+                }
+
+                if (curSelected && playerJsonData[curSelected]) {
+                    sel.value = curSelected;
+                    updateTeamRosterView(curSelected);
+                } else {
+                    updateTeamRosterView(sel.value);
+                }
+            } catch (e) {
+                alert('❌ 無法載入選手資料，請稍後再試。');
+                return;
+            }
+            document.getElementById('newPlayerName').value = '';
+        }
+    }
+
+    /** 當選擇隊伍改變時，動態更新名單列表 */
+    function onTeamSelectChange() {
+        const team = document.getElementById('teamSelect').value;
+        updateTeamRosterView(team);
+    }
+
+    /** 渲染隊伍名單列表 */
+    function updateTeamRosterView(teamName, highlightName = null) {
+        const rosterPanel = document.getElementById('teamRosterPanel');
+        const rosterTitle = document.getElementById('rosterTitle');
+        const rosterCount = document.getElementById('rosterCount');
+        const rosterTags = document.getElementById('rosterTags');
+
+        if (!rosterPanel || !teamName || !playerJsonData || !playerJsonData[teamName]) {
+            if (rosterPanel) rosterPanel.style.display = 'none';
+            return;
+        }
+
+        const members = playerJsonData[teamName] || [];
+        rosterTitle.innerHTML = `📋 <strong>${teamName}</strong>`;
+        rosterCount.textContent = `${members.length} 人`;
+
+        rosterTags.innerHTML = members.map(m => {
+            const isNew = m === highlightName;
+            const newClass = isNew ? 'roster-tag newly-added' : 'roster-tag';
+            const icon = isNew ? '✨ ' : '';
+            return `<span class="${newClass}">${icon}${m}</span>`;
+        }).join('');
+
+        rosterPanel.style.display = 'block';
+    }
+
+    let isSubmittingAddPlayer = false;
+
+    /** 送出新增隊員 */
+    async function submitAddPlayer() {
+        if (isSubmittingAddPlayer) return;
+
+        const team = document.getElementById('teamSelect').value;
+        const name = document.getElementById('newPlayerName').value.trim();
+
+        if (!team) { alert('請先選擇隊伍！'); return; }
+        if (!name) { alert('請輸入姓名！'); return; }
+
+        // 全隊伍重複檢查
+        const allNames = Object.values(playerJsonData).flat();
+        if (allNames.includes(name)) {
+            const existingTeam = Object.entries(playerJsonData).find(([t, members]) => members.includes(name))?.[0];
+            alert(`⚠️ 已有同名隊員「${name}」（所屬：${existingTeam}），請確認姓名後重新輸入。`);
+            document.getElementById('newPlayerName').focus();
+            return;
+        }
+
+        isSubmittingAddPlayer = true;
+        const btn = document.getElementById('addPlayerSubmit');
+        btn.textContent = '送出中...';
+        btn.disabled = true;
+
+        // 更新本地資料
+        playerJsonData[team].push(name);
+        const newJson = JSON.stringify(playerJsonData, null, 2);
+
+        // 透過 GAS 寫回 GitHub
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwJ3xPlfON7pkmeVKzpQImQhnlzpMz6Fn4Z1E7PwXVBZBvlncA7VCQ3tITyq9x8puAu/exec';
+
+        try {
+            // 發送 POST 至 GAS (使用 mode: 'no-cors' 徹底消除 Google echo 302/404 代理伺服器的 Console 警告)
+            await fetch(GAS_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({
+                    action: 'uploadToGitHub',
+                    filePath: 'data/player.json',
+                    content: newJson,
+                    commitMessage: `➕ 新增選手 ${name} 至 ${team}`,
+                    teamName: team,
+                    playerName: name
+                })
+            });
+
+            // 寫入成功提示與畫面更新
+            alert(`✅ 成功將「${name}」加入「${team}」！`);
+            document.getElementById('newPlayerName').value = '';
+
+            // 更新下拉選單隊伍選項的人數顯示
+            const sel = document.getElementById('teamSelect');
+            const selectedOpt = sel.options[sel.selectedIndex];
+            if (selectedOpt && playerJsonData[team]) {
+                selectedOpt.textContent = `${team}（${playerJsonData[team].length} 人）`;
+            }
+
+            // 即時動態更新下方名單，並醒目標示剛新增的隊員！
+            updateTeamRosterView(team, name);
+        } catch (e) {
+            console.error('GAS POST Error:', e);
+            alert(`❌ 網路錯誤，請稍後再試。`);
+            playerJsonData[team].pop();
+        } finally {
+            btn.textContent = '送出';
+            btn.disabled = false;
+            isSubmittingAddPlayer = false;
+        }
+    }
+
+    /** 登入後更新按鈕狀態 */
+    document.addEventListener('DOMContentLoaded', function() {
+        const dashboard = document.getElementById('adminDashboard');
+        if (!dashboard) return;
+        const observer = new MutationObserver(() => {
+            updateAddPlayerBtn();
+        });
+        observer.observe(dashboard, { attributes: true, attributeFilter: ['style'] });
+    });
+
+    function updateAddPlayerBtn() {
+        const btn = document.getElementById('btnAddPlayer');
+        if (!btn) return;
+        const check = isAddPlayerAllowed();
+        if (!check.allowed) {
+            btn.classList.add('fn-btn-disabled');
+            if (check.reason === 'cutoff') {
+                const y = check.cutoffDate.getFullYear();
+                const m = String(check.cutoffDate.getMonth() + 1).padStart(2, '0');
+                const d = String(check.cutoffDate.getDate()).padStart(2, '0');
+                btn.title = `⛔ 賽季最後一個月（${y}/${m}/${d} 起）暫停新增隊員`;
+            } else {
+                btn.title = '⛔ 比賽期間（週二、週三）暫停開放';
+            }
+        } else {
+            btn.classList.remove('fn-btn-disabled');
+            btn.title = '新增隊員 (開放中)';
+        }
+    }
+    updateAddPlayerBtn(); // 初始執行
+    </script>
+</body>
+</html> 

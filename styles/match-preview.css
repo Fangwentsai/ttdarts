@@ -1,0 +1,395 @@
+/* ========== Match Preview Modal ========== */
+
+.match-preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10002;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.match-preview-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.match-preview-card {
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 860px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    transform: translateY(30px);
+    transition: transform 0.3s ease;
+}
+
+.match-preview-overlay.visible .match-preview-card {
+    transform: translateY(0);
+}
+
+/* Header */
+.mp-header {
+    background: #dc3545;
+    color: #fff;
+    padding: 10px 12px;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.mp-header .mp-close {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    z-index: 10;
+}
+
+.mp-header .mp-close:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.mp-vs-row {
+    position: relative;
+    width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+}
+
+.mp-team-box {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.mp-team-box.team1 {
+    left: 6px;
+    right: calc(50% + 32px);
+    padding: 0 4px;
+}
+
+.mp-team-box.team2 {
+    left: calc(50% + 32px);
+    right: 6px;
+    padding: 0 4px;
+}
+
+.mp-team-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.2;
+    word-break: break-word;
+    text-align: center;
+    margin: 0;
+}
+
+.mp-vs-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    pointer-events: none;
+    z-index: 2;
+    text-align: center;
+    white-space: nowrap;
+    width: 64px;
+}
+
+.mp-preview-label {
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.mp-vs-badge {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 1px;
+}
+
+.mp-loading-hint {
+    margin-top: 8px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Body: two columns */
+.mp-body {
+    display: flex;
+    gap: 0;
+    min-height: 200px;
+}
+
+.mp-team-section {
+    flex: 1;
+    padding: 12px;
+    overflow-x: auto;
+}
+
+.mp-team-section:first-child {
+    border-right: 1px solid #eee;
+}
+
+.mp-col-header {
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #eee;
+}
+
+.mp-col-header.away {
+    color: #e74c3c;
+    border-bottom-color: #e74c3c;
+}
+
+.mp-col-header.home {
+    color: #3498db;
+    border-bottom-color: #3498db;
+}
+
+/* Table */
+.mp-table-wrap {
+    overflow-x: auto;
+}
+
+.mp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.mp-table thead th {
+    background: #f8f8f8;
+    padding: 6px 8px;
+    text-align: center;
+    font-weight: 600;
+    color: #666;
+    font-size: 12px;
+    border-bottom: 1px solid #ddd;
+    white-space: nowrap;
+}
+
+.mp-table thead th:first-child {
+    text-align: left;
+}
+
+.mp-table tbody td {
+    padding: 7px 8px;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+    white-space: nowrap;
+}
+
+.mp-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.mp-td-name {
+    text-align: left !important;
+    font-weight: 700;
+    color: #333;
+    white-space: nowrap;
+}
+
+/* 選手姓名點擊連結：點下去開啟 player.html 顯示跨屆生涯成績 */
+.mp-td-name .player-link {
+    color: inherit;
+    cursor: pointer;
+}
+
+.mp-td-name .player-link:active {
+    opacity: 0.7;
+}
+
+/* PhoenixDarts 等級圖示。
+   圖片已由 scripts/phoenix_icons.js 正規化成同一個畫布（117x44，內容靠左），
+   所以這裡只要指定高度，每個圖的框與字體大小就都一致，姓名也自然對齊。
+   沒有等級的人補一個等寬空位，否則那一欄的姓名會左右參差。
+
+   ⚠️ 不要改成 object-fit:contain 配固定寬度——正規化之前試過，
+   長徽章（GRAND MASTER 30）會被縮到只剩 12px 高，短的（N1）卻有 19px。 */
+.mp-lv,
+.mp-lv-blank {
+    display: inline-block;
+    width: 45px;
+    margin-right: 5px;
+    flex-shrink: 0;
+}
+
+.mp-lv {
+    height: 17px;
+    vertical-align: -4px;
+}
+
+.mp-tr-inactive td {
+    color: #ccc !important;
+}
+
+/* 被凍結、不得再上場的選手：整列從頭到尾劃一條淺紅線。
+   用絕對定位的 ::after，不是對每個 td 下 line-through ——
+   後者會被儲存格間距切成一段一段，連不成一條。
+   字色一律不動：沒出賽的人已經是灰字（.mp-tr-inactive），
+   凍結的人再轉灰或降透明度，會看起來像從沒上場過。 */
+tr.mp-frozen {
+    position: relative;
+}
+
+tr.mp-frozen::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1.5px;
+    background: rgba(250, 54, 58, 0.65);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+/* Loading spinner */
+.mp-body-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 40px 20px;
+    color: #999;
+}
+
+.mp-body-loading .mp-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #eee;
+    border-top: 3px solid #dc3545;
+    border-radius: 50%;
+    animation: mp-spin 0.8s linear infinite;
+    margin-bottom: 12px;
+}
+
+@keyframes mp-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Footer */
+.mp-footer {
+    background: #f8f9fa;
+    padding: 10px 20px;
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    border-top: 1px solid #eee;
+}
+
+/* Preview match: keep existing card look, just make it clickable */
+.preview-match {
+    cursor: pointer;
+}
+
+.preview-match:hover {
+    opacity: 0.85;
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 600px) {
+    .match-preview-overlay {
+        padding: 8px;
+    }
+
+    .mp-header {
+        padding: 10px 8px;
+    }
+
+    .mp-vs-row {
+        min-height: 42px;
+    }
+
+    .mp-team-title {
+        font-size: 13.5px;
+    }
+
+    .mp-team-box.team1 {
+        left: 4px;
+        right: calc(50% + 28px);
+        padding: 0 2px;
+    }
+
+    .mp-team-box.team2 {
+        left: calc(50% + 28px);
+        right: 4px;
+        padding: 0 2px;
+    }
+
+    .mp-vs-center {
+        width: 54px;
+    }
+
+    .mp-preview-label {
+        font-size: 9px;
+        letter-spacing: 1px;
+    }
+
+    .mp-vs-badge {
+        font-size: 12px;
+        letter-spacing: 1px;
+    }
+
+    .mp-body {
+        flex-direction: column;
+    }
+
+    .mp-team-section:first-child {
+        border-right: none;
+        border-bottom: 1px solid #eee;
+    }
+
+    .mp-team-section {
+        padding: 10px 8px;
+    }
+
+    .mp-table {
+        font-size: 12px;
+    }
+
+    .mp-table thead th,
+    .mp-table tbody td {
+        padding: 5px 4px;
+    }
+}

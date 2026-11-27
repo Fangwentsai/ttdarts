@@ -1,0 +1,287 @@
+// match-preview.js — 比賽名單預覽模組
+// 點擊未打比賽 → 彈出兩隊名單 + 個人本季戰績（表格呈現）
+
+(function () {
+    'use strict';
+
+    // ========== 快取 ==========
+    let _personalStatsCache = null;
+    let _playerJsonCache = null;
+    let _fetchingStats = false;
+
+    // ========== Config ==========
+    const PERSONAL_RANGE = 'personal!A:N';
+
+    function seasonSheet() {
+        try {
+            const seasonNum = (typeof resolveSeasonNumber === 'function')
+                ? resolveSeasonNumber({})
+                : (typeof CURRENT_SEASON !== 'undefined' ? CURRENT_SEASON : 7);
+            const s = (typeof SEASONS !== 'undefined' && SEASONS[seasonNum]) ? SEASONS[seasonNum] : null;
+            const fallbackKey = (typeof DEFAULT_API_KEY !== 'undefined') ? DEFAULT_API_KEY : undefined;
+            if (s && s.sheetId) return { id: s.sheetId, key: s.apiKey || fallbackKey, label: s.label || '第七屆' };
+        } catch (e) { /* fallback */ }
+        return {
+            id: '1APUuzy6Dcbi1sWGUVvrbrluEvKsktRvPYygASofekKQ',
+            key: (typeof DEFAULT_API_KEY !== 'undefined') ? DEFAULT_API_KEY : undefined,
+            label: '第七屆'
+        };
+    }
+
+    // ========== 建立 Modal DOM ==========
+    function ensureModalDom() {
+        if (document.getElementById('matchPreviewOverlay')) return;
+        const overlay = document.createElement('div');
+        overlay.id = 'matchPreviewOverlay';
+        overlay.className = 'match-preview-overlay';
+        overlay.innerHTML = `<div class="match-preview-card" id="matchPreviewCard"></div>`;
+        document.body.appendChild(overlay);
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) closeMatchPreview();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeMatchPreview();
+        });
+    }
+
+    // ========== 載入 CSS ==========
+    function ensureCss() {
+        if (document.getElementById('match-preview-css')) return;
+        const link = document.createElement('link');
+        link.id = 'match-preview-css';
+        link.rel = 'stylesheet';
+        const isInPages = window.location.pathname.includes('/pages/');
+        link.href = isInPages ? '../styles/match-preview.css' : 'styles/match-preview.css';
+        document.head.appendChild(link);
+    }
+
+    // ========== PhoenixDarts 等級 ==========
+    //
+    // 由 scripts/phoenix_fetch.js 定期抓下來寫成 data/phoenix_ratings.json，
+    // 前端只讀那份靜態檔——瀏覽器直接打 phoenixdarts.com 會被 CORS 擋。
+    // 檔案不存在或某人還沒對照卡片名稱時就不顯示圖示，不影響原本的名單。
+    let _ratingsCache = null;
+
+    async function fetchRatings() {
+        if (_ratingsCache) return _ratingsCache;
+        const base = window.location.pathname.includes('/pages/') ? '../' : '';
+        try {
+            const resp = await fetch(base + 'data/phoenix_ratings.json');
+            _ratingsCache = resp.ok ? await resp.json() : { teams: {} };
+        } catch (err) {
+            _ratingsCache = { teams: {} };   // 沒抓過就當作沒有，不要讓預覽整個掛掉
+        }
+        return _ratingsCache;
+    }
+
+    function levelIcon(ratings, teamName, playerName) {
+        const r = ratings && ratings.teams && ratings.teams[teamName] && ratings.teams[teamName][playerName];
+        // 沒有等級的人補一個等寬空位，否則同一欄的姓名會左右參差
+        if (!r || !r.level) return '<span class="mp-lv-blank"></span>';
+        const base = window.location.pathname.includes('/pages/') ? '../' : '';
+        // title 帶上卡片名稱與 rating，滑過去才知道這個等級是誰、怎麼來的。
+        // 有些人的 PhoenixDarts 個人檔案不公開，抓不到 PPD／MPR（見
+        // scripts/phoenix_fetch.js 的 profileHidden），那就不要顯示那兩項——
+        // 印成 0 會被誤讀成「這個人 PPD 是 0」。
+        const detail = (r.ppd && r.mpr) ? `　PPD ${r.ppd}　MPR ${r.mpr}` : '';
+        return `<img class="mp-lv" src="${base}images/rating30/${r.level}.webp" alt="Lv${r.level}" title="${r.card}　rating ${r.webrate}${detail}" loading="lazy">`;
+    }
+
+    // ========== 撈取 player.json ==========
+    async function fetchPlayerJson() {
+        if (_playerJsonCache) return _playerJsonCache;
+        const isInPages = window.location.pathname.includes('/pages/');
+        const basePath = isInPages ? '../data/player.json' : 'data/player.json';
+        try {
+            const resp = await fetch(basePath);
+            _playerJsonCache = await resp.json();
+            return _playerJsonCache;
+        } catch (err) {
+            console.error('❌ 讀取 player.json 失敗:', err);
+            return {};
+        }
+    }
+
+    // ========== 撈取 Google Sheets personal 工作表 ==========
+    async function fetchPersonalStats() {
+        if (_personalStatsCache) return _personalStatsCache;
+        if (_fetchingStats) {
+            while (_fetchingStats) await new Promise(r => setTimeout(r, 100));
+            return _personalStatsCache;
+        }
+        _fetchingStats = true;
+        try {
+            const sheet = seasonSheet();
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheet.id}/values/${PERSONAL_RANGE}?key=${sheet.key}`;
+            console.log('📊 正在撈取 personal 工作表...');
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error(`API 錯誤: ${resp.status}`);
+            const json = await resp.json();
+            const rows = json.values || [];
+            if (rows.length < 2) throw new Error('personal 工作表無資料');
+
+            const cache = {};
+            for (let i = 1; i < rows.length; i++) {
+                const row = rows[i];
+                if (!row || row.length < 2) continue;
+                const team = (row[0] || '').trim();
+                const name = (row[1] || '').trim();
+                if (!team || !name) continue;
+                const key = `${team}_${name}`.toLowerCase();
+                cache[key] = {
+                    team, name,
+                    wins01: row[2] || '0',
+                    winRate01: row[3] || '0%',
+                    winsCR: row[4] || '0',
+                    winRateCR: row[5] || '0%',
+                    totalWins: row[6] || '0',
+                    totalWinRate: row[7] || '0%',
+                    firstAttackRate: row[8] || 'DNP',
+                    games01: row[9] || '0',
+                    gamesCR: row[10] || '0',
+                    firstAttacks: row[11] || '0',
+                    totalGames: row[12] || '0',
+                    gender: row[13] || ''
+                };
+            }
+            _personalStatsCache = cache;
+            console.log(`✅ personal 資料已載入，共 ${Object.keys(cache).length} 筆`);
+            return cache;
+        } catch (err) {
+            console.error('❌ 撈取 personal 失敗:', err);
+            return {};
+        } finally {
+            _fetchingStats = false;
+        }
+    }
+
+    // ========== 生成隊伍表格 ==========
+    function renderTeamTable(teamName, playerList, statsMap, cssClass, ratings) {
+        // 本屆被凍結、不得再上場的選手（config.js 的 SEASONS[N].frozenPlayers）。
+        // 名字照常列出、既有戰績照常顯示，只是姓名畫刪除線。
+        const frozen = (function () {
+            try {
+                return (SEASONS[CURRENT_SEASON].frozenPlayers || {})[teamName] || [];
+            } catch (e) {
+                return [];
+            }
+        })();
+        // 標在 <tr> 上，CSS 用一條絕對定位的線橫跨整列。
+        // 不用對每個 td 下 line-through —— 那樣會被儲存格間距切成一段一段。
+        const frozenCls = n => (frozen.indexOf(n) !== -1 ? ' mp-frozen' : '');
+        const nameHtml = (display) =>
+            (typeof playerLinkHtml === 'function' ? playerLinkHtml(display, teamName) : display);
+
+        // 按總勝場數降序排列
+        const sorted = [...playerList].sort((a, b) => {
+            const sa = statsMap[`${teamName}_${a}`.toLowerCase()];
+            const sb = statsMap[`${teamName}_${b}`.toLowerCase()];
+            const wa = sa ? parseInt(sa.totalWins) || 0 : 0;
+            const wb = sb ? parseInt(sb.totalWins) || 0 : 0;
+            const ga = sa ? parseInt(sa.totalGames) || 0 : 0;
+            const gb = sb ? parseInt(sb.totalGames) || 0 : 0;
+            if (ga > 0 && gb === 0) return -1;
+            if (gb > 0 && ga === 0) return 1;
+            return wb - wa;
+        });
+
+        let rows = '';
+        for (const name of sorted) {
+            const s = statsMap[`${teamName}_${name}`.toLowerCase()];
+            if (s && parseInt(s.totalGames) > 0) {
+                const rate = parseFloat((s.totalWinRate || '0').replace('%', ''));
+                const rateColor = rate >= 60 ? '#28a745' : rate >= 40 ? '#333' : '#999';
+                rows += `<tr class="${frozenCls(name).trim()}">
+                    <td class="mp-td-name">${levelIcon(ratings, teamName, name)}${nameHtml(s.name)}</td>
+                    <td>${s.totalWins}/${s.totalGames}</td>
+                    <td style="color:${rateColor};font-weight:600">${s.totalWinRate}</td>
+                    <td>${s.winRate01}</td>
+                    <td>${s.winRateCR}</td>
+                </tr>`;
+            } else {
+                rows += `<tr class="mp-tr-inactive${frozenCls(name)}">
+                    <td class="mp-td-name">${levelIcon(ratings, teamName, name)}${nameHtml(name)}</td>
+                    <td>-</td><td>-</td><td>-</td><td>-</td>
+                </tr>`;
+            }
+        }
+
+        return `<div class="mp-team-section">
+            <div class="mp-col-header ${cssClass}">${teamName}</div>
+            <div class="mp-table-wrap">
+                <table class="mp-table">
+                    <thead><tr>
+                        <th>姓名</th><th>勝/場</th><th>勝率</th><th>01%</th><th>CR%</th>
+                    </tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+        </div>`;
+    }
+
+    // ========== 主要函數：開啟預覽 ==========
+    window.openMatchPreview = async function (team1, team2) {
+        console.log(`🔍 開啟比賽預覽: ${team1} vs ${team2}`);
+        ensureCss();
+        ensureModalDom();
+
+        const card = document.getElementById('matchPreviewCard');
+        const overlay = document.getElementById('matchPreviewOverlay');
+
+        // 載入中狀態
+        card.innerHTML = `
+            <div class="mp-header">
+                <button class="mp-close" onclick="closeMatchPreview()">✕</button>
+                <div class="mp-vs-row">
+                    <div class="mp-team-box team1"><span class="mp-team-title">${team1}</span></div>
+                    <div class="mp-vs-center"><span class="mp-preview-label">PREVIEW</span><span class="mp-vs-badge">VS</span></div>
+                    <div class="mp-team-box team2"><span class="mp-team-title">${team2}</span></div>
+                </div>
+                <div class="mp-loading-hint">正在載入個人戰績...</div>
+            </div>
+            <div class="mp-body">
+                <div class="mp-body-loading">
+                    <div class="mp-spinner"></div>
+                    <span>撈取資料中...</span>
+                </div>
+            </div>`;
+
+        overlay.classList.add('visible');
+        document.body.style.overflow = 'hidden';
+
+        const [players, statsMap, ratings] = await Promise.all([
+            fetchPlayerJson(),
+            fetchPersonalStats(),
+            fetchRatings()
+        ]);
+
+        const team1Players = players[team1] || [];
+        const team2Players = players[team2] || [];
+        const sheet = seasonSheet();
+
+        card.innerHTML = `
+            <div class="mp-header">
+                <button class="mp-close" onclick="closeMatchPreview()">✕</button>
+                <div class="mp-vs-row">
+                    <div class="mp-team-box team1"><span class="mp-team-title">${team1}</span></div>
+                    <div class="mp-vs-center"><span class="mp-preview-label">PREVIEW</span><span class="mp-vs-badge">VS</span></div>
+                    <div class="mp-team-box team2"><span class="mp-team-title">${team2}</span></div>
+                </div>
+            </div>
+            <div class="mp-body">
+                ${renderTeamTable(team1, team1Players, statsMap, 'away', ratings)}
+                ${renderTeamTable(team2, team2Players, statsMap, 'home', ratings)}
+            </div>
+            <div class="mp-footer">
+                📊 個人戰績來自${sheet.label} Google Sheets，即時更新
+            </div>`;
+    };
+
+    // ========== 關閉預覽 ==========
+    window.closeMatchPreview = function () {
+        const overlay = document.getElementById('matchPreviewOverlay');
+        if (overlay) overlay.classList.remove('visible');
+        document.body.style.overflow = '';
+    };
+
+})();

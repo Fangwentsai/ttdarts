@@ -1,0 +1,30 @@
+# Vercel
+.vercel
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.env*.local
+
+# Google 服務帳號／OAuth 憑證（含私鑰，絕對不能提交）
+credentials.json
+client_secret*.json
+service-account*.json
+*-credentials.json
+*.pem
+.claude/
+
+# Google OAuth token（本機授權用，絕對不要進版控）
+.google_token.json

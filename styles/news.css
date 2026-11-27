@@ -1,0 +1,1154 @@
+/* 基本樣式 */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #fff;
+    /* 優化渲染性能 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.news-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    /* 已移除 contain: layout 避免影響 sticky 定位 */
+}
+
+.upcoming-matches {
+    background-color: #ffffff;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 新聞頁面專用的紅色背景標題 */
+.news-section .section-title,
+.ranking-section .section-title,
+.ranking-section h2 {
+    font-size: 22px;
+    margin-bottom: 5px;
+    color: white;
+    background-color: #dc3545;
+    padding: 6px 16px;
+    border-radius: 4px;
+    margin-top: 0;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Top Lady 專用的粉紅色背景標題 */
+.ranking-section h3.section-title {
+    font-size: 22px;
+    margin-bottom: 5px;
+    color: white;
+    background-color: #F33994 !important;
+    padding: 6px 16px;
+    border-radius: 4px;
+    margin-top: 20px;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 比賽區塊專用的紅色背景標題 */
+.matches-section .section-title {
+    font-size: 22px;
+    margin-bottom: 5px;
+    color: white;
+    background-color: #dc3545;
+    padding: 6px 16px;
+    border-radius: 4px;
+    margin-top: 0;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 日期樣式 */
+.match-date {
+    text-align: center;
+    margin: 20px 0 10px 0;
+    padding: 5px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+
+/* 比賽列表容器 */
+.matches-container {
+    margin: 10px 0;
+}
+
+/* 比賽項目基本樣式 */
+.match-item {
+    background-color: #f8f8f8;
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    /* CSS Containment 優化 */
+    contain: layout style paint;
+    /* GPU 加速 */
+    will-change: transform;
+}
+
+.match-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.match-item:nth-child(even) {
+    background-color: #ffffff;
+}
+
+/* 比賽代碼樣式 */
+.game-code {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* 場地文字樣式 */
+.venue-text {
+    font-size: 11px;
+    color: #666;
+    text-align: right;
+    margin-top: 5px;
+}
+
+/* 表格布局 */
+.match-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+/* 隊伍列樣式 */
+.team-col {
+    width: 45%;
+    padding: 0 5px;
+    vertical-align: middle;
+}
+
+.team-left {
+    text-align: right;
+}
+
+.team-right {
+    text-align: left;
+}
+
+/* VS列樣式 */
+.vs-col {
+    width: 10%;
+    text-align: center;
+    font-weight: bold;
+    color: #e84855;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+/* 隊伍名稱樣式 */
+.team-col .team-name {
+    font-size: clamp(10.5px, 3.2vw, 14px);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    transition: color 0.2s ease;
+    letter-spacing: -0.2px;
+}
+
+.match-item:hover .team-col .team-name {
+    color: #dc3545;
+}
+
+/* 分數樣式 */
+.team-col .score {
+    font-weight: bold;
+    font-size: 16px;
+    color: #e84855;
+    line-height: 1.1;
+}
+
+/* 左右對齊 */
+.team-left .team-name,
+.team-left .score {
+    text-align: right;
+    padding-right: 2px;
+}
+
+.team-right .team-name,
+.team-right .score {
+    text-align: left;
+    padding-left: 2px;
+}
+
+/* ===== 響應式布局 ===== */
+
+/* 一般小螢幕裝置 */
+@media screen and (max-width: 480px) {
+    .match-item {
+        padding: 6px 8px;
+    }
+    
+    .team-col .team-name {
+        font-size: 12.5px;
+        letter-spacing: -0.3px;
+    }
+    
+    .team-col .score {
+        font-size: 15px;
+    }
+    
+    .vs-col {
+        font-size: 12px;
+    }
+    
+    .match-date {
+        font-size: 15px;
+        margin: 15px 0 8px 0;
+    }
+}
+
+/* iPhone 14 Pro Max (430px) */
+@media screen and (min-width: 415px) and (max-width: 430px) {
+    .match-item {
+        padding: 6px 5px;
+    }
+    
+    .team-col {
+        width: 46%;
+        padding: 0;
+    }
+    
+    .vs-col {
+        width: 8%;
+        font-size: 11px;
+        padding: 0;
+    }
+    
+    .team-col .team-name {
+        font-size: 12px;
+        letter-spacing: -0.3px;
+    }
+    
+    .team-left .team-name,
+    .team-left .score {
+        padding-right: 0;
+    }
+    
+    .team-right .team-name,
+    .team-right .score {
+        padding-left: 0;
+    }
+    
+    .venue-text {
+        font-size: 9px;
+    }
+    
+    .game-code {
+        font-size: 10px;
+        margin-bottom: 3px;
+    }
+}
+
+/* iPhone 12/13 (390px) */
+@media screen and (min-width: 376px) and (max-width: 414px) {
+    .match-item {
+        padding: 6px 6px;
+    }
+    
+    .team-col {
+        width: 46%;
+        padding: 0 2px;
+    }
+    
+    .vs-col {
+        width: 8%;
+        font-size: 10px;
+        padding: 0;
+    }
+    
+    .team-col .team-name {
+        font-size: 11.5px;
+        letter-spacing: -0.4px;
+    }
+    
+    .team-col .score {
+        font-size: 15px;
+    }
+    
+    .upcoming-matches {
+        padding: 15px;
+    }
+    
+    .news-section .section-title,
+    .ranking-section .section-title,
+    .ranking-section h2,
+    .matches-section .section-title {
+        font-size: 18px;
+        padding: 5px 14px;
+    }
+}
+
+/* iPhone SE/小螢幕設備(375px) */
+@media screen and (max-width: 375px) {
+    /* 排行榜表格的窄screen尺寸移到檔案後段的「排行榜表格」區塊統一管理——
+       原本寫在這裡的 font-size/padding 是無效的：底下 .ranking-table th,td
+       的基準規則出現在更後面、選擇器權重又相同，永遠會蓋過這裡。 */
+    .match-item {
+        padding: 5px 5px;
+    }
+    
+    .team-col {
+        padding: 0 1px;
+    }
+    
+    .vs-col {
+        font-size: 10px;
+        padding: 0;
+    }
+    
+    .team-col .team-name {
+        font-size: 11px;
+        letter-spacing: -0.5px;
+    }
+    
+    .team-col .score {
+        font-size: 14px;
+    }
+    
+    .match-date {
+        font-size: 15px;
+    }
+}
+
+/* 超小螢幕設備(320px) */
+@media screen and (max-width: 320px) {
+    .team-col .team-name {
+        font-size: 10px;
+        letter-spacing: -0.5px;
+    }
+    
+    .team-col .score {
+        font-size: 13px;
+    }
+    
+    .vs-col {
+        font-size: 9px;
+    }
+}
+
+/* ===== 其他樣式 ===== */
+
+/* 新聞內容相關樣式 */
+.news-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
+}
+
+.news-item {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.news-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.news-date {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+.news-title {
+    color: #333;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.news-text {
+    color: #444;
+    line-height: 1.6;
+}
+
+.news-image {
+    max-width: 100%;
+    height: auto;
+    margin: 15px 0;
+    display: block;
+}
+
+/* 排行榜相關樣式 */
+.rankings {
+    display: block;
+    margin-bottom: 18px;
+}
+
+.ranking-section {
+    background-color: #fff;
+    padding: 2px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+}
+
+.ranking-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.ranking-table th,
+.ranking-table td {
+    padding: 6px 4px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+.ranking-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.ranking-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* 姓名欄位粗體 */
+.ranking-table td:nth-child(2) {
+    font-weight: bold;
+}
+
+/* 排行榜姓名點擊連結：點下去開啟 player.html 顯示跨屆生涯成績 */
+.player-link {
+    color: inherit;
+    cursor: pointer;
+}
+
+.player-link:active {
+    opacity: 0.7;
+}
+
+/* ===== 排行榜表格的欄寬 =====
+ *
+ * 欄寬不能讓瀏覽器均分。四欄裡只有隊名是長的：
+ *
+ *   組別    掉鏢／靶外                2 個全形字（腳本寫入時已截短，見下）
+ *   隊名    Tonight29恭喜隊          12 字（9 半形 + 3 全形）
+ *   姓名    Lucas／kelvin刺           最多 4 全形或 6 半形
+ *   勝場數  112　先攻機率 21.43%      3 位數或 6 個半形字
+ *
+ * 均分時每欄各拿 25%，隊名要 117px 卻只分到約 65px，其他三欄則多出一倍空間。
+ * 這些格子又都是 white-space:nowrap，擠不下不會換行而是把整個表格撐寬——
+ * 實測 320px 的手機上表格寬 267px、容器只有 260px，右邊直接被切掉。
+ *
+ * 改用 table-layout:fixed 並指定百分比，把空間讓給隊名。隊名欄額外允許斷行，
+ * 是最後一道保險：日後出現比 Tonight29恭喜隊 更長的隊名時會折成兩行，
+ * 而不是又把表格撐爆。
+ */
+.ranking-table {
+    table-layout: fixed;
+}
+
+/* 個人榜（組別／隊名／姓名／勝場數或先攻機率）
+ *
+ * 這組百分比是量出來的，不是估的。以最窄的 320px 手機（表格 256px、
+ * 每格左右內距各 2px）為基準，四欄最長內容分別需要 26 / 103 / 46 / 44px，
+ * 下面的配比讓每欄都剩下 4~6px 餘裕——餘裕要平均分配，才不會有哪一欄
+ * 先被換了字型或多一個字就爆掉。
+ *
+ * 組別欄裡的「掉鏢」是腳本寫入時就截好的兩字版（見 scripts/weekly_update.js
+ * 的 groupLabelOf）。若改回寫完整組名「掉鏢組」，這裡要加到 18%，
+ * 而且 320px 上只剩 3px 餘裕。
+ */
+.ranking-table:not([data-league]) th:nth-child(1),
+.ranking-table:not([data-league]) td:nth-child(1) { width: 14%; }
+.ranking-table:not([data-league]) th:nth-child(2),
+.ranking-table:not([data-league]) td:nth-child(2) { width: 44%; }
+.ranking-table:not([data-league]) th:nth-child(3),
+.ranking-table:not([data-league]) td:nth-child(3) { width: 21%; }
+.ranking-table:not([data-league]) th:nth-child(4),
+.ranking-table:not([data-league]) td:nth-child(4) { width: 21%; }
+
+/* 團隊總分排行（排名／隊名／總分） */
+.ranking-table[data-league] th:nth-child(1),
+.ranking-table[data-league] td:nth-child(1) { width: 20%; }
+.ranking-table[data-league] th:nth-child(2),
+.ranking-table[data-league] td:nth-child(2) { width: 55%; }
+.ranking-table[data-league] th:nth-child(3),
+.ranking-table[data-league] td:nth-child(3) { width: 25%; }
+
+/* 隊名欄：唯一允許折行的一欄。break-word 只在單詞本身塞不下時才斷，
+   中文照常逐字折，Tonight29 這種英數不會被硬拆在中間。 */
+.ranking-table td:nth-child(2) {
+    white-space: normal;
+    word-break: break-word;
+}
+
+/* 表頭字比內容小，但「先攻機率」四個字仍可能比欄寬長，允許折成兩行 */
+.ranking-table th {
+    white-space: normal;
+}
+
+/* 窄螢幕：字級與左右內距一起縮，讓最長的隊名維持單行。
+   實測 320px 容器 260px 時，隊名欄 42% ≈ 109px，
+   而 Tonight29恭喜隊 在 13px 下約需 105px。 */
+@media screen and (max-width: 375px) {
+    .ranking-table th,
+    .ranking-table td {
+        font-size: 13px;
+        padding: 6px 2px;
+    }
+    .ranking-table th {
+        font-size: 11px;
+    }
+}
+
+/* 三個排行榜並排。
+ *
+ * 門檻從 480px 提高到 900px：.rankings 底下是三個 ranking-section，並排後
+ * 每欄只有內容區的三分之一。480px 的螢幕分下來一欄僅 138px，四欄表格連
+ * 「掉鏢」兩個字都放不下，實測整排格子都溢出。900px 以下維持單欄、
+ * 用整個內容寬度放表格，讀起來也比擠成三欄清楚。
+ */
+@media screen and (min-width: 900px) {
+    .rankings {
+        display: flex;
+        justify-content: space-between;
+        gap: 3px;
+    }
+
+    .ranking-section {
+        flex: 1;
+        margin-bottom: 0;
+    }
+
+    /* 並排後每欄約 265px，和 320px 手機上的可用寬度差不多，
+       所以字級跟著縮到與窄螢幕相同，最長的隊名才留得住單行 */
+    .ranking-table th,
+    .ranking-table td {
+        font-size: 13px;
+        padding: 6px 2px;
+    }
+    .ranking-table th {
+        font-size: 11px;
+    }
+}
+
+/* 通知相關樣式 */
+.toast {
+    position: fixed;
+    left: 50%;
+    top: 65%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background-color: rgba(250, 137, 147, 0.721);
+    color: #333;
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+/* 點擊相關樣式 */
+.match-item.clickable {
+    cursor: pointer;
+}
+
+.view-result {
+    font-size: 14px;
+    color: #fa363a;
+    font-weight: bold;
+}
+
+/* 店家資訊相關樣式 */
+.venue-info {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.venue-list {
+    display: grid;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.venue-item {
+    padding: 12px;
+    background-color: #f8f8f8;
+    border-radius: 6px;
+    border-left: 4px solid #fa363a;
+}
+
+.venue-item h3 {
+    font-size: 0.95em;
+    margin: 0 0 5px 0;
+}
+
+.venue-teams {
+    font-size: 0.85em;
+    font-weight: normal;
+}
+
+.venue-item p {
+    margin: 5px 0;
+    color: #444;
+}
+
+/* 地址行樣式 */
+.address-line {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0;
+    color: #444;
+}
+
+/* 地圖圖標樣式 */
+.map-icon {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.map-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.map-link:hover .map-icon {
+    opacity: 0.8;
+}
+
+/* 內容容器 */
+.matches-content {
+    text-align: center;
+}
+
+.matches-content .match-item {
+    margin: 6px 0;
+}
+
+/* ==================== 新聞區塊樣式 ==================== */
+
+/* 新聞區塊與其他區塊保持一致的間距 */
+.news-section {
+    margin-bottom: 5px;
+}
+
+/* 新聞內容區域，限制間距 */
+.news-content {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    margin-top: 5px;
+}
+
+/* 新聞頁面容器優化 */
+.news-container {
+    min-height: auto !important;
+    /* margin-bottom: 20px !important; */
+    padding-bottom: 20px !important;
+}
+
+/* 新聞展開/收起功能 */
+.news-expand-section {
+    display: none;
+}
+
+.news-expand-section.show-all {
+    display: block;
+}
+
+.expand-toggle {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.expand-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 5px 8px;
+    border-radius: 3px;
+    transition: background-color 0.3s ease;
+}
+
+.expand-btn:hover {
+    background-color: #f8f9fa;
+}
+
+/* 確保新聞頁面沒有多餘的底部空間 */
+body.news-page {
+    padding-bottom: 10px !important;
+}
+
+/* 針對新聞頁面進一步優化間距 */
+.news-section .section-title {
+    margin-bottom: 3px;
+    margin-top: 0;
+}
+
+/* 新聞頁面內容區域優化 */
+#content {
+    margin-top: 10px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+/* ==================== 折疊功能樣式 ==================== */
+
+/* 比賽區塊折疊樣式 */
+.matches-section {
+    margin-bottom: 5px;
+}
+
+.matches-item.collapsible {
+    border: none;
+    border-radius: 0;
+    margin-bottom: 1px;
+    overflow: hidden;
+    background: transparent;
+    box-shadow: none;
+    transition: all 0.3s ease;
+}
+
+.matches-item.collapsible:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.matches-header {
+    display: block;
+    padding: 15px 20px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+    position: relative;
+    user-select: none;
+}
+
+.matches-header:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+}
+
+.matches-header.expanded {
+    background: linear-gradient(135deg, #dee2e6 0%, #ced4da 100%);
+    border-bottom: 2px solid #6c757d;
+}
+
+.matches-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.matches-header .matches-date {
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+    margin: 0;
+}
+
+.matches-header .expand-icon {
+    font-size: 14px;
+    color: #6c757d;
+    transition: transform 0.3s ease;
+}
+
+.matches-header.expanded .expand-icon {
+    transform: rotate(45deg);
+}
+
+.matches-content.collapsed {
+    max-height: 0;
+    overflow: hidden;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.matches-content.expanded {
+    max-height: 1000px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    opacity: 1;
+    transition: all 0.3s ease;
+}
+
+/* 響應式樣式 */
+@media (max-width: 768px) {
+    .matches-header {
+        padding: 12px 15px;
+    }
+    
+    .matches-header .matches-date {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .matches-header {
+        padding: 10px 12px;
+    }
+    
+    .matches-header .matches-date {
+        font-size: 14px;
+    }
+}
+
+/* ==================== 折疊新聞功能樣式 ==================== */
+
+/* 可折疊新聞項目樣式 */
+.news-item.collapsible {
+    border: none;
+    border-radius: 0;
+    margin-bottom: 1px;
+    overflow: hidden;
+    background: transparent;
+    box-shadow: none;
+    transition: all 0.3s ease;
+    /* CSS Containment 優化，減少重新計算 */
+    contain: layout style paint;
+}
+
+.news-item.collapsible:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+/* 新聞標題區域 */
+.news-header {
+    display: block;
+    padding: 10px 15px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.news-header:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+}
+
+.news-header.expanded {
+    background: linear-gradient(135deg, #dee2e6 0%, #ced4da 100%);
+    color: #495057;
+}
+
+.news-header.expanded .news-date,
+.news-header.expanded .news-title {
+    color: #495057;
+}
+
+/* 日期樣式 */
+.news-header .news-date {
+    display: inline;
+    font-size: 14px;
+    color: #6c757d;
+    font-weight: 500;
+    margin-right: 12px;
+}
+
+.news-header.expanded .news-date {
+    color: #495057;
+}
+
+/* 標題樣式 */
+.news-header .news-title {
+    display: inline;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.3;
+    margin: 0;
+}
+
+
+
+/* 新聞內容區域 */
+.news-text {
+    padding: 0 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease, opacity 0.4s ease, padding 0.4s ease;
+    background: #ffffff;
+    /* 優化渲染 */
+    contain: layout style;
+    /* 手機排版優化 */
+    word-break: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.8;
+    font-size: 15px;
+    color: #333;
+}
+
+.news-text.collapsed {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    /* 減少重排 */
+    visibility: hidden;
+}
+
+.news-text.expanded {
+    max-height: 50000px; /* 足夠大的值，避免長報告被截斷 */
+    padding-top: 20px;
+    padding-bottom: 20px;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 新聞內容文字樣式 */
+.news-text p {
+    margin: 0 0 15px 0;
+    line-height: 1.8;
+    color: #333;
+}
+
+.news-text strong {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.news-text em {
+    color: #666;
+    font-style: italic;
+}
+
+/* 季後賽分析晉級線分隔 */
+.news-text .divider-line {
+    display: block;
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+    letter-spacing: 2px;
+    margin: 4px 0;
+}
+
+/* 折疊功能響應式設計 */
+@media (max-width: 768px) {
+    .news-header {
+        padding: 8px 12px;
+    }
+    
+    .news-header .news-date {
+        display: block;
+        margin-bottom: 8px;
+        margin-right: 0;
+    }
+    
+    .news-header .news-title {
+        display: block;
+        font-size: 16px;
+    }
+    
+
+    
+    .news-text {
+        padding: 0 15px;
+    }
+    
+    .news-text.expanded {
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .news-header {
+        padding: 6px 10px;
+    }
+    
+    .news-header .news-title {
+        font-size: 15px;
+    }
+    
+    .news-header .news-date {
+        font-size: 12px;
+        margin-bottom: 6px;
+    }
+    
+    .news-text {
+        padding: 0 12px;
+    }
+    
+    .news-text.expanded {
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+}
+
+
+/* ===== 第七屆：分組標示與可折疊標題 ===== */
+
+/* 紅色標題列本身就是開關，不再另外放一條灰色副標題列 */
+.section-title.matches-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.section-title.matches-toggle .matches-date {
+    margin-left: auto;
+    font-size: 13px;
+    font-weight: 400;
+    opacity: 0.9;
+}
+
+.section-title.matches-toggle .expand-icon {
+    font-size: 18px;
+    line-height: 1;
+    color: #fff;          /* 白色加號，跟紅底標題融為一體 */
+    transition: transform 0.2s ease;
+}
+
+.section-title.matches-toggle.expanded .expand-icon {
+    transform: rotate(45deg);   /* ＋ 轉成 ×，表示可收合 */
+}
+
+/* 卡片壓扁一點，一頁看得到更多場次 */
+.matches-content .match-item {
+    padding: 6px 10px;
+    margin-bottom: 6px;
+}
+
+/* 分組標示：靶外組底色深一階，一眼看得出兩組 */
+.match-item .match-group {
+    display: block;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #b02a37;
+    margin-bottom: 2px;
+}
+
+.match-item[data-group="靶外組"] {
+    background-color: #ececec;
+}
+
+.match-item[data-group="靶外組"] .match-group {
+    color: #8a6d00;
+}
+
+/* 分組頁籤：比上方的排行標題矮一點，紅色降一階飽和度 */
+.league-tabs { gap: 6px; margin-bottom: 8px; }
+
+.league-tab {
+    padding: 5px 6px;
+    font-size: 13px;
+    border-width: 1px;
+}
+
+.league-tab.active {
+    background: #e25360;
+    border-color: #e25360;
+}
+
+.ranking-table .group-cell {
+    font-size: 12px;
+    color: #8a6d00;
+    white-space: nowrap;
+}
+
+/* 賽事動態頁籤 (整合近期比賽與上週戰況) */
+.match-tab-container {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.match-nav-tabs {
+    display: flex;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    padding: 6px 6px 0;
+    gap: 6px;
+}
+
+.match-nav-tab {
+    flex: 1;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 6px;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    background-color: #f1f3f5;
+    color: #495057;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.match-nav-tab:hover {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+.match-nav-tab.active {
+    background-color: #dc3545;
+    color: #ffffff;
+    border-color: #dc3545;
+}
+
+.match-nav-tab .matches-date {
+    font-size: 11px;
+    font-weight: normal;
+    margin-left: 4px;
+    opacity: 0.9;
+}
+
+.match-pane {
+    padding: 4px;
+}
+
+.match-pane[hidden] {
+    display: none;
+}

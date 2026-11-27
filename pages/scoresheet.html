@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>難找的聯賽 — 比賽分紙（可列印）</title>
+    <link rel="canonical" href="https://dev.ttdarts.com/pages/scoresheet.html">
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 5mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            /* 瀏覽器預設不列印背景色（省墨），會讓所有黑底條、灰底欄整片消失。
+               強制保留，否則印出來的分紙跟螢幕上完全不一樣。 */
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+
+        body {
+            font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+            margin: 0;
+            padding: 7mm;
+            color: #000;
+            background: #fff;
+            font-size: 9pt;
+            line-height: 1.25;
+        }
+
+        /* ========== 四角定位點：供影像辨識校正傾斜與變形用 ==========
+           必須用 absolute 定位在 .sheet 內，不能用 fixed —— fixed 是相對於
+           螢幕視窗，列印時會被排除在紙張外面，印不出來。
+
+           實心黑方塊，辨識時取其重心當基準點。
+
+           方塊本身用 border 疊滿而不是 background：背景色在列印時預設會被
+           瀏覽器丟掉（見上方 print-color-adjust），但邊框一定會印。定位點是
+           辨識的基準，不能有任何機會消失。 */
+        .sheet {
+            position: relative;
+            width: 100%;
+            max-width: 200mm;
+            margin: 0 auto;
+            padding: 0 9mm;
+        }
+
+        .reg-mark {
+            position: absolute;
+            width: 7mm;
+            height: 7mm;
+            /* box-sizing: border-box + 3.5mm 四邊框 = 整個 7mm 方塊填滿黑色 */
+            border: 3.5mm solid #000;
+            background: #000;
+        }
+
+        .reg-tl { top: 0; left: 0; }
+        .reg-tr { top: 0; right: 0; }
+        .reg-bl { bottom: 0; left: 0; }
+        .reg-br { bottom: 0; right: 0; }
+
+        /* ========== 標題與填寫說明 ========== */
+        .head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 2px solid #000;
+            padding-bottom: 1.5mm;
+            margin-bottom: 2mm;
+        }
+
+        .head .brand {
+            display: flex;
+            align-items: center;
+            gap: 2.5mm;
+        }
+
+        /* QR 印太小會掃不到，15mm 是短網址的安全下限 */
+        .head .qr {
+            width: 15mm;
+            height: 15mm;
+            flex: 0 0 15mm;
+        }
+
+        .head .qr svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .head h1 {
+            font-size: 13pt;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        .head .url {
+            font-size: 8.5pt;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .head .url span {
+            font-weight: 400;
+            font-size: 7pt;
+            color: #444;
+        }
+
+        .head .hint {
+            font-size: 8pt;
+            font-weight: 700;
+            border: 1.5px solid #000;
+            padding: 1mm 2mm;
+            text-align: center;
+            line-height: 1.35;
+            /* 每一點各佔一行，不讓瀏覽器在句子中間亂斷 */
+            white-space: nowrap;
+        }
+
+        /* ========== 場次資訊 ========== */
+        .meta {
+            display: flex;
+            gap: 3mm;
+            margin-bottom: 2mm;
+        }
+
+        .meta .field {
+            display: flex;
+            align-items: flex-end;
+            gap: 1.5mm;
+            flex: 1;
+        }
+
+        .meta .label {
+            font-size: 8pt;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .meta .blank {
+            flex: 1;
+            border-bottom: 1px solid #000;
+            height: 5.5mm;
+        }
+
+        .meta .field.code .blank {
+            border: 1.5px solid #000;
+            min-width: 22mm;
+            flex: 0 0 22mm;
+        }
+
+        /* ========== 出賽人員 ========== */
+        .roster {
+            display: flex;
+            gap: 3mm;
+            margin-bottom: 2mm;
+        }
+
+        .roster-box {
+            flex: 1;
+            border: 1.2px solid #000;
+        }
+
+        .roster-box .cap {
+            font-size: 7.5pt;
+            font-weight: 700;
+            background: #000;
+            color: #fff;
+            padding: 0.6mm 1.5mm;
+        }
+
+        .roster-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .roster-grid div {
+            height: 5mm;
+            border-right: 1px solid #999;
+            border-bottom: 1px solid #999;
+        }
+
+        .roster-grid div:nth-child(3n) { border-right: none; }
+        .roster-grid div:nth-last-child(-n+3) { border-bottom: none; }
+
+        /* ========== 主表格 ========== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        th {
+            font-size: 7.5pt;
+            background: #000;
+            color: #fff;
+            padding: 0.8mm 0;
+            font-weight: 700;
+            line-height: 1.15;
+            /* td 有 1px 邊框、th 沒有的話，表頭會比下方欄位窄一圈，
+               看起來像凹進去。補上同樣的邊框讓左右邊緣切齊。 */
+            border: 1px solid #000;
+        }
+
+        /* 先攻／勝的表頭字數多、欄位窄，分兩行才不會擠 */
+        th small {
+            display: block;
+            font-size: 7pt;
+        }
+
+        td {
+            border: 1px solid #000;
+            height: 9mm;
+            padding: 0;
+        }
+
+        /* 三人／四人賽需要兩排欄位，列高加大 */
+        tr.tall td { height: 14mm; }
+
+        /* ========== 出賽限制分組 ==========
+           粗框圈起來的組別內同一人只能出賽一次
+           （SET1~4、SET6~9、SET11~12、SET13~14）
+
+           只加上下橫線，不加左右直線：左右兩側本來就有表格外框，視覺上一樣
+           是個完整的框。橫線只影響列高（各欄一致），不像直線會佔掉儲存格的
+           內部寬度、讓組內列的選手欄比組外列窄。
+
+           先前試過用 JS 量座標疊一層外框，螢幕上正確，但列印／匯出 PDF 時
+           版面會依 A4 重排，座標失準就整個錯位（--print-to-pdf 也不會觸發
+           beforeprint）。純 CSS 沒有這個問題，任何輸出方式都一致。 */
+        tr.grp-start td { border-top: 2.5px solid #000; }
+        tr.grp-end td { border-bottom: 2.5px solid #000; }
+
+        /* 選手欄：單人賽整欄一格，多人賽一律兩欄兩排，
+           讓每格有 25mm 左右可以寫中文名字 */
+        .players {
+            padding: 0 1.5mm;
+        }
+
+        .slots {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1mm 3mm;
+            height: 100%;
+            align-content: center;
+        }
+
+        .slots.multi {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .slot {
+            border-bottom: 1px solid #555;
+            height: 6mm;
+            position: relative;
+        }
+
+        .slot::after {
+            content: attr(data-p);
+            position: absolute;
+            left: 0;
+            bottom: 0.3mm;
+            font-size: 5.5pt;
+            color: #999;
+        }
+
+        /* SET 說明欄 */
+        .setinfo {
+            text-align: center;
+            font-size: 7.5pt;
+            line-height: 1.15;
+            padding: 0 0.5mm;
+        }
+
+        .setinfo .no {
+            font-weight: 900;
+            font-size: 9.5pt;
+        }
+
+        .setinfo .type {
+            display: block;
+            font-size: 7pt;
+        }
+
+        .setinfo .pt {
+            display: inline-block;
+            font-size: 6.5pt;
+            border: 1px solid #000;
+            padding: 0 1mm;
+            margin-top: 0.3mm;
+        }
+
+        /* ========== 塗黑框 ========== */
+        .markcell {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .box {
+            width: 6mm;
+            height: 6mm;
+            border: 1.6px solid #000;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .mark-head {
+            font-size: 6.5pt;
+            line-height: 1;
+        }
+
+        /* 先攻欄底色，跟勝方區隔 */
+        .fa { background: #ececec; }
+
+        /* 表頭的先攻欄是淺灰底，字要改黑色才看得見（預設的白字會消失） */
+        th.fa { color: #000; }
+
+        /* ========== 底部計分 ========== */
+        .totals {
+            display: flex;
+            gap: 3mm;
+            margin-top: 2mm;
+        }
+
+        .totals table {
+            border-collapse: collapse;
+        }
+
+        .totals td {
+            height: 6mm;
+            font-size: 8pt;
+        }
+
+        .totals .lbl {
+            width: 34%;
+            padding-left: 1.5mm;
+            font-weight: 700;
+            background: #ececec;
+        }
+
+        /* 簽名只是示意，重要性低，版面不夠時優先縮這裡 */
+        .sign td { height: 5.5mm; }
+
+        .footnote {
+            margin-top: 1.5mm;
+            font-size: 7pt;
+            text-align: center;
+            color: #333;
+        }
+
+        /* 螢幕上的列印按鈕，列印時隱藏 */
+        .toolbar {
+            max-width: 196mm;
+            margin: 0 auto 4mm;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .toolbar button {
+            font: inherit;
+            padding: 6px 14px;
+            border: 1.5px solid #000;
+            background: #000;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        .toolbar span {
+            font-size: 8pt;
+            color: #555;
+        }
+
+        @media print {
+            .toolbar { display: none; }
+            body { padding: 0; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="toolbar">
+        <button onclick="window.print()">列印 / 存成 PDF</button>
+        <span>建議：A4 直式、縮放 100%、關閉「頁首及頁尾」</span>
+    </div>
+
+    <div class="sheet">
+        <div class="reg-mark reg-tl"></div>
+        <div class="reg-mark reg-tr"></div>
+        <div class="reg-mark reg-bl"></div>
+        <div class="reg-mark reg-br"></div>
+
+        <div class="head">
+            <div class="brand">
+                <!-- QR 內嵌為 SVG，不依賴外部檔案，離線列印也不會壞。指向 https://dev.ttdarts.com -->
+                <div class="qr"><svg viewBox="0 0 27 27" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><rect width="27" height="27" fill="#fff"/><path d="M1 1h7v1h-7zM10 1h2v1h-2zM13 1h1v1h-1zM15 1h1v1h-1zM19 1h7v1h-7zM1 2h1v1h-1zM7 2h1v1h-1zM9 2h1v1h-1zM11 2h1v1h-1zM13 2h3v1h-3zM17 2h1v1h-1zM19 2h1v1h-1zM25 2h1v1h-1zM1 3h1v1h-1zM3 3h3v1h-3zM7 3h1v1h-1zM9 3h2v1h-2zM12 3h1v1h-1zM15 3h1v1h-1zM19 3h1v1h-1zM21 3h3v1h-3zM25 3h1v1h-1zM1 4h1v1h-1zM3 4h3v1h-3zM7 4h1v1h-1zM9 4h4v1h-4zM14 4h1v1h-1zM17 4h1v1h-1zM19 4h1v1h-1zM21 4h3v1h-3zM25 4h1v1h-1zM1 5h1v1h-1zM3 5h3v1h-3zM7 5h1v1h-1zM10 5h2v1h-2zM14 5h1v1h-1zM17 5h1v1h-1zM19 5h1v1h-1zM21 5h3v1h-3zM25 5h1v1h-1zM1 6h1v1h-1zM7 6h1v1h-1zM10 6h1v1h-1zM12 6h2v1h-2zM15 6h1v1h-1zM19 6h1v1h-1zM25 6h1v1h-1zM1 7h7v1h-7zM9 7h1v1h-1zM11 7h1v1h-1zM13 7h1v1h-1zM15 7h1v1h-1zM17 7h1v1h-1zM19 7h7v1h-7zM9 8h2v1h-2zM15 8h3v1h-3zM1 9h1v1h-1zM7 9h1v1h-1zM9 9h1v1h-1zM11 9h3v1h-3zM18 9h2v1h-2zM22 9h3v1h-3zM1 10h2v1h-2zM4 10h1v1h-1zM6 10h1v1h-1zM11 10h2v1h-2zM14 10h4v1h-4zM20 10h5v1h-5zM2 11h1v1h-1zM7 11h1v1h-1zM12 11h1v1h-1zM14 11h4v1h-4zM20 11h1v1h-1zM22 11h1v1h-1zM24 11h2v1h-2zM3 12h2v1h-2zM6 12h1v1h-1zM8 12h2v1h-2zM13 12h2v1h-2zM16 12h1v1h-1zM19 12h1v1h-1zM21 12h2v1h-2zM25 12h1v1h-1zM4 13h4v1h-4zM10 13h2v1h-2zM13 13h2v1h-2zM16 13h1v1h-1zM19 13h1v1h-1zM25 13h1v1h-1zM1 14h1v1h-1zM4 14h1v1h-1zM8 14h1v1h-1zM11 14h1v1h-1zM16 14h2v1h-2zM20 14h1v1h-1zM24 14h1v1h-1zM1 15h1v1h-1zM4 15h2v1h-2zM7 15h1v1h-1zM9 15h1v1h-1zM12 15h2v1h-2zM16 15h1v1h-1zM18 15h5v1h-5zM24 15h2v1h-2zM1 16h1v1h-1zM3 16h1v1h-1zM6 16h1v1h-1zM9 16h1v1h-1zM12 16h1v1h-1zM19 16h2v1h-2zM22 16h2v1h-2zM25 16h1v1h-1zM1 17h1v1h-1zM5 17h1v1h-1zM7 17h4v1h-4zM12 17h1v1h-1zM16 17h6v1h-6zM23 17h1v1h-1zM9 18h1v1h-1zM11 18h1v1h-1zM13 18h5v1h-5zM21 18h1v1h-1zM1 19h7v1h-7zM12 19h1v1h-1zM17 19h1v1h-1zM19 19h1v1h-1zM21 19h1v1h-1zM25 19h1v1h-1zM1 20h1v1h-1zM7 20h1v1h-1zM10 20h1v1h-1zM13 20h2v1h-2zM16 20h2v1h-2zM21 20h1v1h-1zM24 20h1v1h-1zM1 21h1v1h-1zM3 21h3v1h-3zM7 21h1v1h-1zM11 21h1v1h-1zM13 21h1v1h-1zM15 21h7v1h-7zM23 21h1v1h-1zM25 21h1v1h-1zM1 22h1v1h-1zM3 22h3v1h-3zM7 22h1v1h-1zM11 22h1v1h-1zM15 22h1v1h-1zM18 22h2v1h-2zM24 22h2v1h-2zM1 23h1v1h-1zM3 23h3v1h-3zM7 23h1v1h-1zM11 23h3v1h-3zM16 23h1v1h-1zM22 23h2v1h-2zM25 23h1v1h-1zM1 24h1v1h-1zM7 24h1v1h-1zM11 24h2v1h-2zM15 24h3v1h-3zM19 24h3v1h-3zM25 24h1v1h-1zM1 25h7v1h-7zM9 25h2v1h-2zM14 25h2v1h-2zM17 25h1v1h-1zM19 25h1v1h-1zM22 25h1v1h-1zM25 25h1v1h-1z" fill="#000"/></svg></div>
+                <div>
+                    <h1>難找的聯賽 · 比賽分紙</h1>
+                    <div class="url">dev.ttdarts.com　<span>掃描 QR 看賽程和排名（重點是趕快填表）</span></div>
+                </div>
+            </div>
+            <div class="hint">■ 請用深色筆<u>塗滿</u>方框，不要打勾或畫叉<br>■ 請寫報名時的隊員名，字跡請盡量工整<br>■ <u>粗框內同一人限出賽一次</u>：SET1~4、6~9、11~12、13~14</div>
+        </div>
+
+        <div class="meta">
+            <div class="field code"><span class="label">場次</span><span class="blank"></span></div>
+            <div class="field"><span class="label">日期</span><span class="blank"></span></div>
+            <div class="field"><span class="label">主隊</span><span class="blank"></span></div>
+            <div class="field"><span class="label">客隊</span><span class="blank"></span></div>
+        </div>
+
+        <div class="roster">
+            <div class="roster-box">
+                <div class="cap">主隊出賽人員</div>
+                <div class="roster-grid">
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                </div>
+            </div>
+            <div class="roster-box">
+                <div class="cap">客隊出賽人員</div>
+                <div class="roster-grid">
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                    <div></div><div></div><div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tablewrap">
+            <table>
+                <colgroup>
+                    <col style="width:29.5%">
+                    <col style="width:6.5%">
+                    <col style="width:6.5%">
+                    <col style="width:15%">
+                    <col style="width:6.5%">
+                    <col style="width:6.5%">
+                    <col style="width:29.5%">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>主隊選手</th>
+                        <th class="fa">主<small>先攻</small></th>
+                        <th>主<small>勝</small></th>
+                        <th>SET</th>
+                        <th>客<small>勝</small></th>
+                        <th class="fa">客<small>先攻</small></th>
+                        <th>客隊選手</th>
+                    </tr>
+                </thead>
+                <tbody id="rows"></tbody>
+            </table>
+        </div>
+
+        <div class="totals">
+            <table style="flex:1">
+                <tr><td class="lbl">比賽得分</td><td></td></tr>
+                <tr><td class="lbl">喝酒點數</td><td></td></tr>
+                <tr><td class="lbl">最終得分</td><td></td></tr>
+                <tr class="sign"><td class="lbl">客隊簽名</td><td></td></tr>
+            </table>
+            <table style="flex:1">
+                <tr><td class="lbl">比賽得分</td><td></td></tr>
+                <tr><td class="lbl">喝酒點數</td><td></td></tr>
+                <tr><td class="lbl">最終得分</td><td></td></tr>
+                <tr class="sign"><td class="lbl">主隊簽名</td><td></td></tr>
+            </table>
+        </div>
+
+        <div class="footnote">
+            <b>最終得分 ＝ 比賽得分 ＋ 勝隊 +1（和局雙方皆不加）＋ 飲酒加成 +5</b><br>
+            左欄為主隊、右欄為客隊　│　核對：兩隊<b>比賽得分</b>合計 30 分，<b>最終得分</b>合計 36 分（和局 35 分）
+        </div>
+    </div>
+
+    <script>
+        // set 編號 → [類型說明, 選手數, 該局分數]
+        const SETS = [
+            ['501 (OI/MO) 女子優先', 1, 1],
+            ['501 (DI/DO)', 1, 1],
+            ['701 (OI/MO)', 1, 1],
+            ['701 (OI/MO, 25/50)', 1, 1],
+            ['三人賽 701 骰子賽', 3, 3],
+            ['Cricket 女子優先', 1, 1],
+            ['Cricket', 1, 1],
+            ['HALF-IT', 1, 1],
+            ['HALF-IT', 1, 1],
+            ['三人賽 Cricket 骰子賽', 3, 3],
+            ['701 雙人賽', 2, 2],
+            ['701 雙人賽 FREEZE', 2, 2],
+            ['Cricket 雙人賽', 2, 2],
+            ['Team Cricket', 2, 2],
+            ['四人賽 1101', 4, 4],
+            ['四人賽 Cricket', 4, 4]
+        ];
+
+        const slots = n => n === 1
+            ? '<div class="slots"><div class="slot"></div></div>'
+            : '<div class="slots multi">' +
+              Array.from({ length: n }, (_, i) => `<div class="slot" data-p="P${i + 1}"></div>`).join('') +
+              '</div>';
+
+        // 出賽限制分組：同一組內同一人只能出賽一次
+        const GROUPS = [[1, 4], [6, 9], [11, 12], [13, 14]];
+        const grpClass = set => {
+            const g = GROUPS.find(([a, b]) => set >= a && set <= b);
+            if (!g) return '';
+            if (set === g[0]) return 'grp-start';
+            if (set === g[1]) return 'grp-end';
+            return 'grp-mid';
+        };
+
+        document.getElementById('rows').innerHTML = SETS.map(([type, n, pt], i) => `
+            <tr class="${n > 2 ? 'tall ' : ''}${grpClass(i + 1)}">
+                <td class="players">${slots(n)}</td>
+                <td class="markcell fa"><span class="box"></span></td>
+                <td class="markcell"><span class="box"></span></td>
+                <td class="setinfo">
+                    <span class="no">SET${i + 1}</span>
+                    <span class="type">${type}</span>
+                    <span class="pt">${pt} 分</span>
+                </td>
+                <td class="markcell"><span class="box"></span></td>
+                <td class="markcell fa"><span class="box"></span></td>
+                <td class="players">${slots(n)}</td>
+            </tr>
+        `).join('');
+
+        // 分組外框改由 CSS 的 tr.grp-start / tr.grp-end 處理，不再用 JS 量座標。
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>第七季賽程表 | 台北新北飛鏢比賽 - 難找的聯賽</title>
+    <meta name="description" content="查看台北新北地區最受歡迎的飛鏢聯賽「難找的聯賽」第七季完整賽程表。每週比賽時間、對戰組合一目了然，歡迎雙北飛鏢愛好者關注！">
+    <meta name="keywords" content="台北飛鏢比賽賽程,新北飛鏢比賽賽程,飛鏢聯賽賽程表,難找的聯賽賽程,雙北飛鏢,永和飛鏢比賽時間">
+    <link rel="canonical" href="https://dev.ttdarts.com/pages/scheduleS7.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dev.ttdarts.com/pages/scheduleS7.html">
+    <meta property="og:title" content="第七季賽程表 | 台北新北飛鏢比賽 - 難找的聯賽">
+    <meta property="og:description" content="查看台北新北地區飛鏢聯賽第七季完整賽程表，每週比賽時間、對戰組合一目了然！">
+    <meta property="og:image" content="https://dev.ttdarts.com/images/season5.webp">
+
+    <!-- GTM 已移至延遲載入腳本（body 底部） -->
+
+    <!-- Event snippet for 網頁瀏覽 (1) conversion page -->
+    <script>
+        function gtag_report_conversion(url) {
+            var callback = function () {
+                if (typeof (url) != 'undefined') {
+                    window.location = url;
+                }
+            };
+            gtag('event', 'conversion', {
+                'send_to': 'AW-17514530743/PWRNCNSo5ZAbELePyp9B',
+                'event_callback': callback
+            });
+            return false;
+        }
+    </script>
+
+    <link rel="stylesheet" href="styles/schedule.css?v=s7-groups">
+
+    <!-- 移除有問題的廣告脚本，使用簡化版 -->
+    <script>
+        console.log('Ad script loaded');
+        // 簡化的廣告初始化脚本
+        window.adInitialized = true;
+    </script>
+    <!-- 明確指定只加載 s6 的數據 -->
+    <script>
+        const seasonOverride = 's7';
+        console.log('設置 seasonOverride =', seasonOverride);
+
+        // 頁面加載完成後檢查篩選按鈕
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('scheduleS7.html 頁面加載完成，開始檢查篩選按鈕');
+            const teamButtons = document.querySelectorAll('.team-btn');
+            console.log('頁面載入時找到篩選按鈕數量:', teamButtons.length);
+
+            // 記錄每個按鈕信息
+            if (teamButtons.length > 0) {
+                teamButtons.forEach((btn, idx) => {
+                    console.log(`載入時按鈕 ${idx}: ${btn.getAttribute('data-team')}, 文本="${btn.textContent}"`);
+                });
+            }
+        });
+    </script>
+    <style>
+        /* 移动端优化内联样式 */
+        @media screen and (max-width: 480px) {
+            .content-wrapper {
+                overflow-x: auto;
+                width: 100%;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+    </style>
+    <title>第七屆賽程 | 難找的聯賽</title>
+</head>
+
+<body>
+    <!-- 加入 banner 圖片 - WebP 格式 (等有第七季圖片再開啟)
+    <div class="banner">
+        <img src="images/season6.webp" alt="Banner" class="banner-image" loading="lazy">
+    </div>
+    -->
+
+    <div class="container">
+        <!-- 加入進度條 -->
+        <div id="loadingBar" class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+
+        <!-- 提示文字 -->
+        <div class="schedule-hint">提醒：點擊日期/場次可以查看先前比賽紀錄喔</div>
+
+        <!-- main.js 只認得第一個 .schedule-table，資料統一由它填進這張隱藏的來源表，
+             再由下方腳本搬進各分組表格。這樣 main.js 綁好的日期／列點擊事件會跟著搬過去，
+             不需要重綁，也不必改動服務所有賽季的 main.js。 -->
+        <table class="schedule-table" id="sourceTable" hidden>
+            <tbody></tbody>
+        </table>
+
+        <div class="group-tabs" id="groupTabs"></div>
+        <div id="groupSections"></div>
+    </div>
+
+    <!-- 賽程依分組拆成兩個獨立區塊，各自有標題、篩選器與表格 -->
+    <script>
+        /**
+         * 每組一個區塊：標題 → 該組 6 隊的篩選鈕 → 只含該組比賽的表格。
+         *
+         * 為什麼保留一張隱藏的來源表：js/main.js 服務所有賽季，只認得第一個
+         * .schedule-table，資料一律填進去。與其改動它（會牽動其他賽季），
+         * 不如讓它照常填，這裡再把資料列「搬」進各組表格——用搬的不用複製，
+         * main.js 綁在列上的日期／詳情點擊事件才會跟著過去，不需要重綁。
+         *
+         * 分組來源是 config/config.js 的 SEASONS[7].groups，不是試算表欄位：
+         * 隊伍屬於哪一組是固定的，從隊名反查即可，多開一欄反而有不同步的風險。
+         */
+        (function () {
+            const ORDER = ['掉鏢組', '靶外組'];
+            // config.js 用 const 宣告 SEASONS，在瀏覽器裡不會掛到 window 上
+            function groups() {
+                try { return (SEASONS && SEASONS[7] && SEASONS[7].groups) || {}; } catch (e) { return {}; }
+            }
+            function groupOf(team) {
+                for (const [g, ts] of Object.entries(groups())) if (ts.includes(team)) return g;
+                return null;
+            }
+            // 一列的欄位順序是 日期／客隊／比分／主隊
+            function homeTeamOf(tr) {
+                const c = tr.querySelectorAll('td.team-cell');
+                return c.length ? c[c.length - 1].textContent.trim() : null;
+            }
+
+            const state = new WeakMap();   // 每個分組區塊各自的已選隊伍
+            let built = false;
+            function build() {
+                if (built) return true;
+                const g = groups();
+                if (!Object.keys(g).length) return false;
+                const host = document.getElementById('groupSections');
+                if (!host) return false;
+
+                host.innerHTML = ORDER.filter(k => g[k]).map((k, idx) => `
+                    <section class="group-block" data-group="${k}"${idx ? ' hidden' : ''}>
+                        <div class="search-section">
+                            <div class="search-title">篩選隊伍</div>
+                            <div class="team-filters">
+                                <div class="filter-row">
+                                    ${g[k].slice(0, 3).map(t => `<button class="team-btn" data-team="${t}">${t}</button>`).join('')}
+                                </div>
+                                <div class="filter-row">
+                                    ${g[k].slice(3).map(t => `<button class="team-btn" data-team="${t}">${t}</button>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="content-wrapper">
+                            <table class="schedule-table group-table">
+                                <thead><tr><th>日期</th><th>客隊</th><th>比分</th><th>主隊</th></tr></thead>
+                                <tbody></tbody>
+                            </table>
+                            <div class="group-empty" hidden>沒有符合的比賽</div>
+                        </div>
+                    </section>`).join('');
+
+                // 上方頁籤：一次只顯示一組，60 場全部攤開在手機上太長
+                const tabs = document.getElementById('groupTabs');
+                tabs.innerHTML = ORDER.filter(k => g[k]).map((k, idx) =>
+                    `<button class="group-tab${idx ? '' : ' active'}" data-group="${k}">${k}</button>`).join('');
+                tabs.querySelectorAll('.group-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        tabs.querySelectorAll('.group-tab').forEach(t => t.classList.toggle('active', t === tab));
+                        host.querySelectorAll('.group-block').forEach(b => {
+                            b.hidden = b.dataset.group !== tab.dataset.group;
+                        });
+                    });
+                });
+
+                // 用事件委派而不是逐顆綁定：js/filter.js 會把 .team-btn 整顆
+                // cloneNode + replaceChild 換掉，逐顆綁的事件會被一起清掉。
+                // 選取狀態也由這裡自己記，不從 class 讀——filter.js 同樣會切換
+                // .selected，兩邊各切一次會互相抵銷。
+                host.addEventListener('click', e => {
+                    const btn = e.target.closest('.team-btn');
+                    if (!btn || !host.contains(btn)) return;
+                    const block = btn.closest('.group-block');
+                    if (!block) return;
+                    const picked = state.get(block) || new Set();
+                    const team = btn.dataset.team;
+                    picked.has(team) ? picked.delete(team) : picked.add(team);
+                    state.set(block, picked);
+                    block.querySelectorAll('.team-btn').forEach(b =>
+                        b.classList.toggle('selected', picked.has(b.dataset.team)));
+                    applyFilter(block);
+                });
+                built = true;
+                return true;
+            }
+
+            function distribute() {
+                const src = document.querySelector('#sourceTable tbody');
+                if (!src) return;
+                const rows = [...src.querySelectorAll('tr')];
+                if (!rows.length || !rows.some(r => r.querySelector('td.team-cell'))) return;
+                if (!build()) return;
+
+                for (const tr of rows) {
+                    const grp = groupOf(homeTeamOf(tr));
+                    // 查不到分組就留在來源表，不要硬塞到某一組造成誤導
+                    if (!grp) continue;
+                    const body = document.querySelector(`.group-block[data-group="${grp}"] tbody`);
+                    if (body) body.appendChild(tr);
+                }
+                document.querySelectorAll('.group-block').forEach(applyFilter);
+            }
+
+            function applyFilter(block) {
+                if (!block) return;
+                const picked = [...(state.get(block) || [])];
+                let shown = 0;
+                block.querySelectorAll('tbody tr').forEach(tr => {
+                    const cells = [...tr.querySelectorAll('td.team-cell')].map(c => c.textContent.trim());
+                    const hit = !picked.length || cells.some(c => picked.includes(c));
+                    tr.style.display = hit ? '' : 'none';
+                    if (hit) shown++;
+                });
+                const empty = block.querySelector('.group-empty');
+                if (empty) empty.hidden = shown > 0;
+            }
+
+            function watch() {
+                const src = document.querySelector('#sourceTable tbody');
+                if (!src) return setTimeout(watch, 300);
+                new MutationObserver(distribute).observe(src, { childList: true });
+                distribute();
+            }
+            document.addEventListener('DOMContentLoaded', watch);
+            if (document.readyState !== 'loading') watch();
+        })();
+    </script>
+
+    <!-- 引入配置和主腳本 -->
+    <script src="../config/config.js"></script>
+    <!-- 引入筛选功能专用脚本 (先加载) -->
+    <script src="../js/filter.js?v=1.1"></script>
+    <script src="../js/main.js"></script>
+
+    <!-- 確保篩選功能初始化 -->
+    <script>
+        console.log('頁面腳本加載完成，準備初始化篩選功能');
+        // 延遲調用篩選函數初始化
+        setTimeout(function () {
+            console.log('延遲檢查篩選按鈕');
+            const teamButtons = document.querySelectorAll('.team-btn');
+            console.log('延遲後找到篩選按鈕數量:', teamButtons.length);
+
+            if (typeof initializeFilters === 'function') {
+                console.log('找到initializeFilters函數，調用初始化');
+                initializeFilters();
+            } else {
+                console.error('未找到initializeFilters函數');
+            }
+        }, 1000);
+    </script>
+
+    <!-- 延遲載入 GTM - 終極性能優化 -->
+    <script>
+        var gtmID = "AW-17514530743";
+        var googleScriptsLoaded = false;
+
+        function loadGoogleScripts() {
+            if (googleScriptsLoaded) return;
+            googleScriptsLoaded = true;
+
+            var scriptGTM = document.createElement('script');
+            scriptGTM.src = 'https://www.googletagmanager.com/gtag/js?id=' + gtmID;
+            scriptGTM.async = true;
+            document.head.appendChild(scriptGTM);
+
+            window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', gtmID);
+            gtag('config', 'G-317QE2MT3P');
+
+            console.log("✅ GTM 延遲載入完成！");
+        }
+
+        // 觸發條件：使用者互動時載入
+        window.addEventListener('mousemove', loadGoogleScripts, { passive: true, once: true });
+        window.addEventListener('touchstart', loadGoogleScripts, { passive: true, once: true });
+        window.addEventListener('scroll', loadGoogleScripts, { passive: true, once: true });
+
+        // 保險機制：4 秒後自動載入
+        setTimeout(loadGoogleScripts, 4000);
+    </script>
+</body>
+
+</html>

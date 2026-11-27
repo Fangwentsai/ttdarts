@@ -1,0 +1,773 @@
+/* 隱藏所有滾動條 */
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow-y: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+}
+
+/* Chrome, Safari and Opera */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* 標題區域 */
+.header-section {
+    background-color: #dc3545;
+    color: white;
+    text-align: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.main-title {
+    margin: 0;
+    padding: 0;
+    font-size: 24px;
+    line-height: 48px;
+    font-weight: bold;
+    width: 100%;
+    text-align: center;
+}
+
+.title-container {
+    width: 100%;
+    text-align: center;
+}
+
+.title-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+.title-link:hover {
+    opacity: 0.8;
+}
+
+.main-title .sidebar-btn {
+    padding: 0;
+    width: 100%;
+    cursor: pointer;
+    font-size: inherit;
+    font-weight: inherit;
+    text-align: center;
+    color: inherit;
+    display: inline-block;
+    transform: none;
+}
+
+.main-title .sidebar-btn:hover {
+    opacity: 0.8;
+}
+
+.nav-section {
+    padding: 15px 0;
+    border-bottom: 6px solid #333;
+    margin-bottom: 20px;
+    background-color: #fff;
+    text-align: center;
+}
+
+.nav-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 10px 0;
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.nav-btn {
+    padding: 8px 16px;
+    background-color: #dc3545;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.nav-btn.active {
+    background-color: white;
+    color: #dc3545;
+    box-shadow: 0 0 0 2px #dc3545;
+}
+
+.iframe-container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#contentFrame {
+    width: 100%;
+    height: calc(100vh - 50px - 40px - 40px);
+    border: none;
+    background-color: #fff;
+    display: block;
+    margin-top: 55px;
+    padding: 0;
+}
+
+.iframe-container.container {
+    max-width: none;
+    padding: 0;
+}
+
+.league-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #666666;
+    margin-bottom: 20px;
+}
+
+.league-table th,
+.league-table td {
+    padding: 15px 10px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #666666;
+}
+
+.table-header {
+    background-color: #4a4a4a;
+    color: white;
+    font-weight: normal;
+}
+
+.team-row:nth-child(even) {
+    background-color: #f5f5f5;
+}
+
+.team-row:nth-child(odd) {
+    background-color: #ebebeb;
+}
+
+.rank {
+    font-weight: bold;
+}
+
+.team-name {
+    text-align: left;
+}
+
+/* 下拉選單容器 */
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* 下拉選單 */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #dc3545;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+    z-index: 3;
+    min-width: 120px;
+}
+
+/* 下拉選單項目 */
+.dropdown-item {
+    padding: 8px 16px;
+    color: #dc3545;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* 顯示下拉選單 */
+.dropdown-menu.show {
+    display: block;
+    animation: dropDown 0.2s ease-out forwards;
+}
+
+/* 向下展開動畫 */
+@keyframes dropDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px) translateX(-50%) scaleY(0.7);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) translateX(-50%) scaleY(1);
+    }
+}
+
+/* 賽程按鈕特殊樣式 */
+#scheduleBtn {
+    position: relative;
+}
+
+#scheduleBtn::after {
+    content: none;
+}
+
+/* 當下拉選單顯示時的按鈕樣式 */
+#scheduleBtn.active::after {
+    transform: rotate(180deg);
+}
+
+/* 下拉選單項目動畫效果 - 適用於所有下拉選單 */
+.dropdown-item {
+    /* 保留原有樣式 */
+    transition: all 0.2s ease-out; /* 平滑過渡效果 */
+    position: relative; /* 為動畫做準備 */
+    top: 0; /* 初始位置 */
+}
+
+/* 內容區域需要添加上方間距，避免被固定標題擋住 */
+.content-container {
+    max-width: 1000px;
+    margin: 48px auto 5px auto;
+    padding: 10px;
+    padding-top: 0;
+}
+
+/* 內容區域 */
+#contentArea {
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    margin-top: 5px;
+}
+
+#contentArea::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.error-message {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+/* 漢堡按鈕樣式 */
+.hamburger-btn {
+    position: fixed;
+    top: 14px;
+    left: 15px;
+    width: 25px;
+    height: 20px;
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.hamburger-line {
+    width: 100%;
+    height: 3px;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+/* 漢堡按鈕動畫效果 */
+.hamburger-btn.active .hamburger-line:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger-btn.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-btn.active .hamburger-line:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* 側邊欄樣式 */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -160px;
+    width: 160px;
+    height: 100%;
+    background-color: #e84855;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 999;
+    padding-top: 32px;
+}
+
+.sidebar.active {
+    left: 0;
+}
+
+/* 側邊欄導航按鈕 */
+.sidebar-nav {
+    padding: 0;
+}
+
+/* 側邊欄按鈕樣式 */
+.sidebar-btn {
+    padding: 12px 15px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    text-align: left;
+    width: 160px;
+    box-sizing: border-box;
+}
+
+/* 子選單樣式 */
+.sidebar-submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-submenu.active {
+    max-height: 300px;
+    padding: 8px 0;
+}
+
+.sidebar-submenu .submenu-item {
+    padding: 8px 15px;
+    font-size: 14px;
+    width: 160px;
+    box-sizing: border-box;
+    color: white;
+    text-decoration: none;
+    display: block;
+    line-height: 1.6;
+}
+
+.sidebar-submenu .submenu-item:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* 管理後台連結樣式 - 與其他根目錄項目一致 */
+.admin-link {
+    /* 使用與其他 sidebar-btn 相同的樣式 */
+}
+
+/* 當父選單被點擊時顯示子選單 */
+.sidebar-btn.active + .sidebar-submenu {
+    display: block;
+}
+
+/* 遮罩層樣式 */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 998;
+}
+
+.overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 確保所有可滾動元素都隱藏滾動條 */
+* {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
+/* Footer 樣式 */
+.footer {
+    text-align: center;
+    padding: 20px 0 95px 0;
+    background-color: #f8f9fa;
+    width: 100%;
+    max-width: 1000px;
+    margin: 20px auto 0 auto;
+    border-top: 1px solid #eaeaea;
+}
+
+.footer > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.footer .sidebar-btn {
+    display: inline-block;
+    padding: 0;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 14px;
+    transition: color 0.3s ease;
+    width: auto;
+}
+
+.footer .sidebar-btn:hover {
+    color: #dc3545;
+}
+
+/* 版權資訊 */
+.copyright {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 10px 0 0 0;
+    text-align: center;
+} 
+
+/* ========== Shopee 商品輪播樣式 - 固定底部（精簡版）========== */
+.shopee-carousel-section {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 4px 8px 1px 8px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    transition: transform 0.3s ease;
+}
+
+.shopee-carousel-section.hidden {
+    transform: translateY(100%);
+}
+
+/* 頁面底部預留空間，避免內容被遮擋 */
+body {
+    padding-bottom: 85px;
+}
+
+.shopee-carousel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.shopee-carousel-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+}
+
+.shopee-carousel-nav {
+    display: flex;
+    gap: 6px;
+}
+
+.carousel-nav-btn {
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 50%;
+    background: #EE4D2D;
+    color: white;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-nav-btn:hover {
+    background: #D94429;
+    transform: scale(1.1);
+}
+
+.shopee-carousel-container {
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.shopee-carousel-track {
+    display: flex;
+    gap: 10px;
+    transition: transform 0.4s ease;
+}
+
+.shopee-product-card {
+    /* 這個 track 允許內容溢位（30 張卡片攤平、用 overflow:hidden 裁切、
+       靠 translateX 滑動），CSS 百分比 flex-basis 在這種情境下算出來的
+       寬度基準會跟容器實際可視寬度對不上，導致每排右邊卡片被裁掉一截。
+       改由 js/shopee-carousel.js 的 applyCardWidth() 量出容器真實寬度後
+       寫入 --shopee-card-width 這個 CSS 變數，calc(50% - 5px) 只當作 JS
+       還沒跑之前的備援值。 */
+    flex: 0 0 var(--shopee-card-width, calc(50% - 5px));
+    /* 預設 content-box 會讓 padding 疊加在算好的寬度之外（多了左右各 5px），
+       改 border-box 讓 JS 算出來的寬度直接等於卡片實際佔用的視覺寬度 */
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    background: #EE4D2D;
+    border-radius: 6px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    border: 1px solid #EE4D2D;
+    padding: 4px 5px;
+    gap: 8px;
+    align-items: center;
+}
+
+.shopee-product-card:hover {
+    box-shadow: 0 4px 12px rgba(238, 77, 45, 0.35);
+    border-color: #D94429;
+}
+
+.product-image-container {
+    position: relative;
+    flex-shrink: 0;
+    width: 55px;
+    height: 55px;
+    background: #fff;
+    border-radius: 4px;
+}
+
+.product-image {
+    width: 55px;
+    height: 55px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.product-discount-badge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #dc3545;
+    color: #fff;
+    padding: 2px 4px;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 0 0 4px 0;
+}
+
+.product-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+
+.product-name {
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.3;
+    /* line-clamp 只限制「最多」2 行，標題不夠長時不會補滿，
+       同一排兩張卡就會因為標題長短不同而高度不一致——固定保留 2 行的空間 */
+    min-height: calc(1.3em * 2);
+}
+
+.product-price-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.product-price {
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background: #B23212;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.product-original-price {
+    font-size: 11px;
+    font-weight: bold;
+    color: #fff;
+    opacity: 0.75;
+    text-decoration: line-through;
+    white-space: nowrap;
+}
+
+.product-sold {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.shopee-carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.shopee-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ddd;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.shopee-dot.active {
+    background: #EE4D2D;
+    width: 16px;
+    border-radius: 3px;
+}
+
+/* 響應式設計 */
+@media (max-width: 480px) {
+    .shopee-product-card {
+        padding: 4px;
+        gap: 6px;
+    }
+
+    .product-image-container {
+        width: 46px;
+        height: 46px;
+    }
+
+    .product-image {
+        width: 46px;
+        height: 46px;
+    }
+
+    .product-name {
+        font-size: 10.5px;
+        -webkit-line-clamp: 2;
+    }
+
+    .product-price-row {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    .product-price {
+        font-size: 11px;
+        padding: 1px 5px;
+    }
+
+    .product-original-price {
+        font-size: 10px;
+    }
+
+    /* 已售數字空間有限、重要性較低，手機版收起來，原價/特價維持顯示 */
+    .product-sold {
+        display: none;
+    }
+}
+
+/* ========== 模態窗口樣式 - z-index 設為 10001 確保覆蓋 shopee carousel (9999) ========== */
+.match-modal {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 10001;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    overflow: auto;
+}
+
+.match-modal.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    z-index: 10001;
+}
+
+.match-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 500px;
+    height: 85vh;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #f44336;
+    color: white;
+    font-size: 20px;
+    border: none;
+    cursor: pointer;
+    z-index: 10002;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background-color: #d32f2f;
+    transform: scale(1.1);
+}
+
+.match-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}

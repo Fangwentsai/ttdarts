@@ -1,15 +1,15 @@
 /**
  * Vercel API Route: 分紙照片辨識
  *
- * 收到一張分紙照片 + 該場兩隊名單，呼叫 Gemini 辨識 16 局的選手／先攻／勝負，
+ * 收到一張分紙照片 + 該場兩隊名單，辨識條通 15 局的選手、勝負，以及三黑統計表（HAT／白馬／床），
  * 每個欄位都附信心分數，交給前端依信心分級處理（見 SCORESHEET_OCR.md）。
  *
  * 設計要點（詳見 SCORESHEET_OCR.md 的實測發現）：
  *   - 不讀照片上的隊名/日期，兩隊由呼叫端傳入（來自使用者選擇的 gamecode）
  *   - 人名比對限定在該場兩隊的名單內，不開放自由辨識
  *   - 塗黑框可能是螺旋塗鴉而非塗滿，任何可見墨跡都算「已勾選」
- *   - 用 SET_POINTS 加總必為 30 分的特性做逐局勝負的客觀驗算，
- *     不依賴模型自報的總分（自報總分符合不代表每局都對）
+ *   - 勝負長條用影像處理判讀（checkbox-reader.js），不交給模型
+ *   - 15 局每局 1 分，讀出來的勝局數加總必須是 15，否則一定有局沒讀出來
  *   - 目前帳號的免費額度只開通 gemini-2.5-flash（已實測確認，
  *     2.5-pro / 2.0-flash 回傳 429 額度 0），故寫死使用該模型
  *   - 送給 Gemini 之前先用四角定位點把照片透視校正成正的矩形（deskew.js），
@@ -23,30 +23,30 @@ const { readCheckboxes } = require('./_lib/checkbox-reader');
 const GEMINI_MODEL = 'gemini-2.5-flash';
 const GEMINI_API_HOST = 'https://generativelanguage.googleapis.com';
 
-// 16 局的類型與每局分數，對應 pages/scoresheet.html 的 SETS 定義
+// 條通 15 局的人數，對應 pages/scoresheet.html 的 SETS 定義
 const SET_DEFS = [
-    { set: 1, players: 1, points: 1 },
-    { set: 2, players: 1, points: 1 },
-    { set: 3, players: 1, points: 1 },
-    { set: 4, players: 1, points: 1 },
-    { set: 5, players: 3, points: 3 },
-    { set: 6, players: 1, points: 1 },
-    { set: 7, players: 1, points: 1 },
-    { set: 8, players: 1, points: 1 },
-    { set: 9, players: 1, points: 1 },
-    { set: 10, players: 3, points: 3 },
-    { set: 11, players: 2, points: 2 },
-    { set: 12, players: 2, points: 2 },
-    { set: 13, players: 2, points: 2 },
-    { set: 14, players: 2, points: 2 },
-    { set: 15, players: 4, points: 4 },
-    { set: 16, players: 4, points: 4 },
+    { set: 1, players: 1, game: 'Count Up' },
+    { set: 2, players: 1, game: '501 DI/DO' },
+    { set: 3, players: 2, game: 'Half It' },
+    { set: 4, players: 1, game: '501 OI/OO 女子賽' },
+    { set: 5, players: 1, game: 'Cricket' },
+    { set: 6, players: 2, game: 'VS ARCHERY' },
+    { set: 7, players: 4, game: '901 OI/OO' },
+    { set: 8, players: 1, game: '701 OI/MO' },
+    { set: 9, players: 2, game: 'Cricket' },
+    { set: 10, players: 2, game: 'HIDDEN CR' },
+    { set: 11, players: 1, game: 'HYPER JUMP' },
+    { set: 12, players: 1, game: '501 硬式 OI/DO' },
+    { set: 13, players: 2, game: '701 TEAM FREEZE' },
+    { set: 14, players: 2, game: '701 OI/OO' },
+    { set: 15, players: 4, game: 'Cricket' },
 ];
+const TOTAL_SETS = SET_DEFS.length; // 15，每局 1 分
 
-// 出賽限制：同組內同一人只能出賽一次（與 js/admin-main.js 的 noRepeatGroups 一致）
-const NO_REPEAT_GROUPS = [[1, 4], [6, 9], [11, 12], [13, 14]];
-
-const SET_POINTS_SUM = SET_DEFS.reduce((s, d) => s + d.points, 0); // = 30
+// 條通規則：一般選手每場最多出賽 8 局（A 級選手 5 局，名單上沒有等級資料，先只檢查 8 局）
+const MAX_SETS_PER_PLAYER = 8;
+// 三黑統計表每隊幾列（跟分紙一致）
+const AWARD_ROWS = 8;
 
 module.exports = async (req, res) => {
     if (req.method !== 'POST') {
@@ -95,7 +95,7 @@ module.exports = async (req, res) => {
         // 塗黑框改用影像處理判讀，蓋掉模型給的先攻／勝負（見 overrideWithPixelReading）。
         // 需要校正成功才有固定座標可量，校正失敗就只能沿用模型的答案。
         const pixelRead = deskew.applied ? await readCheckboxes(deskew.buffer) : { applied: false, reason: 'deskew-skipped' };
-        const withPixelBoxes = overrideWithPixelReading(withSides, pixelRead);
+        const withPixelBoxes = mergeAwardCells(overrideWithPixelReading(withSides, pixelRead), pixelRead);
 
         const withRosterMatch = applyRosterMatching(withPixelBoxes, homeRoster, awayRoster);
         const withCrossCheck = applyCrossCheck(withRosterMatch);
@@ -235,21 +235,20 @@ async function callGemini({ apiKey, imageData, mimeType, gameCode, homeTeam, awa
 }
 
 function buildPrompt({ gameCode, homeTeam, awayTeam, homeRoster, awayRoster }) {
-    const setList = SET_DEFS.map(d =>
-        `SET${d.set}：${d.players === 1 ? '單人' : d.players === 2 ? '雙人' : d.players === 3 ? '三人' : '四人'}局`
-    ).join('\n');
+    const label = n => (n === 1 ? '單人' : n === 2 ? '雙人' : '四人');
+    const setList = SET_DEFS.map(d => `SET${d.set}：${label(d.players)}（${d.game}）`).join('\n');
 
     return `你是一個飛鏢比賽分紙的辨識助手。這張分紙的版面結構固定如下：
 
 - 頁首：場次、日期、主隊「${homeTeam}」、客隊「${awayTeam}」
-- 主表格 16 列（SET1~SET16），每列從左到右依序是 7 個區塊：
-  1. 最左：主隊選手（一或多個手寫姓名，依局別人數而定）
-  2. 「先攻」塗黑方框（左側）
-  3. 「勝」塗黑方框（左側，緊鄰 SET 標籤）
-  4. 正中：SET 編號與局別說明
-  5. 「勝」塗黑方框（右側，緊鄰 SET 標籤）
-  6. 「先攻」塗黑方框（右側）
-  7. 最右：客隊選手（一或多個手寫姓名）
+- 主表格 15 列（SET1~SET15），每列從左到右依序是 5 個區塊：
+  1. 最左：主隊的「勝」長條框
+  2. 主隊選手（手寫姓名，單人局 1 格、雙人局 2 格並排、四人局 2x2 四格）
+  3. 正中：SET 編號與局別說明
+  4. 客隊選手（同上）
+  5. 最右：客隊的「勝」長條框
+- 主表格下方是「三黑統計表」，左邊一張是主隊、右邊一張是客隊，各 ${AWARD_ROWS} 列。
+  每列從左到右是：選手姓名、HAT 次數、白馬次數、床次數（手寫阿拉伯數字，沒有就留白）
 
 各局人數：
 ${setList}
@@ -259,30 +258,24 @@ ${setList}
    ${homeRoster.join('、')}
 2. **客隊選手只能是以下名單中的人**：
    ${awayRoster.join('、')}
-3. **三人局與四人局多名單讀取**：三人局（SET5、SET10）每側儲存格必須包含 3 位選手；四人局（SET15、SET16）每側儲存格必須包含 4 位選手。手寫姓名通常會在同一格內上下垂直疊寫或左右並列，請仔細讀取該格內的所有文字，將所有選手姓名全部讀出組成陣列，切勿漏讀下方或角落的名字。
-4. **單字與簡稱綽號比對**：選手手寫姓名可能為單字簡稱（例如以「喵」代表名冊中的「喵喵」、以「豬」代表「小朱」、以「衰」代表「瘦子」、以「文」代表「詩惠」或「慶文」），請優先比對並回傳傳入名冊中的完整標準姓名。
-5. **特殊符號與字元（+0 / +o）**：名冊中若有包含符號的選手（例如 "+0" 或 "+o"），手寫常出現 "+o"、"+0" 或 "+O"，請將其認定為該位選手，切勿誤判為數學符號或數字 "+0"。
-6. 塗黑方框的填法可能是「螺旋塗鴉」而不是整格塗滿，只要框內有明顯筆跡（無論形狀）都算「已勾選」。
-7. 同一列的兩個左側框（緊鄰 SET 標籤左邊）可能同時被塗黑，兩個右側框（緊鄰 SET 標籤右邊）也可能同時被塗黑，這是正常情況（代表同一隊既先攻又獲勝），不是重複勾選的錯誤。
-8. 若某個欄位字跡潦草、模糊到你沒有把握，請誠實給出低信心分數（甚至 0），**不要用猜測填一個看起來合理但沒有根據的答案**。姓名讀不出來就回傳 null，塗黑框讀不出來就回傳 "unclear"。
-9. 場次代號（gamecode）如果照片上有寫，讀出來放進 gameCode 欄位；這場的實際場次是「${gameCode || '未提供'}」，僅供你交叉核對，不代表照片上一定寫得一致。
-10. **出賽限制（同組內同一人不能出賽超過一次）**：以下每組 SET 屬於同一組，同一位選手在同一組內只會出現一次——如果你辨識出同一人在同一組出現兩次以上，代表你至少有一次認錯人，回去重新檢查那幾局的筆跡，不要直接回傳矛盾的結果：
-   - SET1、SET4 為一組
-   - SET6、SET9 為一組
-   - SET11、SET12 為一組
-   - SET13、SET14 為一組
-11. **firstAttack 與 winner 只回答「塗黑的框在 SET 標籤的左邊還右邊」（left/right），不要自己換算成主隊或客隊**——每一列從左到右固定是「主隊選手、先攻框、勝框、SET 標籤、勝框、先攻框、客隊選手」，哪一側是主隊、哪一側是客隊已經是固定的版面規則，由我們自己的程式判斷，你只需要誠實回答視覺上看到塗黑框在哪一側，不要做語意翻譯。
-12. **塗改（劃掉重寫）的姓名**：記錄員有時會把寫錯的名字劃掉，在旁邊補寫正確的名字。這種格子請照以下方式處理：
-   - **被劃掉的名字一律不是答案**，要讀的是補寫上去的那一個
-   - 只要這一格出現任何劃掉的痕跡（刪除線、塗掉、蓋掉），就把該格的 strikethrough 設為 true，不管你對補寫的名字有多確定
-   - 如果劃掉之後補寫的字看不清楚、或根本分不出哪個才是最終答案，name 回傳 null
+3. 每一局回傳的選手數要等於該局人數；四人局的四個名字分在上下兩排，請全部讀出，不要漏讀下排。讀不出來的格子回傳 name: null，不要省略。
+4. **單字與簡稱綽號比對**：手寫可能只寫單字或簡稱，請優先比對並回傳名單中的完整標準姓名。
+5. **winner 只回答長條框「在左邊還右邊」有筆跡（left/right），不要自己換算成主隊或客隊**。勝方通常只在長條裡畫一筆，不一定塗滿；兩邊都沒有或都有筆跡就回 unclear。
+6. **三黑統計表**：
+   - 主隊那張的姓名只能是主隊名單中的人，客隊那張只能是客隊名單中的人
+   - 整列空白（沒有寫名字）就不要回傳那一列；有回傳的列要附上 row（由上往下第幾列，1~8）
+   - 次數讀成整數；格子空白回傳 0，看不清楚回傳 null 並給低信心
+   - 這三個數字通常是 0~5 的小數字，讀到很大的數字請再確認一次
+7. 若某個欄位字跡潦草、模糊到你沒有把握，請誠實給出低信心分數（甚至 0），**不要用猜測填一個看起來合理但沒有根據的答案**。
+8. 場次代號如果照片上有寫，讀出來放進 gameCodeOnPhoto；這場的實際場次是「${gameCode || '未提供'}」，僅供交叉核對。
+9. **塗改（劃掉重寫）的姓名**：被劃掉的名字一律不是答案，要讀補寫的那一個；只要這一格有劃掉的痕跡，就把 strikethrough 設為 true；分不出哪個才是最終答案時 name 回傳 null。
 
-信心分數（0~100）不是憑印象打的整體感覺分，是針對「這個具體欄位」的判讀依據給分，請照下面的判斷基準：
+信心分數（0~100）是針對「這個具體欄位」的判讀依據給分：
 - 90~100：筆跡清楚、無歧義，換一個人來看也只會有一種讀法
-- 60~89：筆跡看得出來，但有一點模糊、可能跟名單裡另一個名字接近，或塗黑框邊緣沒塗滿、判斷需要一點推論
-- 30~59：筆跡潦草、被遮擋一部分，或塗黑框介於「像有塗」跟「像沒塗」之間，你其實是用猜的
+- 60~89：看得出來，但有一點模糊、或可能跟名單裡另一個名字接近
+- 30~59：潦草、被遮擋一部分，你其實是用猜的
 - 0~29：幾乎看不出來、被遮擋、或完全空白
-**同一張照片裡不應該所有欄位都給 90 以上**——如果你發現自己對每一格都很有把握，先停下來重新檢查有沒有欄位其實只是「大概猜的」但被你直覺打了高分。`;
+**同一張照片裡不應該所有欄位都給 90 以上**——如果你發現自己對每一格都很有把握，先停下來重新檢查。`;
 }
 
 function buildResponseSchema() {
@@ -307,6 +300,28 @@ function buildResponseSchema() {
         required: ['value', 'confidence'],
     });
 
+    const countField = {
+        type: 'OBJECT',
+        properties: {
+            value: { type: 'INTEGER', nullable: true },
+            confidence: { type: 'INTEGER' },
+        },
+        required: ['value', 'confidence'],
+    };
+
+    const awardRow = {
+        type: 'OBJECT',
+        properties: {
+            // 第幾列（1~8，由上往下）。影像判讀要靠這個對到實際的格子
+            row: { type: 'INTEGER' },
+            player: playerField,
+            hat: countField,
+            wh: countField,
+            bed: countField,
+        },
+        required: ['row', 'player', 'hat', 'wh', 'bed'],
+    };
+
     return {
         type: 'OBJECT',
         properties: {
@@ -319,21 +334,24 @@ function buildResponseSchema() {
                         set: { type: 'INTEGER' },
                         homePlayers: { type: 'ARRAY', items: playerField },
                         awayPlayers: { type: 'ARRAY', items: playerField },
-                        // 故意要求「左邊還右邊」而不是直接要求「主隊還客隊」——
-                        // 實測發現直接要求 home/away 時，模型會穩定地把兩側搞反
-                        // （100% 精確反過來，不是隨機亂猜），懷疑是「主隊」「客隊」
-                        // 這種語意標籤在模型內部對應到左右哪一側時發生系統性錯位。
-                        // 改成只回答視覺上「哪一側」，把「左側=主隊、右側=客隊」
-                        // 這個固定版面規則交給我們自己的程式碼做，不靠模型翻譯語意。
-                        firstAttack: choiceField(['left', 'right', 'unclear']),
+                        // 故意要求「左邊還右邊」而不是「主隊還客隊」：實測直接要求 home/away
+                        // 時模型會穩定讀反。左＝主、右＝客由程式決定（見 mapSidesToTeams）。
+                        // 校正成功時這個欄位會被影像判讀的結果蓋掉，只在校正失敗時當備援。
                         winner: choiceField(['left', 'right', 'unclear']),
                     },
-                    required: ['set', 'homePlayers', 'awayPlayers', 'firstAttack', 'winner'],
+                    required: ['set', 'homePlayers', 'awayPlayers', 'winner'],
                 },
             },
-            drinkingBonus: choiceField(['home', 'away', 'none', 'unclear']),
+            awards: {
+                type: 'OBJECT',
+                properties: {
+                    home: { type: 'ARRAY', items: awardRow },
+                    away: { type: 'ARRAY', items: awardRow },
+                },
+                required: ['home', 'away'],
+            },
         },
-        required: ['sets', 'drinkingBonus'],
+        required: ['sets', 'awards'],
     };
 }
 
@@ -348,7 +366,6 @@ const SIDE_TO_TEAM = { left: 'home', right: 'away', unclear: 'unclear' };
 function mapSidesToTeams(result) {
     const sets = (result.sets || []).map(s => ({
         ...s,
-        firstAttack: mapSideField(s.firstAttack),
         winner: mapSideField(s.winner),
     }));
     return { ...result, sets };
@@ -374,9 +391,48 @@ function overrideWithPixelReading(result, pixelRead) {
     const sets = (result.sets || []).map(s => {
         const px = bySet.get(s.set);
         if (!px) return s;
-        return { ...s, firstAttack: px.firstAttack, winner: px.winner };
+        return { ...s, winner: px.winner };
     });
     return { ...result, sets };
+}
+
+// ===== 後處理 0.6：三黑表的數字放到對的欄 =====
+// 實測模型讀數字沒問題，但會放錯欄（HAT 的 2 回成白馬）。哪一格有寫字由影像
+// 判讀決定（readAwardCells），模型只負責讀「寫的是幾」：
+//   - 影像說空白 → 一定是 0
+//   - 影像說有寫、模型在同一格也有讀到數字 → 用模型的數字
+//   - 數字落點跟影像不一致時，若這一列「有寫的格數」等於「模型讀到的非零數字個數」，
+//     就依左到右的順序重新對應（模型通常只是整排錯位）；對不起來就標成讀不出來
+
+const AWARD_KEYS = ['hat', 'wh', 'bed'];
+
+function mergeAwardCells(result, pixelRead) {
+    if (!pixelRead.applied || !pixelRead.awards) return result;
+    const awards = {};
+    for (const side of ['home', 'away']) {
+        awards[side] = (result.awards?.[side] || []).map(r => {
+            const px = pixelRead.awards[side][(r.row || 0) - 1];
+            if (!px) return { ...r, pixel: false };
+            const inked = AWARD_KEYS.filter(k => px[k].ink);
+            const values = AWARD_KEYS.map(k => r[k]).filter(f => f && f.value);
+            const fixed = { ...r, pixel: true };
+            const placedRight = AWARD_KEYS.every(k => px[k].ink === !!(r[k] && r[k].value));
+            if (placedRight) {
+                AWARD_KEYS.forEach(k => { if (!px[k].ink) fixed[k] = { value: 0, confidence: 100 }; });
+            } else if (inked.length === values.length) {
+                AWARD_KEYS.forEach(k => { fixed[k] = { value: 0, confidence: 100 }; });
+                inked.forEach((k, i) => { fixed[k] = { value: values[i].value, confidence: Math.min(values[i].confidence, 70), realigned: true }; });
+            } else {
+                AWARD_KEYS.forEach(k => {
+                    fixed[k] = px[k].ink
+                        ? (r[k] && r[k].value ? { ...r[k], confidence: Math.min(r[k].confidence, 40) } : { value: null, confidence: 0 })
+                        : { value: 0, confidence: 100 };
+                });
+            }
+            return fixed;
+        });
+    }
+    return { ...result, awards };
 }
 
 // ===== 後處理 1：名單模糊比對 =====
@@ -398,7 +454,15 @@ function applyRosterMatching(result, homeRoster, awayRoster) {
         homePlayers: (s.homePlayers || []).map(p => matchAgainstRoster(p, homeRoster)),
         awayPlayers: (s.awayPlayers || []).map(p => matchAgainstRoster(p, awayRoster)),
     }));
-    return { ...result, sets };
+    const awardSide = (rows, roster) => (rows || [])
+        .filter(r => r && r.player && r.player.name)
+        .slice(0, AWARD_ROWS)
+        .map(r => ({ ...r, player: matchAgainstRoster(r.player, roster) }));
+    const awards = {
+        home: awardSide(result.awards?.home, homeRoster),
+        away: awardSide(result.awards?.away, awayRoster),
+    };
+    return { ...result, sets, awards };
 }
 
 function matchAgainstRoster(player, roster) {
@@ -502,67 +566,55 @@ function levenshtein(a, b) {
     return dp[m][n];
 }
 
-// ===== 後處理 2：逐局勝負的客觀驗算 =====
-// SET_POINTS 加總永遠是 30 分，這個事實不靠模型自報、不受模型信心影響，
-// 是唯一能拿來驗證「逐局勝負」的客觀依據（見 SCORESHEET_OCR.md 發現 3：
-// 自報總分符合不代表每局都對，但總分不符合則保證有錯）。
+// ===== 後處理 2：客觀驗算 =====
+// 15 局每局 1 分，兩隊勝局數加總必須是 15；不到 15 代表有局的勝負沒讀出來。
+// 另外檢查：每人出賽局數上限、三黑表上的人有沒有出賽。
 
 function applyCrossCheck(result) {
     const sets = result.sets || [];
-    let homePoints = 0, awayPoints = 0;
+    let homeWins = 0, awayWins = 0;
     const unclearSets = [];
 
     sets.forEach(s => {
-        const def = SET_DEFS.find(d => d.set === s.set);
-        if (!def) return;
-        if (s.winner?.value === 'home') homePoints += def.points;
-        else if (s.winner?.value === 'away') awayPoints += def.points;
+        if (s.winner?.value === 'home') homeWins++;
+        else if (s.winner?.value === 'away') awayWins++;
         else unclearSets.push(s.set);
     });
 
-    const sumValid = (homePoints + awayPoints) === SET_POINTS_SUM;
+    const appearances = { home: new Map(), away: new Map() };
+    sets.forEach(s => {
+        for (const [side, list] of [['home', s.homePlayers], ['away', s.awayPlayers]]) {
+            for (const p of list || []) {
+                if (!p || !p.name) continue;
+                appearances[side].set(p.name, (appearances[side].get(p.name) || 0) + 1);
+            }
+        }
+    });
+    const overLimit = [];
+    for (const side of ['home', 'away']) {
+        for (const [name, count] of appearances[side]) {
+            if (count > MAX_SETS_PER_PLAYER) overLimit.push({ team: side, name, count, limit: MAX_SETS_PER_PLAYER });
+        }
+    }
 
-    // 出賽限制檢查：同組內同一人不能重複出賽（沿用 admin 既有的分組定義）
-    const repeatViolations = checkNoRepeatViolations(sets);
+    // 三黑表上的選手如果整場都沒出賽，多半是姓名認錯
+    const awardsWithoutPlay = [];
+    for (const side of ['home', 'away']) {
+        for (const r of result.awards?.[side] || []) {
+            if (r.player?.name && !appearances[side].has(r.player.name)) awardsWithoutPlay.push({ team: side, name: r.player.name });
+        }
+    }
 
     return {
         ...result,
         crossCheck: {
-            computedHomePoints: homePoints,
-            computedAwayPoints: awayPoints,
-            expectedSum: SET_POINTS_SUM,
-            sumValid,
-            unclearSets, // 這些局的勝負沒有讀出來，人工確認時要特別注意
-            repeatViolations, // 同組內出現重複選手，違反出賽限制
+            computedHomeWins: homeWins,
+            computedAwayWins: awayWins,
+            expectedSum: TOTAL_SETS,
+            sumValid: homeWins + awayWins === TOTAL_SETS,
+            unclearSets,       // 這些局的勝負沒有讀出來，人工確認時要特別注意
+            overLimit,         // 出賽超過上限的選手
+            awardsWithoutPlay, // 三黑表上有名字、但 15 局都沒出賽
         },
     };
-}
-
-function checkNoRepeatViolations(sets) {
-    const violations = [];
-    for (const group of NO_REPEAT_GROUPS) {
-        const seenHome = new Map(); // name -> [set,...]
-        const seenAway = new Map();
-        for (const setNum of group) {
-            const s = sets.find(x => x.set === setNum);
-            if (!s) continue;
-            for (const p of s.homePlayers || []) {
-                if (!p.name) continue;
-                if (!seenHome.has(p.name)) seenHome.set(p.name, []);
-                seenHome.get(p.name).push(setNum);
-            }
-            for (const p of s.awayPlayers || []) {
-                if (!p.name) continue;
-                if (!seenAway.has(p.name)) seenAway.set(p.name, []);
-                seenAway.get(p.name).push(setNum);
-            }
-        }
-        for (const [name, appearedIn] of seenHome) {
-            if (appearedIn.length > 1) violations.push({ team: 'home', name, sets: appearedIn, group });
-        }
-        for (const [name, appearedIn] of seenAway) {
-            if (appearedIn.length > 1) violations.push({ team: 'away', name, sets: appearedIn, group });
-        }
-    }
-    return violations;
 }

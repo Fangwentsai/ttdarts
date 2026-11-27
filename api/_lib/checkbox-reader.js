@@ -15,17 +15,15 @@
  */
 
 const sharp = require('sharp');
-const { CHECKBOX_LAYOUT } = require('./checkbox-layout');
+const { CHECKBOX_LAYOUT, AWARD_LAYOUT } = require('./checkbox-layout');
 
 // 框內取樣時四邊各往內縮的比例，避開方框本身的黑色邊框
-const INSET = 0.22;
+const INSET = 0.18;
 // 低於這個灰階值算「有墨跡」
-const DARK_LEVEL = 140;
-// 框內暗像素超過這個比例就算已勾選。記錄員實際是在框裡畫螺旋而不是塗滿，
-// 覆蓋率大約 40~60%，空白框的雜訊約 0~5%，門檻設在中間偏低處
-const INK_RATIO = 0.15;
+const DARK_LEVEL = 170;
+// 比紙色暗這麼多才算墨跡
+const DARK_DROP = 55;
 // 垂直對齊的搜尋範圍（見 findVerticalOffset 的說明）
-const OFFSET_RANGE = 60;
 
 /**
  * 判讀 16 局的先攻與勝負。
@@ -37,23 +35,21 @@ async function readCheckboxes(rectifiedBuffer) {
         const { data, info } = await sharp(rectifiedBuffer).greyscale().raw().toBuffer({ resolveWithObject: true });
         const img = { data, width: info.width, height: info.height };
 
-        const offset = findVerticalOffset(img);
         const sets = CHECKBOX_LAYOUT.map(row => {
-            const cov = {
-                faLeft: coverage(img, row.faLeft, offset),
-                winLeft: coverage(img, row.winLeft, offset),
-                winRight: coverage(img, row.winRight, offset),
-                faRight: coverage(img, row.faRight, offset),
-            };
-            return {
-                set: row.set,
-                firstAttack: decidePair(cov.faLeft, cov.faRight),
-                winner: decidePair(cov.winLeft, cov.winRight),
-                coverage: cov,
-            };
+            const left = locateBar(img, row.winLeft);
+            const right = locateBar(img, row.winRight);
+            const cov = { winLeft: coverage(img, left, 0), winRight: coverage(img, right, 0) };
+            return { set: row.set, winner: decidePair(cov.winLeft, cov.winRight), coverage: cov, located: { left, right } };
         });
 
-        return { sets, offset, applied: true };
+        // 三黑表跟主表格一起印在同一張紙上，用最後幾列長條實際找到的位移當作表格的位移
+        const tail = sets.slice(-3);
+        const shift = (key, k1) => tail.reduce((acc, r) => acc
+            + (r.located.left[key] - CHECKBOX_LAYOUT[r.set - 1].winLeft[key])
+            + (r.located.right[key] - CHECKBOX_LAYOUT[r.set - 1].winRight[key]), 0) / (tail.length * 2);
+        const awards = readAwardCells(img, shift('x1'), shift('y1'));
+
+        return { sets, awards, offset: 0, applied: true };
     } catch (err) {
         console.error('❌ readCheckboxes 失敗:', err);
         return { sets: [], offset: 0, applied: false, reason: 'exception:' + err.message };
@@ -61,24 +57,66 @@ async function readCheckboxes(rectifiedBuffer) {
 }
 
 /**
- * 一組兩格中，哪一格有墨跡。左＝主隊、右＝客隊是版面固定規則。
+ * 在版面座標附近找出長條的實際外框。
  *
- * 兩格同時有墨跡或同時空白都代表判讀不出唯一答案，回 unclear 交人工確認，
- * 不要硬猜一個看起來合理的答案。
+ * 校正後的畫布跟版面模板之間仍有幾 px 到二十幾 px 的位移（定位點偵測誤差、
+ * 紙張對折的弧形、拍照角度），而一筆橫線只有 2~3px 粗，位移一點就量不到。
+ * 所以不直接相信模板座標，而是在附近逐點搜尋「四條邊都夠暗」的位置：
+ * 取四條邊平均暗度的最小值當分數，只有真的長條外框四邊都暗；
+ * 表格橫線、手寫字只會讓其中一兩條邊變暗，分數上不來。
  */
-function decidePair(covLeft, covRight) {
-    const diff = covLeft - covRight;
-    const absDiff = Math.abs(diff);
+const SEARCH_X = 22, SEARCH_Y = 26; // 列高約 58px，Y 搜尋不能超過半列
 
-    // 兩格墨水覆蓋率差距不足 0.12，代表兩格無顯著相對差異（真正的同亮或同暗空白）
-    if (absDiff < 0.12) {
+function locateBar(img, box) {
+    const w = box.x2 - box.x1, h = box.y2 - box.y1;
+    let best = { score: -1, dx: 0, dy: 0 };
+    for (let dy = -SEARCH_Y; dy <= SEARCH_Y; dy++) {
+        for (let dx = -SEARCH_X; dx <= SEARCH_X; dx++) {
+            const x1 = box.x1 + dx, y1 = box.y1 + dy;
+            const sc = Math.min(
+                edgeDark(img, x1, y1, w, 0),      // 上
+                edgeDark(img, x1, y1 + h, w, 0),  // 下
+                edgeDark(img, x1, y1, h, 1),      // 左
+                edgeDark(img, x1 + w, y1, h, 1)   // 右
+            );
+            if (sc > best.score) best = { score: sc, dx, dy };
+        }
+    }
+    return { x1: box.x1 + best.dx, y1: box.y1 + best.dy, x2: box.x2 + best.dx, y2: box.y2 + best.dy };
+}
+
+// 一條邊（含上下或左右各 1px，容許框線沒對正）的平均暗度，0~255
+function edgeDark(img, x, y, len, vertical) {
+    let sum = 0, n = 0;
+    for (let k = 0; k <= len; k += 2) {
+        let v = 0;
+        for (let t = -1; t <= 1; t++) {
+            const px = vertical ? x + t : x + k, py = vertical ? y + k : y + t;
+            if (px < 0 || py < 0 || px >= img.width || py >= img.height) continue;
+            v = Math.max(v, 255 - img.data[py * img.width + px]);
+        }
+        sum += v; n++;
+    }
+    return n ? sum / n : 0;
+}
+
+/**
+ * 一組左右兩個長條中，哪一條有筆跡。左＝主隊、右＝客隊是版面固定規則。
+ *
+ * 條通分紙只要求「勝方在長條內畫一筆」，一筆橫線大約只佔長條內部 8~20%，
+ * 所以門檻比舊分紙（螺旋塗滿 40~60%）低很多；空白長條的雜訊約 0~3%。
+ * 判斷看兩條的相對差距：有筆跡的那條要明顯比另一條多，否則交人工確認。
+ */
+const MIN_INK = 0.05;      // 至少要有這麼多墨跡才算有畫
+const MAX_OTHER_RATIO = 0.45; // 另一條的墨跡不能超過這條的 45%
+
+function decidePair(covLeft, covRight) {
+    const hi = Math.max(covLeft, covRight), lo = Math.min(covLeft, covRight);
+    if (hi < MIN_INK || lo > hi * MAX_OTHER_RATIO) {
         return { value: 'unclear', confidence: 0 };
     }
-
-    // 只要存在顯著相對差額（例如 0.85 vs 0.22 差距 0.63），較高者即為填寫方框，
-    // 不會因背景影子或水印使較低那格 > 0.15 而被誤判成 unclear。
-    const confidence = Math.round(Math.min(100, absDiff * 160));
-    return { value: diff > 0 ? 'home' : 'away', confidence };
+    const confidence = Math.round(Math.min(100, 50 + (hi - lo) * 400));
+    return { value: covLeft > covRight ? 'home' : 'away', confidence };
 }
 
 function coverage(img, box, offset) {
@@ -86,41 +124,60 @@ function coverage(img, box, offset) {
     const x1 = Math.round(box.x1 + bw * INSET), x2 = Math.round(box.x2 - bw * INSET);
     const y1 = Math.round(box.y1 + offset + bh * INSET), y2 = Math.round(box.y2 + offset - bh * INSET);
 
-    let dark = 0, total = 0;
+    // 紙面亮度依照片打光差很多（同一張上下可差 100 以上），用框內最亮的部分
+    // 當紙色、比紙色暗 DARK_DROP 以上才算墨跡，不用寫死的灰階值
+    const vals = [];
     for (let y = y1; y < y2; y++) {
         if (y < 0 || y >= img.height) continue;
         for (let x = x1; x < x2; x++) {
             if (x < 0 || x >= img.width) continue;
-            if (img.data[y * img.width + x] < DARK_LEVEL) dark++;
-            total++;
+            vals.push(img.data[y * img.width + x]);
         }
     }
-    return total > 0 ? dark / total : 0;
+    if (!vals.length) return 0;
+    const sorted = vals.slice().sort((a, b) => a - b);
+    const paper = sorted[Math.floor(sorted.length * 0.9)];
+    const threshold = Math.min(DARK_LEVEL, paper - DARK_DROP);
+    let dark = 0;
+    for (const v of vals) if (v < threshold) dark++;
+    return dark / vals.length;
 }
 
 /**
- * 找出方框座標與實際影像之間的垂直偏移量。
+ * 三黑統計表：只判斷每一格「有沒有寫東西」，不讀數字（數字交給模型）。
  *
- * 為什麼需要這一步：校正後的畫布尺寸固定，但實際照片跟版面模板之間仍會
- * 有整體性的垂直位移（列印版本的細微差異、定位點偵測的殘留誤差、
- * 分紙為了讓主客兩隊各自填名單而先對折造成的弧形）。實測這個位移可達
- * 20~25px，而列高只有約 58px，不修正就會整排讀到隔壁列或表頭。
- *
- * 校準的依據不需要正確答案：對齊正確時，每一組兩格必定是「一格明顯有墨、
- * 一格明顯空白」，兩格的覆蓋率差距最大；沒對齊時兩格都落在框線或空白處，
- * 數值接近、差距小。取「所有組別覆蓋率差距總和」最大的位移即可。
+ * 實測模型讀數字本身沒問題，但常把數字放錯欄（HAT 的 2 回成白馬），跟舊分紙
+ * 先攻／勝負被讀反是同一類空間錯誤。所以哪一格有寫由影像決定，模型只負責
+ * 讀出寫的是幾。空白格實測是 0%，一個手寫數字約佔格子內部 2~6%（細的「1」只有 2%）。
  */
-function findVerticalOffset(img) {
-    let best = { offset: 0, score: -1 };
-    for (let offset = -OFFSET_RANGE; offset <= OFFSET_RANGE; offset++) {
-        let score = 0;
-        for (const row of CHECKBOX_LAYOUT) {
-            score += Math.abs(coverage(img, row.faLeft, offset) - coverage(img, row.faRight, offset));
-            score += Math.abs(coverage(img, row.winLeft, offset) - coverage(img, row.winRight, offset));
+const CELL_INSET = 0.2;
+const CELL_INK = 0.01;
+
+function readAwardCells(img, dx, dy) {
+    const L = AWARD_LAYOUT;
+    const out = {};
+    for (const side of ['home', 'away']) {
+        out[side] = [];
+        for (let r = 0; r < L.rows; r++) {
+            const y1 = L.rowTop + r * L.rowHeight + dy, y2 = y1 + L.rowHeight;
+            const cell = key => {
+                const [x1, x2] = L[side][key];
+                const box = { x1: x1 + dx, x2: x2 + dx, y1, y2 };
+                const cov = coverageInset(img, box, CELL_INSET);
+                return { ink: cov >= CELL_INK, coverage: +cov.toFixed(3) };
+            };
+            out[side].push({ row: r + 1, name: cell('name'), hat: cell('hat'), wh: cell('wh'), bed: cell('bed') });
         }
-        if (score > best.score) best = { offset, score };
     }
-    return best.offset;
+    return out;
 }
 
-module.exports = { readCheckboxes, _internal: { findVerticalOffset, coverage, decidePair } };
+function coverageInset(img, box, inset) {
+    const bw = box.x2 - box.x1, bh = box.y2 - box.y1;
+    return coverage(img, {
+        x1: box.x1 + bw * (inset - INSET), x2: box.x2 - bw * (inset - INSET),
+        y1: box.y1 + bh * (inset - INSET), y2: box.y2 - bh * (inset - INSET),
+    }, 0);
+}
+
+module.exports = { readCheckboxes, _internal: { locateBar, coverage, decidePair, readAwardCells } };

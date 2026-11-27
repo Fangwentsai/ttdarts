@@ -45,7 +45,17 @@
             max-width: 200mm;
             margin: 0 auto;
             padding: 0 9mm;
+            /* 定位點中心的高寬比必須固定是 1.403（api/_lib/deskew.js 的
+               SHEET_MARK_ASPECT），校正才找得到正確的四個角。寬 200mm 時
+               中心距 193mm，高度要 193 x 1.403 + 7 = 277.8mm。
+               高度不能讓內容撐開，否則版面一改比例就跑掉。 */
+            width: 200mm;
+            height: 277.8mm;
+            display: flex;
+            flex-direction: column;
         }
+
+        .sheet .footnote { margin-top: auto; }
 
         .reg-mark {
             position: absolute;

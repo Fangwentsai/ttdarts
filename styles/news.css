@@ -534,10 +534,11 @@ body {
  * 用整個內容寬度放表格，讀起來也比擠成三欄清楚。
  */
 @media screen and (min-width: 900px) {
+    /* 團隊排行 + 三個 Leader 共四塊，排成 2x2 */
     .rankings {
-        display: flex;
-        justify-content: space-between;
-        gap: 3px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
     }
 
     .ranking-section {

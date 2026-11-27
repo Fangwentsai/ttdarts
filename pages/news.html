@@ -65,10 +65,10 @@
     </script>
 
     <!-- 預載入關鍵 CSS 以改善 LCP -->
-    <link rel="preload" href="styles/news.css?v=20261127" as="style"
+    <link rel="preload" href="styles/news.css?v=20261127b" as="style"
         onload="this.onload=null;this.rel='stylesheet'">
     <noscript>
-        <link rel="stylesheet" href="styles/news.css?v=20261127">
+        <link rel="stylesheet" href="styles/news.css?v=20261127b">
     </noscript>
 
     <!-- CSS 載入 polyfill -->
@@ -785,7 +785,7 @@
         @media (max-width: 768px) {
             .mobile-quick-nav {
                 display: grid;
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(3, 1fr);
                 gap: 0;
                 margin-top: -20px;
 
@@ -854,10 +854,8 @@
                 font-size: 12px;
             }
         }
-        /* 只放一張 Logo，不輪播：整張顯示、不裁切，隱藏標題與圓點 */
-        .photo-carousel .carousel-container { background: #0a111d; }
-        .photo-carousel .carousel-image { object-fit: contain !important; object-position: center !important; }
-        .photo-carousel .carousel-overlay { display: none !important; }
+        .hero-logo { background: #0a111d; border-radius: 12px; overflow: hidden; display: flex; justify-content: center; margin-bottom: 15px; }
+        .hero-logo img { display: block; width: 100%; max-width: 400px; height: auto; aspect-ratio: 1 / 1; }
     </style>
 </head>
 
@@ -873,28 +871,10 @@
                     class="nav-arrow">▸</span>後台</a>
         </div>
 
-        <!-- 照片輪播區塊 -->
-        <div class="photo-carousel">
-            <div class="carousel-container" style="min-height: 200px;">
-                <div class="carousel-loading" id="carousel-loading">
-                    <div class="loading-spinner"></div>
-                    <div class="loading-text">載入照片中...</div>
-                </div>
-                <!-- 為圖片設置明確尺寸以減少 CLS -->
-                <!-- 第一張圖片：直接設定 src，立即顯示（LCP 優化）-->
-                <img id="carousel-image" src="../images/logo.png" alt="TTDarts"
-                    class="carousel-image" width="800" height="400" loading="eager" fetchpriority="high"
-                    style="object-position: center 50%;">
-                <!-- 第二張圖片：延遲載入 -->
-                <img id="carousel-image-next" src="" alt="賽事照片輪播" class="carousel-image" width="800" height="400"
-                    loading="lazy">
-                <div class="carousel-overlay">
-                    <div class="carousel-title">TTDarts</div>
-                    <div class="carousel-dots" id="carousel-dots"></div>
-                </div>
-            </div>
+        <!-- 主視覺：固定一張 Logo，不輪播 -->
+        <div class="hero-logo">
+            <img src="../images/logo.png" alt="TTDarts 條通盃飛鏢聯賽" width="512" height="512" fetchpriority="high">
         </div>
-        <!-- 照片輪播區塊 -->
 
         <!-- 賽事動態區塊 (頁籤整合：近期比賽 / 上週戰況) -->
         <div class="matches-section match-tab-container">
@@ -930,28 +910,23 @@
             </div>
 
             <div class="ranking-section">
-                <h2 class="section-title">個人勝場排行👑</h2>
+                <h2 class="section-title">Hat Trick Leader 🎯</h2>
                 <table class="ranking-table">
-                    <tr>
-                        <th>組別</th>
-                        <th>隊名</th>
-                        <th>姓名</th>
-                        <th>勝場數</th>
-                    </tr>
+                    <tr><th>排名</th><th>隊名</th><th>姓名</th><th>次數</th></tr>
                 </table>
-
-                
             </div>
 
             <div class="ranking-section">
-                <h2 class="section-title">地獄倒霉鬼💀</h2>
+                <h2 class="section-title">White Horses Leader 🐎</h2>
                 <table class="ranking-table">
-                    <tr>
-                        <th>組別</th>
-                        <th>隊名</th>
-                        <th>姓名</th>
-                        <th>先攻機率</th>
-                    </tr>
+                    <tr><th>排名</th><th>隊名</th><th>姓名</th><th>次數</th></tr>
+                </table>
+            </div>
+
+            <div class="ranking-section">
+                <h2 class="section-title">3 In The Bed Leader 🛏️</h2>
+                <table class="ranking-table">
+                    <tr><th>排名</th><th>隊名</th><th>姓名</th><th>次數</th></tr>
                 </table>
             </div>
         </div>

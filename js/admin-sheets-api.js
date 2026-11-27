@@ -15,11 +15,11 @@ const SHEETS_CONFIG = {
         try { return SEASONS[CURRENT_SEASON].sheetId; }
         catch (e) { return null; }
     },
-    RESULT_SHEET_ID: '1V2hj-9R-C2GWYu6Wo-por-gNvm56vGFPjx4ELcx3XtE'    // 寫入比賽結果
+    RESULT_SHEET_ID: '1gXWx_QRm_MZkLvrnecBi0x5QpL2XmsoXZXPGYbUD_nc'    // 寫入比賽結果
 };
 
 // Google Apps Script URL (用於保存資料)
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJ3xPlfON7pkmeVKzpQImQhnlzpMz6Fn4Z1E7PwXVBZBvlncA7VCQ3tITyq9x8puAu/exec';
+const SCRIPT_URL = 'TODO_TTDARTS_GAS_URL';
 
 /** 開啟除錯日誌（發布模式下關閉以維持控制台乾淨） */
 const ENABLE_SHEETS_DEBUG_LOGS = false;

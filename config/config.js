@@ -20,7 +20,7 @@ const SEASONS = {
     // TODO(ttdarts): 換成新聯盟的試算表 ID；label / startDate / endDate / groups 依新聯盟填寫。
     // 頁面暫時沿用 scheduleS1 / rankS1 的檔名當範本，確定屆數命名後再改。
     1: {
-        sheetId: '1Mbz2Xn_Vo_m30uW7EGBJt4jIseRN93Qpfyztqo9XDcw',
+        sheetId: '1gXWx_QRm_MZkLvrnecBi0x5QpL2XmsoXZXPGYbUD_nc',
         apiKey: DEFAULT_API_KEY,
         label: '第一屆', startDate: null, endDate: null, rankRange: 'O:V',
         schedulePage: 'scheduleS1', rankPage: 'rankS1', resultDir: 'season1',

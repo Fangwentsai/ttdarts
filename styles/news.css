@@ -30,7 +30,7 @@ body {
     font-size: 22px;
     margin-bottom: 5px;
     color: white;
-    background-color: #dc3545;
+    background-color: #101a2c;
     padding: 6px 16px;
     border-radius: 4px;
     margin-top: 0;
@@ -58,7 +58,7 @@ body {
     font-size: 22px;
     margin-bottom: 5px;
     color: white;
-    background-color: #dc3545;
+    background-color: #101a2c;
     padding: 6px 16px;
     border-radius: 4px;
     margin-top: 0;
@@ -150,7 +150,7 @@ body {
     width: 10%;
     text-align: center;
     font-weight: bold;
-    color: #e84855;
+    color: #b8892e;
     font-size: 14px;
     vertical-align: middle;
 }
@@ -168,14 +168,14 @@ body {
 }
 
 .match-item:hover .team-col .team-name {
-    color: #dc3545;
+    color: #101a2c;
 }
 
 /* 分數樣式 */
 .team-col .score {
     font-weight: bold;
     font-size: 16px;
-    color: #e84855;
+    color: #b8892e;
     line-height: 1.1;
 }
 
@@ -587,7 +587,7 @@ body {
 
 .view-result {
     font-size: 14px;
-    color: #fa363a;
+    color: #b8892e;
     font-weight: bold;
 }
 
@@ -610,7 +610,7 @@ body {
     padding: 12px;
     background-color: #f8f8f8;
     border-radius: 6px;
-    border-left: 4px solid #fa363a;
+    border-left: 4px solid #b8892e;
 }
 
 .venue-item h3 {
@@ -704,7 +704,7 @@ body {
 .expand-btn {
     background: none;
     border: none;
-    color: #dc3545;
+    color: #101a2c;
     font-size: 12px;
     cursor: pointer;
     padding: 5px 8px;
@@ -948,7 +948,7 @@ body.news-page {
 }
 
 .news-text strong {
-    color: #dc3545;
+    color: #101a2c;
     font-weight: 600;
 }
 
@@ -1063,7 +1063,7 @@ body.news-page {
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 1px;
-    color: #b02a37;
+    color: #0a111d;
     margin-bottom: 2px;
 }
 
@@ -1085,8 +1085,8 @@ body.news-page {
 }
 
 .league-tab.active {
-    background: #e25360;
-    border-color: #e25360;
+    background: #149e96;
+    border-color: #149e96;
 }
 
 .ranking-table .group-cell {
@@ -1133,9 +1133,9 @@ body.news-page {
 }
 
 .match-nav-tab.active {
-    background-color: #dc3545;
+    background-color: #101a2c;
     color: #ffffff;
-    border-color: #dc3545;
+    border-color: #101a2c;
 }
 
 .match-nav-tab .matches-date {

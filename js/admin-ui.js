@@ -193,7 +193,7 @@ class CompletionIndicator {
             } else if (percentage >= 75) {
                 fillEl.style.background = 'linear-gradient(90deg, #ffc107, #fd7e14)';
             } else {
-                fillEl.style.background = 'linear-gradient(90deg, #dc3545, #e83e8c)';
+                fillEl.style.background = 'linear-gradient(90deg, #101a2c, #e83e8c)';
             }
         }
     }

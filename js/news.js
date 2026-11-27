@@ -254,11 +254,11 @@ window.loadSeasonArchive = async function(seasonNum, headerEl) {
                     initializeNewsToggle();
                 }
             } else {
-                contentEl.innerHTML = '<div style="padding:15px; text-align:center; color:#c00;">⚠️ 歷史戰報檔載入失敗，請重新點擊。</div>';
+                contentEl.innerHTML = '<div style="padding:15px; text-align:center; color:#0a111d;">⚠️ 歷史戰報檔載入失敗，請重新點擊。</div>';
             }
         } catch (e) {
             console.error(`載入第 ${seasonNum} 屆歷史戰報失敗:`, e);
-            contentEl.innerHTML = '<div style="padding:15px; text-align:center; color:#c00;">⚠️ 網路異常，請稍後再試。</div>';
+            contentEl.innerHTML = '<div style="padding:15px; text-align:center; color:#0a111d;">⚠️ 網路異常，請稍後再試。</div>';
         }
     }
 };

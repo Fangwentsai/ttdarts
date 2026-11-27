@@ -270,14 +270,14 @@ body {
 
 .set-stats-table th,
 .set-analysis-table th {
-    background: #CC3F54;
+    background: #149e96;
     color: white;
     font-weight: bold;
 }
 
 .set-stats-table tr:hover,
 .set-analysis-table tr:hover {
-    background: rgba(204, 63, 84, 0.1);
+    background: rgba(20, 158, 150, 0.1);
 }
 
 .coming-soon {

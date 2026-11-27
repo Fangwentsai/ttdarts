@@ -460,7 +460,7 @@ function mrNames(v) {
 function mrCmpRow(label, a, h) {
     const tot = (a + h) || 1;
     const aLead = a > h, hLead = h > a;
-    const col = (lead, trail) => lead ? '#dc3545' : (trail ? '#adb5bd' : '#c8ced4');
+    const col = (lead, trail) => lead ? '#101a2c' : (trail ? '#adb5bd' : '#c8ced4');
     return '<div class="cmp"><div class="cmp-top">'
         + '<span class="cmp-v ' + (aLead ? 'lead' : hLead ? 'trail' : '') + '">' + a + '</span>'
         + '<span class="cmp-l">' + mrEsc(label) + '</span>'

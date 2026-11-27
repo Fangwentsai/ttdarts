@@ -93,7 +93,7 @@ window.checkLiveStream = async function() {
 function renderLoadingState(container) {
     container.innerHTML = `
         <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 10px;">
-            <div style="display: inline-block; width: 24px; height: 24px; border: 3px solid #dc3545; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px;"></div>
+            <div style="display: inline-block; width: 24px; height: 24px; border: 3px solid #101a2c; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px;"></div>
             <div style="color: #6c757d; font-size: 14px; font-weight: bold;">後台雷達正在為您巡邏各大賽事頻道...</div>
         </div>
         <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
@@ -113,7 +113,7 @@ function renderNoLiveState(container) {
 function renderLivePlayer(container, liveId) {
     container.innerHTML = `
         <div style="margin-bottom: 5px; display: flex; align-items: center; gap: 10px;">
-            <span class="status-badge" style="display: inline-block; background-color: #dc3545; color: white; font-size: 13px; padding: 3px 8px; border-radius: 20px; font-weight: bold; animation: pulse 2s infinite;">🔴 正在直播</span>
+            <span class="status-badge" style="display: inline-block; background-color: #101a2c; color: white; font-size: 13px; padding: 3px 8px; border-radius: 20px; font-weight: bold; animation: pulse 2s infinite;">🔴 正在直播</span>
             <strong style="font-size: 16px;">為您擷取到最新的賽事實況</strong>
         </div>
         <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 15px;">

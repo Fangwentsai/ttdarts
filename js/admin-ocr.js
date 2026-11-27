@@ -326,7 +326,7 @@
             : '';
 
         const missHtml = missDetails.length
-            ? `<div style="background:#fef2f2; border:1px solid #fecaca; color:#991b1b; padding:10px 14px; border-radius:6px; margin-top:10px; font-size:13px; text-align:left; max-height:120px; overflow-y:auto;">` +
+            ? `<div style="background:#fbf6e9; border:1px solid #fecaca; color:#991b1b; padding:10px 14px; border-radius:6px; margin-top:10px; font-size:13px; text-align:left; max-height:120px; overflow-y:auto;">` +
               `<div style="font-weight:bold; margin-bottom:4px;">🔍 待補充與人工確認項目 (${missDetails.length} 項)：</div>` +
               missDetails.map(m => `<div style="margin-bottom:2px;">• ${m}</div>`).join('') +
               `</div>`

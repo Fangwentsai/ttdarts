@@ -211,7 +211,7 @@ function getBarColor(winRate) {
     if (winRate >= 80) return '#28a745';  // 綠色 - 優秀
     if (winRate >= 60) return '#ffc107';  // 黃色 - 良好
     if (winRate >= 40) return '#ff9800';  // 橙色 - 普通
-    return '#dc3545';                     // 紅色 - 需改善
+    return '#101a2c';                     // 紅色 - 需改善
 }
 
 // 獲取指定SET的TOP3選手顯示
@@ -252,13 +252,13 @@ function initializeSetChart(setData) {
                     if (rate >= 80) return 'rgba(40, 167, 69, 0.8)';  // 綠色 - 優秀
                     if (rate >= 60) return 'rgba(255, 193, 7, 0.8)';   // 黃色 - 良好
                     if (rate >= 40) return 'rgba(255, 152, 0, 0.8)';   // 橙色 - 普通
-                    return 'rgba(220, 53, 69, 0.8)';                   // 紅色 - 需改善
+                    return 'rgba(16, 26, 44, 0.8)';                   // 紅色 - 需改善
                 }),
                 borderColor: winRates.map(rate => {
                     if (rate >= 80) return 'rgba(40, 167, 69, 1)';
                     if (rate >= 60) return 'rgba(255, 193, 7, 1)';
                     if (rate >= 40) return 'rgba(255, 152, 0, 1)';
-                    return 'rgba(220, 53, 69, 1)';
+                    return 'rgba(16, 26, 44, 1)';
                 }),
                 borderWidth: 2,
                 borderRadius: 4,

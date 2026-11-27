@@ -177,11 +177,11 @@ window.loadSeasonArchive = async function(seasonNum, headerEl) {
                     initializeNewsToggle();
                 }
             } else {
-                contentEl.innerHTML = '<div style="padding:15px; text-align:center; color:#c00;">⚠️ 歷史戰報檔載入失敗，請重新點擊。</div>';
+                contentEl.innerHTML = '<div style="padding:15px; text-align:center; color:#0a111d;">⚠️ 歷史戰報檔載入失敗，請重新點擊。</div>';
             }
         } catch (e) {
             console.error(`載入第 ${seasonNum} 屆歷史戰報失敗:`, e);
-            contentEl.innerHTML = '<div style="padding:15px; text-align:center; color:#c00;">⚠️ 網路異常，請稍後再試。</div>';
+            contentEl.innerHTML = '<div style="padding:15px; text-align:center; color:#0a111d;">⚠️ 網路異常，請稍後再試。</div>';
         }
     }
 };
@@ -793,12 +793,12 @@ function generateMatchesHTML(matches) {
             
             /* 季後賽場次：淡紅底，和例行賽一眼分得開 */
             .match.playoff-match {
-                background-color: #fdf3f4;
-                border-color: #f3d6d9;
+                background-color: #fbf6e9;
+                border-color: #fbf6e9;
             }
 
             .clickable-match.playoff-match:hover {
-                background-color: #fbe9eb;
+                background-color: #fbf6e9;
             }
 
             .clickable-match {
@@ -873,7 +873,7 @@ function generateMatchesHTML(matches) {
             .score {
                 font-size: 18px;
                 font-weight: bold;
-                color: #dc3545;
+                color: #101a2c;
                 line-height: 1;
             }
             
@@ -890,7 +890,7 @@ function generateMatchesHTML(matches) {
 
             .mp-tag {
                 font-size: 15px;
-                color: #dc3545;
+                color: #101a2c;
                 font-weight: 700;
                 letter-spacing: 0.5px;
                 margin-bottom: 1px;

@@ -23,7 +23,7 @@ body::-webkit-scrollbar {
 
 /* 標題區域 */
 .header-section {
-    background-color: #dc3545;
+    background-color: #101a2c;
     color: white;
     text-align: center;
     position: fixed;
@@ -103,7 +103,7 @@ body::-webkit-scrollbar {
 
 .nav-btn {
     padding: 8px 16px;
-    background-color: #dc3545;
+    background-color: #101a2c;
     color: white;
     border-radius: 4px;
     cursor: pointer;
@@ -113,8 +113,8 @@ body::-webkit-scrollbar {
 
 .nav-btn.active {
     background-color: white;
-    color: #dc3545;
-    box-shadow: 0 0 0 2px #dc3545;
+    color: #101a2c;
+    box-shadow: 0 0 0 2px #101a2c;
 }
 
 .iframe-container {
@@ -188,9 +188,9 @@ body::-webkit-scrollbar {
     top: 100%;
     left: 0;
     background-color: white;
-    border: 1px solid #dc3545;
+    border: 1px solid #101a2c;
     border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+    box-shadow: 0 2px 4px rgba(16, 26, 44, 0.2);
     z-index: 3;
     min-width: 120px;
 }
@@ -198,7 +198,7 @@ body::-webkit-scrollbar {
 /* 下拉選單項目 */
 .dropdown-item {
     padding: 8px 16px;
-    color: #dc3545;
+    color: #101a2c;
     cursor: pointer;
     white-space: nowrap;
 }
@@ -321,7 +321,7 @@ body::-webkit-scrollbar {
     left: -160px;
     width: 160px;
     height: 100%;
-    background-color: #e84855;
+    background-color: #b8892e;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     z-index: 999;
@@ -447,7 +447,7 @@ body::-webkit-scrollbar {
 }
 
 .footer .sidebar-btn:hover {
-    color: #dc3545;
+    color: #101a2c;
 }
 
 /* 版權資訊 */
@@ -580,7 +580,7 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    background: #dc3545;
+    background: #101a2c;
     color: #fff;
     padding: 2px 4px;
     font-size: 10px;

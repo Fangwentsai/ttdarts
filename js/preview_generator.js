@@ -723,7 +723,7 @@ function showPreviewModal(adminData) {
          width: 30px;
          height: 30px;
          border-radius: 50%;
-         background-color: #fa363a;
+         background-color: #b8892e;
          color: white;
          border: none;
          cursor: pointer;
@@ -737,11 +737,11 @@ function showPreviewModal(adminData) {
          transition: all 0.2s ease;
      `;
     closeButton.addEventListener('mouseenter', function () {
-        this.style.backgroundColor = '#e62e32';
+        this.style.backgroundColor = '#b8892e';
         this.style.transform = 'scale(1.1)';
     });
     closeButton.addEventListener('mouseleave', function () {
-        this.style.backgroundColor = '#fa363a';
+        this.style.backgroundColor = '#b8892e';
         this.style.transform = 'scale(1)';
     });
     closeButton.addEventListener('click', function (e) {

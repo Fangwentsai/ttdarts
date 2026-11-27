@@ -116,10 +116,10 @@ body {
 
 /* 隊伍按鈕選中狀態 */
 .team-btn.selected {
-    background-color: #dc3545;
+    background-color: #101a2c;
     color: #fff;
-    border-color: #dc3545;
-    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+    border-color: #101a2c;
+    box-shadow: 0 2px 4px rgba(16, 26, 44, 0.3);
     transform: translateY(-1px);
 }
 
@@ -150,27 +150,27 @@ body {
 
 /* 取消按鈕點擊狀態 */
 .cancel-btn:active {
-    background-color: #dc3545;
+    background-color: #101a2c;
     color: #fff;
-    border-color: #dc3545;
+    border-color: #101a2c;
     transform: translateY(1px);
 }
 
 /* 確保選中狀態的優先級 */
 .team-filters .team-btn.selected {
-    background-color: #dc3545;
+    background-color: #101a2c;
     color: #fff;
-    border-color: #dc3545;
-    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+    border-color: #101a2c;
+    box-shadow: 0 2px 4px rgba(16, 26, 44, 0.3);
 }
 
 /* 防止其他狀態覆蓋選中狀態 */
 .team-filters .team-btn.selected:hover {
-    background-color: #dc3545;
+    background-color: #101a2c;
     color: #fff;
-    border-color: #dc3545;
+    border-color: #101a2c;
     transform: none;
-    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+    box-shadow: 0 2px 4px rgba(16, 26, 44, 0.3);
 }
 
 /* 表格基本樣式 - 使用表格布局而非網格布局 */
@@ -215,13 +215,13 @@ body {
 
 /* 表頭樣式 */
 .schedule-table thead tr {
-    background-color: #dc3545;
+    background-color: #101a2c;
     color: white;
     font-weight: bold;
 }
 
 .schedule-table th {
-    background-color: #dc3545;
+    background-color: #101a2c;
     color: white;
     font-weight: bold;
     font-size: 0.95em;
@@ -247,8 +247,8 @@ body {
 /* 選中隊伍的效果 */
 .schedule-table td.highlight-team {
     font-weight: bold;
-    background-color: #ffd6d9;
-    border-left: 3px solid #dc3545;
+    background-color: #fbf6e9;
+    border-left: 3px solid #101a2c;
 }
 
 /* 日期單元格 */
@@ -263,14 +263,14 @@ body {
 
 /* 可點擊日期樣式 */
 .clickable-date {
-    color: #dc3545;
+    color: #101a2c;
     text-decoration: underline;
     cursor: pointer;
     transition: color 0.2s;
 }
 
 .clickable-date:hover {
-    color: #a71d2a;
+    color: #0a111d;
 }
 
 /* 表格隊伍名稱欄位樣式 */
@@ -288,15 +288,15 @@ body {
 
 /* 被選中高亮的隊伍單元格 */
 .highlight-team {
-    background-color: #ffebec !important;
+    background-color: #fbf6e9 !important;
     font-weight: bold;
-    border-left: 3px solid #dc3545 !important;
-    color: #dc3545 !important;
+    border-left: 3px solid #101a2c !important;
+    color: #101a2c !important;
 }
 
 /* 高亮隊伍行樣式 */
 tr:has(.highlight-team) {
-    background-color: #fff9f9 !important;
+    background-color: #fbf6e9 !important;
 }
 
 /* 調整客場隊伍的文字位置 */
@@ -328,7 +328,7 @@ tr:has(.highlight-team) {
     font-size: 1.4em; /* 放大比分數字 */
     display: inline-block;
     margin: 0 2px;
-    color: #dc3545;
+    color: #101a2c;
 }
 
 /* 比分之間的分隔符 */
@@ -471,8 +471,8 @@ tr:has(.highlight-team) {
     }
     
     .highlight-team {
-        background-color: #ffeaec !important;
-        border-left: 2px solid #dc3545 !important;
+        background-color: #fbf6e9 !important;
+        border-left: 2px solid #101a2c !important;
     }
 
     .score {
@@ -518,7 +518,7 @@ tr:has(.highlight-team) {
 
     .team-btn.selected {
         transform: none;
-        box-shadow: 0 1px 3px rgba(220, 53, 69, 0.3);
+        box-shadow: 0 1px 3px rgba(16, 26, 44, 0.3);
     }
 
     .filter-row {
@@ -892,7 +892,7 @@ tr:has(.highlight-team) {
 .loading-progress {
     width: 0%;
     height: 100%;
-    background-color: #dc3545;
+    background-color: #101a2c;
     background-image: linear-gradient(45deg, 
         rgba(255,255,255,0.2) 25%, 
         transparent 25%, 
@@ -1011,7 +1011,7 @@ tr:has(.highlight-team) {
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background-color: #fa363a;
+    background-color: #b8892e;
     color: white;
     border: none;
     cursor: pointer;
@@ -1026,7 +1026,7 @@ tr:has(.highlight-team) {
 }
 
 .modal-close:hover {
-    background-color: #e62e32;
+    background-color: #b8892e;
     transform: scale(1.1);
 }
 
@@ -1040,7 +1040,7 @@ tr:has(.highlight-team) {
 /* 提升移動設備觸摸體驗 */
 @media (hover: none) {
     tr.clickable-match:active {
-        background-color: #ffeeef;
+        background-color: #fbf6e9;
     }
 }
 
@@ -1063,7 +1063,7 @@ tr:has(.highlight-team) {
     margin: 15px 0;
     padding: 12px 15px;
     background-color: #f8f8f8;
-    border-left: 4px solid #dc3545;
+    border-left: 4px solid #101a2c;
     color: #333;
     font-size: 0.95em;
     position: relative;
@@ -1087,11 +1087,11 @@ tr.clickable-match {
 tr.clickable-match:hover {
     background-color: #f0f0f0;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-    border-left: 2px solid #dc3545;
+    border-left: 2px solid #101a2c;
 }
 
 tr.clickable-match:hover .team-cell {
-    color: #dc3545; /* 懸停時隊伍名稱變紅色 */
+    color: #101a2c; /* 懸停時隊伍名稱變紅色 */
     font-weight: 500;
 }
 
@@ -1107,7 +1107,7 @@ tr.clickable-match:active {
 
 /* 模態框相關樣式 */
 .match-link {
-    color: #fa363a;
+    color: #b8892e;
     text-decoration: none;
     cursor: pointer;
 }
@@ -1136,17 +1136,17 @@ tr.clickable-match:active {
 
 /* 改進表頭樣式 */
 .schedule-table th {
-    background-color: #dc3545;
+    background-color: #101a2c;
     color: white;
     font-weight: bold;
     font-size: 0.95em;
     padding: 6px 6px;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-    border-bottom: 2px solid #c82333;
+    border-bottom: 2px solid #0a111d;
 }
 /* ===== 分組（第七屆起兩組並行）=====
    一次只顯示一組，用上方頁籤切換，避免 60 場全部攤開。
-   配色沿用全站既有的 #dc3545 主色與 .team-btn 樣式，不另立一套。 */
+   配色沿用全站既有的 #101a2c 主色與 .team-btn 樣式，不另立一套。 */
 .group-tabs {
     display: flex;
     gap: 6px;
@@ -1173,10 +1173,10 @@ tr.clickable-match:active {
 }
 
 .group-tab.active {
-    background-color: #e25360;
-    border-color: #e25360;
+    background-color: #149e96;
+    border-color: #149e96;
     color: #fff;
-    box-shadow: 0 2px 4px rgba(226, 83, 96, 0.3);
+    box-shadow: 0 2px 4px rgba(20, 158, 150, 0.3);
 }
 
 .group-block[hidden] { display: none; }

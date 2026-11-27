@@ -56,6 +56,8 @@ function doGet() {
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
+    // 後台每次拍照辨識都會送一份原始結果過來，記到 ocr_log，之後可以跟正確答案比對
+    if (data.action === 'logOcrResult') return json(logOcr(data));
     var lock = LockService.getScriptLock();
     lock.waitLock(20000);
     try {
@@ -147,6 +149,16 @@ function saveGame(d) {
     scheduleUpdated: scheduleUpdated,
     warning: scheduleUpdated ? '' : 'schedule 找不到 ' + d.gameId + '，比分沒有寫入賽程表'
   };
+}
+
+function logOcr(d) {
+  var ss = SHEET_ID ? SpreadsheetApp.openById(SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('ocr_log');
+  if (!sheet) return { status: 'error', message: '沒有 ocr_log 分頁' };
+  var text = JSON.stringify(d.result || {});
+  // 單一儲存格上限 50000 字
+  sheet.appendRow([d.timestamp || new Date().toISOString(), d.gameCode || '', d.homeTeam || '', d.awayTeam || '', text.slice(0, 49000)]);
+  return { status: 'success' };
 }
 
 function validate(d) {

@@ -102,7 +102,6 @@
                         <div class="header-cell">SET</div>
                         <div class="header-cell">主場</div>
                         <div class="header-cell">客場</div>
-                        <div class="header-cell">先攻</div>
                         <div class="header-cell">勝負</div>
                     </div>
                     <div class="game-board-body">
@@ -112,19 +111,22 @@
                     </div>
                 </div>
                 
-                <!-- 飲酒加成 -->
-                <div class="bonus-simple">
-                    <h3>🍺 飲酒加成 (+5分)</h3>
-                    <div class="bonus-buttons">
-                        <button class="bonus-btn" data-team="home" onclick="selectBonus('home')" id="homeBonusBtn">
-                            主場隊伍
-                        </button>
-                        <button class="bonus-btn" data-team="away" onclick="selectBonus('away')" id="awayBonusBtn">
-                            客場隊伍
-                        </button>
+                <!-- 三黑統計 -->
+                <div class="awards-section">
+                    <h3>🎯 三黑統計（HAT／白馬／床）</h3>
+                    <p class="awards-hint">每位選手本場的次數，沒有就留 0。拍照辨識會自動帶入。</p>
+                    <div class="awards-tables">
+                        <table class="awards-table">
+                            <thead><tr><th id="homeAwardsTitle">主隊</th><th>HAT</th><th>白馬</th><th>床</th></tr></thead>
+                            <tbody id="homeAwardsBody"></tbody>
+                        </table>
+                        <table class="awards-table">
+                            <thead><tr><th id="awayAwardsTitle">客隊</th><th>HAT</th><th>白馬</th><th>床</th></tr></thead>
+                            <tbody id="awayAwardsBody"></tbody>
+                        </table>
                     </div>
                 </div>
-                
+
                 <!-- 比賽成績試算 -->
                 <div class="score-calculation">
                     <h3>比賽成績</h3>
@@ -132,18 +134,16 @@
                         <div class="score-row">
                             <div class="team-info">
                                 <span class="team-name home-team" id="homeTeamScoreName">主場隊伍</span>
-                                <span class="score-detail">比賽成績: <span id="homeOriginalScore">0</span></span>
-                                <span class="score-detail">勝方加分: <span id="homeWinBonus">0</span></span>
-                                <span class="score-detail">飲酒加成: <span id="homeDrinkBonus">0</span></span>
-                                <span class="total-score home-total">總分: <span id="homeTotalScore">0</span></span>
+                                <span class="score-detail">勝局數: <span id="homeOriginalScore">0</span></span>
+                                <span class="score-detail">勝隊加分: <span id="homeWinBonus">0</span></span>
+                                <span class="total-score home-total">本場積分: <span id="homeTotalScore">0</span></span>
                             </div>
                             <div class="vs-divider">VS</div>
                             <div class="team-info">
                                 <span class="team-name away-team" id="awayTeamScoreName">客場隊伍</span>
-                                <span class="score-detail">比賽成績: <span id="awayOriginalScore">0</span></span>
-                                <span class="score-detail">勝方加分: <span id="awayWinBonus">0</span></span>
-                                <span class="score-detail">飲酒加成: <span id="awayDrinkBonus">0</span></span>
-                                <span class="total-score away-total">總分: <span id="awayTotalScore">0</span></span>
+                                <span class="score-detail">勝局數: <span id="awayOriginalScore">0</span></span>
+                                <span class="score-detail">勝隊加分: <span id="awayWinBonus">0</span></span>
+                                <span class="total-score away-total">本場積分: <span id="awayTotalScore">0</span></span>
                             </div>
                         </div>
                     </div>

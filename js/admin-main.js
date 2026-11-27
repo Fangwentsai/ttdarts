@@ -15,47 +15,40 @@ let winLoseData = {}; // 用於追蹤勝負選擇
 let bonusTeam = null; // 用於追蹤飲酒加成
 let hasUnsavedChanges = false; // 追蹤是否有未保存的變更
 
-// SET類型定義
+// 條通聯盟 15 局（與 pages/scoresheet.html、api/analyze-scoresheet.js 一致）
+const TOTAL_SETS = 15;
 const setTypes = {
-    1: "501 (OI/MO)",
-    2: "501 (DI/DO)", 
-    3: "701 (OI/MO)",
-    4: "701 (OI/MO, 25/50)",
-    5: "三人賽 701",
-    6: "Cricket",
-    7: "Cricket",
-    8: "HALF-IT",
-    9: "HALF-IT", 
-    10: "三人賽 Cricket",
-    11: "701 雙人賽",
-    12: "701 雙人賽 FREEZE",
-    13: "Cricket 雙人賽",
-    14: "Team Cricket",
-    15: "四人賽 1101",
-    16: "四人賽 Cricket"
+    1: "單人 Count Up",
+    2: "單人 501 DI/DO",
+    3: "雙人 Half It",
+    4: "單人 501 OI/OO 女子賽",
+    5: "單人 Cricket",
+    6: "雙人 VS ARCHERY",
+    7: "四人 901 OI/OO",
+    8: "單人 701 OI/MO",
+    9: "雙人 Cricket",
+    10: "雙人 HIDDEN CR",
+    11: "單人 HYPER JUMP",
+    12: "單人 501 硬式 OI/DO",
+    13: "雙人 701 TEAM FREEZE",
+    14: "雙人 701 OI/OO",
+    15: "四人 Cricket"
 };
 
-// SET選手數量定義
 const setPlayerCounts = {
-    1: 1, 2: 1, 3: 1, 4: 1,     // SET1-4: 單人賽
-    5: 3,                        // SET5: 三人賽 701
-    6: 1, 7: 1, 8: 1, 9: 1,     // SET6-9: 單人Cricket
-    10: 3,                       // SET10: 三人賽 Cricket
-    11: 2, 12: 2,               // SET11-12: 雙人賽 501
-    13: 2, 14: 2,               // SET13-14: 雙人賽 Cricket
-    15: 4, 16: 4                // SET15-16: 四人賽
+    1: 1, 2: 1, 3: 2, 4: 1, 5: 1, 6: 2, 7: 4, 8: 1,
+    9: 2, 10: 2, 11: 1, 12: 1, 13: 2, 14: 2, 15: 4
 };
 
-// SET分數定義
-const setScores = {
-    1: 1, 2: 1, 3: 1, 4: 1,     // SET1-4: 1分（單人賽）
-    5: 3,                        // SET5: 3分（三人賽 701）
-    6: 1, 7: 1, 8: 1, 9: 1,     // SET6-9: 1分（單人Cricket）
-    10: 3,                       // SET10: 3分（三人賽 Cricket）
-    11: 2, 12: 2,               // SET11-12: 2分（雙人賽）
-    13: 2, 14: 2,               // SET13-14: 2分（雙人賽 Cricket）
-    15: 4, 16: 4                // SET15-16: 4分（四人賽）
-};
+// 每局勝方得 1 分；整場勝隊另加 2 分
+const setScores = Object.fromEntries(Array.from({ length: TOTAL_SETS }, (_, i) => [i + 1, 1]));
+const MATCH_WIN_BONUS = 2;
+// 一般選手每場最多出賽 8 局
+const MAX_SETS_PER_PLAYER = 8;
+
+// 三黑統計：每隊最多 8 列 { name, hat, wh, bed }
+const AWARD_ROWS = 8;
+let awardsData = { home: [], away: [] };
 
 // 移除舊的 noRepeatGroups 定義，使用新版本
 
@@ -191,13 +184,6 @@ function hasAnyData() {
         }
     }
     
-    // 檢查先攻選擇
-    for (let key in firstAttackData) {
-        if (firstAttackData[key]) {
-            return true;
-        }
-    }
-    
     // 檢查勝負選擇
     for (let key in winLoseData) {
         if (winLoseData[key]) {
@@ -326,11 +312,13 @@ function applyWarmupTeams() {
     firstAttackData = {};
     winLoseData = {};
     bonusTeam = null;
+    awardsData = { home: [], away: [] };
     hasUnsavedChanges = false;
 
     showGameDetails();
     generateGameRows();
     updateScoreCalculation();
+    renderAwardsTable();
 }
 
 function loadGameDetails(gameId) {
@@ -393,6 +381,7 @@ function loadGameDetails(gameId) {
     firstAttackData = {};
     winLoseData = {};
     bonusTeam = null;
+    awardsData = { home: [], away: [] };
     hasUnsavedChanges = false;
     
     try {
@@ -407,6 +396,7 @@ function loadGameDetails(gameId) {
         // 更新分數計算
         console.log('🧮 [DEBUG] 準備更新分數計算...');
         updateScoreCalculation();
+        renderAwardsTable();
         
         console.log('✅ [DEBUG] 比賽載入完成');
     } catch (error) {
@@ -425,8 +415,6 @@ function showGameDetails() {
     // 更新隊伍名稱
     document.getElementById('homeTeamScoreName').textContent = currentGame.home;
     document.getElementById('awayTeamScoreName').textContent = currentGame.away;
-    document.getElementById('homeBonusBtn').textContent = currentGame.home;
-    document.getElementById('awayBonusBtn').textContent = currentGame.away;
     
     // 顯示比賽詳情區域
     document.getElementById('gameDetails').style.display = 'block';
@@ -448,7 +436,7 @@ function generateGameRows() {
     
     gameRows.innerHTML = '';
     
-    for (let i = 1; i <= 16; i++) {
+    for (let i = 1; i <= TOTAL_SETS; i++) {
         const row = createGameRow(i);
         gameRows.appendChild(row);
     }
@@ -476,9 +464,6 @@ function createGameRow(setNumber) {
             <div class="set-type">${setTypes[setNumber]}</div>
             <div class="player-info" id="away-set${setNumber}-player">點擊選擇選手</div>
         </div>
-        <div class="control-button" data-set="${setNumber}" data-type="firstAttack" id="attack-set${setNumber}">
-            選擇
-        </div>
         <div class="control-button" data-set="${setNumber}" data-type="winLose" id="win-set${setNumber}">
             選擇
         </div>
@@ -487,7 +472,6 @@ function createGameRow(setNumber) {
     // 使用 addEventListener 來避免重複綁定
     const homeTeamBtn = row.querySelector('.home-team');
     const awayTeamBtn = row.querySelector('.away-team');
-    const attackBtn = row.querySelector('[data-type="firstAttack"]');
     const winBtn = row.querySelector('[data-type="winLose"]');
     
     homeTeamBtn.addEventListener('click', () => {
@@ -498,11 +482,6 @@ function createGameRow(setNumber) {
     awayTeamBtn.addEventListener('click', () => {
         console.log('🚗 [DEBUG] 客隊按鈕被點擊:', setNumber);
         openPlayerModal(setNumber, 'away');
-    });
-    
-    attackBtn.addEventListener('click', () => {
-        console.log('⚔️ [DEBUG] 先攻按鈕被點擊:', setNumber);
-        toggleControl(setNumber, 'firstAttack');
     });
     
     winBtn.addEventListener('click', () => {
@@ -518,13 +497,8 @@ function createGameRow(setNumber) {
 let isPlayerModalOpening = false;
 
 // 定義同組SET（不能重複選手）
-const noRepeatGroups = [
-    [1, 2, 3, 4],     // SET1-4 不能重複
-    [6, 7, 8, 9],     // SET6-9 不能重複
-    [11, 12],         // SET11-12 不能重複
-    [13, 14]          // SET13-14 不能重複
-    // SET5, SET10, SET15, SET16 沒有重複限制
-];
+// 條通規則沒有「同組不能重複」的限制（改成每人每場最多 8 局，送出前檢查）
+const noRepeatGroups = [];
 
 // 開啟選手選擇彈窗
 function openPlayerModal(setNumber, team) {
@@ -721,7 +695,7 @@ function updateSetButton(setNumber = currentSet, team = currentTeam) {
 
 // 更新所有SET按鈕的顯示狀態
 function updateAllSetButtons() {
-    for (let i = 1; i <= 16; i++) {
+    for (let i = 1; i <= TOTAL_SETS; i++) {
         ['home', 'away'].forEach(team => {
             const key = `${team}-${i}`;
             const playerElement = document.getElementById(`${team}-set${i}-player`);
@@ -846,7 +820,7 @@ function updateScoreCalculation() {
     let awayWins = 0;
     
     // 計算每個SET的分數
-    for (let i = 1; i <= 16; i++) {
+    for (let i = 1; i <= TOTAL_SETS; i++) {
         const winner = winLoseData[i];
         if (winner) {
             const setScore = setScores[i];
@@ -860,32 +834,19 @@ function updateScoreCalculation() {
         }
     }
     
-    // 勝方加分（比賽成績較高的隊伍加1分）
-    let homeWinBonus = 0;
-    let awayWinBonus = 0;
-    
-    if (homeScore > awayScore) {
-        homeWinBonus = 1;
-    } else if (awayScore > homeScore) {
-        awayWinBonus = 1;
-    }
-    // 平手時不加分
-    
-    // 飲酒加成
-    const homeDrinkBonus = bonusTeam === 'home' ? 5 : 0;
-    const awayDrinkBonus = bonusTeam === 'away' ? 5 : 0;
-    
-    // 總分
-    const homeTotalScore = homeScore + homeWinBonus + homeDrinkBonus;
-    const awayTotalScore = awayScore + awayWinBonus + awayDrinkBonus;
-    
+    // 整場勝隊加 2 分（15 局不會平手）
+    const homeWinBonus = homeScore > awayScore ? MATCH_WIN_BONUS : 0;
+    const awayWinBonus = awayScore > homeScore ? MATCH_WIN_BONUS : 0;
+    const homeDrinkBonus = 0, awayDrinkBonus = 0;
+
+    const homeTotalScore = homeScore + homeWinBonus;
+    const awayTotalScore = awayScore + awayWinBonus;
+
     // 更新顯示
     document.getElementById('homeOriginalScore').textContent = homeScore;
     document.getElementById('awayOriginalScore').textContent = awayScore;
     document.getElementById('homeWinBonus').textContent = homeWinBonus;
     document.getElementById('awayWinBonus').textContent = awayWinBonus;
-    document.getElementById('homeDrinkBonus').textContent = homeDrinkBonus;
-    document.getElementById('awayDrinkBonus').textContent = awayDrinkBonus;
     document.getElementById('homeTotalScore').textContent = homeTotalScore;
     document.getElementById('awayTotalScore').textContent = awayTotalScore;
     
@@ -930,7 +891,7 @@ function autoFillTestData() {
     }
     
     // 填入每個SET的資料
-    for (let i = 1; i <= 16; i++) {
+    for (let i = 1; i <= TOTAL_SETS; i++) {
         const requiredPlayers = setPlayerCounts[i];
         
         // 隨機選擇選手
@@ -976,20 +937,13 @@ function updateAllDisplays() {
     updateAllSetButtons();
     
     // 更新控制按鈕
-    for (let i = 1; i <= 16; i++) {
-        updateControlButton(i, 'firstAttack', firstAttackData[i]);
+    for (let i = 1; i <= TOTAL_SETS; i++) {
         updateControlButton(i, 'winLose', winLoseData[i]);
-    }
-    
-    // 更新飲酒加成顯示
-    document.getElementById('homeBonusBtn').classList.remove('selected');
-    document.getElementById('awayBonusBtn').classList.remove('selected');
-    if (bonusTeam) {
-        document.getElementById(`${bonusTeam}BonusBtn`).classList.add('selected');
     }
     
     // 更新分數計算
     updateScoreCalculation();
+    renderAwardsTable();
     
     console.log('✅ updateAllDisplays 完成');
 }
@@ -1000,7 +954,7 @@ function validateGameData() {
     const missingData = [];
     
     // 檢查所有SET的選手選擇
-    for (let i = 1; i <= 16; i++) {
+    for (let i = 1; i <= TOTAL_SETS; i++) {
         const homeKey = `home-${i}`;
         const awayKey = `away-${i}`;
         const requiredPlayers = setPlayerCounts[i];
@@ -1013,23 +967,30 @@ function validateGameData() {
         }
     }
     
-    // 檢查先攻選擇
-    for (let i = 1; i <= 16; i++) {
-        if (!firstAttackData[i]) {
-            missingData.push(`SET${i} 先攻`);
-        }
-    }
-    
     // 檢查勝負選擇
-    for (let i = 1; i <= 16; i++) {
+    for (let i = 1; i <= TOTAL_SETS; i++) {
         if (!winLoseData[i]) {
             missingData.push(`SET${i} 勝負`);
         }
     }
     
-    // 檢查飲酒加成選擇
-    if (!bonusTeam) {
-        missingData.push(`飲酒加成未選擇`);
+    // 每人每場最多出賽局數
+    for (const team of ['home', 'away']) {
+        const count = {};
+        for (let i = 1; i <= TOTAL_SETS; i++) {
+            (selectedPlayers[`${team}-${i}`] || []).forEach(n => { count[n] = (count[n] || 0) + 1; });
+        }
+        Object.entries(count).forEach(([n, c]) => {
+            if (c > MAX_SETS_PER_PLAYER) missingData.push(`${n} 出賽 ${c} 局，超過每場 ${MAX_SETS_PER_PLAYER} 局上限`);
+        });
+    }
+
+    // 三黑統計：有填數字就要有名字
+    for (const team of ['home', 'away']) {
+        awardsData[team].forEach((r, idx) => {
+            const hasCount = (r.hat || 0) + (r.wh || 0) + (r.bed || 0) > 0;
+            if (hasCount && !r.name) missingData.push(`${team === 'home' ? '主隊' : '客隊'}三黑統計第 ${idx + 1} 列有次數但沒有選手`);
+        });
     }
     
     return missingData;
@@ -1060,39 +1021,120 @@ async function saveGameData() {
         return;
     }
     
-    // 準備保存的資料
-    const gameData = {
-        gameId: document.getElementById('gameSelect').value,
-        homeTeam: currentGame.home,
-        awayTeam: currentGame.away,
-        selectedPlayers: selectedPlayers,
-        firstAttackData: firstAttackData,
-        winLoseData: winLoseData,
-        bonusTeam: bonusTeam,
-        scores: {
-            home: {
-                original: parseInt(document.getElementById('homeOriginalScore').textContent),
-                winBonus: parseInt(document.getElementById('homeWinBonus').textContent),
-                drinkBonus: parseInt(document.getElementById('homeDrinkBonus').textContent),
-                total: parseInt(document.getElementById('homeTotalScore').textContent)
-            },
-            away: {
-                original: parseInt(document.getElementById('awayOriginalScore').textContent),
-                winBonus: parseInt(document.getElementById('awayWinBonus').textContent),
-                drinkBonus: parseInt(document.getElementById('awayDrinkBonus').textContent),
-                total: parseInt(document.getElementById('awayTotalScore').textContent)
-            }
-        },
-        timestamp: new Date().toISOString()
-    };
-    
-    // 確認對話框 - 顯示比分
-    const confirmMessage = `請確認比賽結果：\n\n比賽：${gameData.gameId.toUpperCase()}\n\n${gameData.homeTeam}：${gameData.scores.home.total} 分\n${gameData.awayTeam}：${gameData.scores.away.total} 分\n\n確認無誤後將寫入`;
-    
+    const payload = buildTTPayload();
+    const homeWins = payload.sets.filter(x => x.winner === 'home').length;
+    const awayWins = TOTAL_SETS - homeWins;
+    const homeTotal = homeWins + (homeWins > awayWins ? MATCH_WIN_BONUS : 0);
+    const awayTotal = awayWins + (awayWins > homeWins ? MATCH_WIN_BONUS : 0);
+    const awardLines = ['home', 'away'].flatMap(t => payload.awards[t].map(r =>
+        `${r.name}：HAT ${r.hat}、白馬 ${r.wh}、床 ${r.bed}`));
+
+    const confirmMessage = `請確認比賽結果：\n\n比賽：${payload.gameId}\n\n` +
+        `${payload.homeTeam}：勝 ${homeWins} 局，積分 ${homeTotal}\n` +
+        `${payload.awayTeam}：勝 ${awayWins} 局，積分 ${awayTotal}\n\n` +
+        `三黑統計：${awardLines.length ? '\n' + awardLines.join('\n') : '無'}\n\n確認無誤後將寫入`;
+
     if (confirm(confirmMessage)) {
-        await saveToGoogleSheetsWithHTML(gameData);
+        await saveToTTGas(payload);
     }
 }
+
+// 組成 TTDarts GAS（scripts/gas_ttdarts.js）要的格式
+function buildTTPayload() {
+    let gameDate = currentGame.date || '';
+    try {
+        if (typeof withSeasonYear === 'function') gameDate = withSeasonYear(SEASONS[CURRENT_SEASON], gameDate);
+    } catch (e) { /* 沒有年份資訊就照原樣送 */ }
+
+    const sets = [];
+    for (let i = 1; i <= TOTAL_SETS; i++) {
+        sets.push({
+            set: i,
+            home: selectedPlayers[`home-${i}`] || [],
+            away: selectedPlayers[`away-${i}`] || [],
+            winner: winLoseData[i]
+        });
+    }
+    const clean = rows => rows
+        .filter(r => r && r.name && ((r.hat || 0) + (r.wh || 0) + (r.bed || 0) > 0))
+        .map(r => ({ name: r.name, hat: r.hat || 0, wh: r.wh || 0, bed: r.bed || 0 }));
+
+    return {
+        gameId: String(currentGame.id).toUpperCase(),
+        gameDate,
+        homeTeam: currentGame.home,
+        awayTeam: currentGame.away,
+        sets,
+        awards: { home: clean(awardsData.home), away: clean(awardsData.away) }
+    };
+}
+
+async function saveToTTGas(payload) {
+    const saveBtn = document.querySelector('.save-btn');
+    const original = saveBtn ? saveBtn.textContent : '';
+    try {
+        if (saveBtn) { saveBtn.textContent = '保存中...'; saveBtn.disabled = true; }
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' }, // 避免 CORS 預檢
+            body: JSON.stringify(payload)
+        });
+        const result = JSON.parse(await response.text());
+        if (result.status !== 'success') throw new Error(result.message || '保存失敗');
+
+        markAsSaved();
+        let msg = `✅ 比賽資料已保存！\n\n比賽：${result.gameId}\n比分：主 ${result.score.home} : 客 ${result.score.away}`;
+        if (result.warning) msg += `\n\n⚠️ ${result.warning}`;
+        await showCustomAlert(msg, result.warning ? 'warning' : 'success');
+    } catch (error) {
+        console.error('❌ 保存失敗:', error);
+        await showCustomAlert(`❌ 保存失敗：${error.message}\n\n資料還在畫面上，可以再按一次保存。`, 'error');
+    } finally {
+        if (saveBtn) { saveBtn.textContent = original; saveBtn.disabled = false; }
+    }
+}
+
+// ===== 三黑統計表 =====
+function teamRoster(team) {
+    if (!currentGame) return [];
+    const name = team === 'home' ? currentGame.home : currentGame.away;
+    const raw = playersData[name];
+    if (Array.isArray(raw)) return raw.map(p => (typeof p === 'string' ? p : p.name)).filter(Boolean);
+    if (raw && Array.isArray(raw.players)) return raw.players.map(p => (typeof p === 'string' ? p : p.name)).filter(Boolean);
+    return [];
+}
+
+function renderAwardsTable() {
+    for (const team of ['home', 'away']) {
+        const body = document.getElementById(`${team}AwardsBody`);
+        if (!body) continue;
+        const title = document.getElementById(`${team}AwardsTitle`);
+        if (title && currentGame) title.textContent = `${team === 'home' ? '主隊' : '客隊'}：${team === 'home' ? currentGame.home : currentGame.away}`;
+        const roster = teamRoster(team);
+        while (awardsData[team].length < AWARD_ROWS) awardsData[team].push({ name: '', hat: 0, wh: 0, bed: 0 });
+        body.innerHTML = awardsData[team].map((r, idx) => `
+            <tr data-team="${team}" data-row="${idx}" class="${r.ocrMark ? 'ocr-' + r.ocrMark : ''}">
+                <td><select data-field="name">
+                    <option value="">—</option>
+                    ${roster.concat(r.name && !roster.includes(r.name) ? [r.name] : []).map(n =>
+                        `<option value="${n}" ${n === r.name ? 'selected' : ''}>${n}</option>`).join('')}
+                </select></td>
+                ${['hat', 'wh', 'bed'].map(k => `<td class="${r.ocrMarks && r.ocrMarks[k] ? 'ocr-' + r.ocrMarks[k] : ''}">
+                    <input type="number" min="0" max="20" inputmode="numeric" data-field="${k}" value="${r[k] === null || r[k] === undefined ? '' : r[k]}"></td>`).join('')}
+            </tr>`).join('');
+    }
+}
+
+document.addEventListener('change', e => {
+    const tr = e.target.closest && e.target.closest('tr[data-team][data-row]');
+    if (!tr) return;
+    const team = tr.dataset.team, idx = +tr.dataset.row, field = e.target.dataset.field;
+    const row = awardsData[team][idx];
+    if (field === 'name') row.name = e.target.value;
+    else row[field] = Math.max(0, parseInt(e.target.value, 10) || 0);
+    e.target.closest('td').className = '';
+    markAsChanged();
+});
 
 // 保存到 Google Sheets（包含 HTML 和選手統計）
 async function saveToGoogleSheetsWithHTML(gameData) {
@@ -1341,7 +1383,7 @@ function computePlayerStats(gameData) {
         // 收集該隊所有出場選手
         const playerMap = {};
         
-        for (let i = 1; i <= 16; i++) {
+        for (let i = 1; i <= TOTAL_SETS; i++) {
             const key = `${team}-${i}`;
             const players = gameData.selectedPlayers[key] || [];
             if (!players.length) continue;
@@ -1407,7 +1449,7 @@ function collectAdminData() {
     const sets = [];
     
     // 收集每個SET的數據
-    for (let i = 1; i <= 16; i++) {
+    for (let i = 1; i <= TOTAL_SETS; i++) {
         const homeKey = `home-${i}`;
         const awayKey = `away-${i}`;
         

@@ -2,10 +2,11 @@
  * Admin：拍照辨識分紙
  *
  * 流程：選好場次 → 拍照（含即時定位點偵測）→ 送 /api/analyze-scoresheet
- *      → 直接寫進 16 局表單，並在欄位上標色
+ *      → 直接寫進 15 局表單和三黑統計表，並在欄位上標色
  *
  * 辨識品質目前是兩種等級（見 SCORESHEET_OCR.md），所以標色而不是一律照填：
- *   先攻／勝負走影像處理，93.8%／87.5%，判不出來會誠實回 unclear，可以信任；
+ *   勝負長條走影像處理，判不出來會誠實回 unclear，可以信任；
+ *   三黑表「哪一格有寫」走影像處理、「寫的是幾」走 Gemini；
  *   姓名走 Gemini，信心分數不論對錯都落在 90~95，還沒有鑑別力。
  * 沒把握的填了但標黃底、讀不出來的留空標紅底，兩者都要人工過目。
  */
@@ -227,7 +228,6 @@
             }
 
             for (const [field, store, id] of [
-                ['firstAttack', firstAttackData, `attack-set${i}`],
                 ['winner', winLoseData, `win-set${i}`],
             ]) {
                 const f = s[field];
@@ -245,9 +245,26 @@
             }
         }
 
-        if (data.drinkingBonus && ['home', 'away'].includes(data.drinkingBonus.value)) {
-            bonusTeam = data.drinkingBonus.value;
+        // 三黑統計：依分紙上的列順序填入；數字沒把握標黃、讀不出來留空標紅
+        const awardsOut = { home: [], away: [] };
+        for (const team of ['home', 'away']) {
+            for (const r of (data.awards && data.awards[team]) || []) {
+                const row = { name: r.player && r.player.name ? r.player.name : '', hat: 0, wh: 0, bed: 0, ocrMarks: {} };
+                const nameShaky = !row.name || r.player.strikethrough || r.player.notInRoster || r.player.confidence < NAME_CONFIDENCE_MIN;
+                if (!row.name) { row.ocrMark = 'miss'; miss++; }
+                else if (nameShaky) { row.ocrMark = 'warn'; warn++; }
+                for (const k of ['hat', 'wh', 'bed']) {
+                    const f = r[k] || {};
+                    if (f.value === null || f.value === undefined) { row[k] = null; row.ocrMarks[k] = 'miss'; miss++; }
+                    else {
+                        row[k] = f.value;
+                        if (f.value > 0 && (f.confidence < 60 || f.realigned)) { row.ocrMarks[k] = 'warn'; warn++; }
+                    }
+                }
+                awardsOut[team].push(row);
+            }
         }
+        awardsData = awardsOut;
 
         updateAllDisplays();
         markAsChanged();
@@ -256,13 +273,16 @@
         const cc = data.crossCheck || {};
         const alerts = [];
         if (data.deskew && !data.deskew.applied) {
-            alerts.push('四角定位點沒抓到，這張沒做透視校正，先攻／勝負可信度會明顯下降，建議重拍');
+            alerts.push('四角定位點沒抓到，這張沒做透視校正，勝負和三黑表的可信度會明顯下降，建議重拍');
         }
         if (!cc.sumValid) {
-            alerts.push(`逐局勝負推算的比賽得分是 ${cc.computedHomePoints}:${cc.computedAwayPoints}，合計不等於 30 分，至少有一局讀錯或讀不出來`);
+            alerts.push(`讀出的勝局數是 ${cc.computedHomeWins}:${cc.computedAwayWins}，合計不到 15 局，有局的勝負沒讀出來`);
         }
-        if ((cc.repeatViolations || []).length) {
-            alerts.push('同組重複出賽：' + cc.repeatViolations.map(r => `${r.name}（SET${r.sets.join('、')}）`).join('、'));
+        if ((cc.overLimit || []).length) {
+            alerts.push('出賽超過 8 局：' + cc.overLimit.map(r => `${r.name}（${r.count} 局）`).join('、'));
+        }
+        if ((cc.awardsWithoutPlay || []).length) {
+            alerts.push('三黑表上的選手本場沒有出賽，可能認錯人：' + cc.awardsWithoutPlay.map(r => r.name).join('、'));
         }
 
         const summary = `已填入表單。<b>黃底 ${warn} 項</b>請確認、<b>紅底 ${miss} 項</b>需自行選擇。點過該欄位即視為已確認。`;
@@ -293,8 +313,7 @@
             const missingAway = (s.awayPlayers || []).filter(p => !p.name);
             if (missingHome.length) missDetails.push(`SET${s.set} 主隊選手筆跡不清晰或無對應名冊`);
             if (missingAway.length) missDetails.push(`SET${s.set} 客隊選手筆跡不清晰或無對應名冊`);
-            if (s.firstAttack && s.firstAttack.value === 'unclear') missDetails.push(`SET${s.set} 先攻方框不清晰`);
-            if (s.winner && s.winner.value === 'unclear') missDetails.push(`SET${s.set} 勝負方框不清晰`);
+            if (s.winner && s.winner.value === 'unclear') missDetails.push(`SET${s.set} 勝負長條看不出是哪一邊`);
         }
 
         // 收集實際辨識出的名單外手寫暱稱（未對應到名冊者）
@@ -316,7 +335,7 @@
             recommendations.push(`🔤 <b>名冊別名建議</b>：手寫字 <b>${unmappedNames.join('、')}</b> 在名冊中未找到直接對應，若為隊員常用暱稱，可於選手資料庫補齊別名檔。`);
         }
         if (data.crossCheck && !data.crossCheck.sumValid) {
-            recommendations.push(`⚠️ <b>總分驗算提醒</b>：逐局推算比賽得分為 ${data.crossCheck.computedHomePoints}:${data.crossCheck.computedAwayPoints}，合計不等於 30 分，請優先確認紅底與黃底欄位。`);
+            recommendations.push(`⚠️ <b>總分驗算提醒</b>：讀出的勝局數為 ${data.crossCheck.computedHomeWins}:${data.crossCheck.computedAwayWins}，合計不到 15 局，請優先確認紅底與黃底欄位。`);
         }
 
         const alertsHtml = alerts.length

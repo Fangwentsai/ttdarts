@@ -1,5 +1,5 @@
 /**
- * news 頁的分組相關行為（第七屆起兩組並行）
+ * news 頁的分組相關行為（第一屆起兩組並行）
  *
  * 為什麼獨立成一個檔案而不是寫在 news.html 裡：index.html 是用 fetch + innerHTML
  * 把頁面注入 #contentArea，而 innerHTML **不會執行 <script>**。寫在 news.html
@@ -23,7 +23,7 @@
 
     function groups() {
         try {
-            return (typeof SEASONS !== 'undefined' && SEASONS[7] && SEASONS[7].groups) || {};
+            return (typeof SEASONS !== 'undefined' && SEASONS[1] && SEASONS[1].groups) || {};
         } catch (e) {
             return {};
         }

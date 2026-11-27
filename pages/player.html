@@ -184,14 +184,14 @@
         //      這份檔案是用 scripts/build_all_seasons.js 一次性整理出來的。
         //   2. 進行中賽季（第 7 屆）：即時打 Google Sheets API 抓最新資料，
         //      跟網站其他排行榜頁面的做法一致，永遠是當下最新數字。
-        //   等第七屆打完，把它也烘進 all_seasons.json，第八屆變成新的
+        //   等第一屆打完，把它也烘進 all_seasons.json，第八屆變成新的
         //   「進行中賽季」，重複同樣的模式（見 build_all_seasons.js 檔頭說明）。
 
         const params = new URLSearchParams(window.location.search);
         const clickedName = params.get('name') || '';
         const clickedTeam = params.get('team') || '';
 
-        const SEASON_LABELS = { 4: '第四屆', 5: '第五屆', 6: '第六屆', 7: '第七屆' };
+        const SEASON_LABELS = { 4: '第四屆', 5: '第五屆', 6: '第六屆', 7: '第一屆' };
         const LIVE_SEASON_NUM = 7;
 
         // 有些選手跨屆改過暱稱／換過隊伍（例如孟瑄→小孟、Jesse→傑西），
@@ -255,7 +255,7 @@
                         firstCount: numOrNull(r[11]), totalGames: numOrNull(r[12]),
                     }));
             } catch (e) {
-                console.error('讀取第七屆即時資料失敗:', e);
+                console.error('讀取第一屆即時資料失敗:', e);
                 return [];
             }
         }

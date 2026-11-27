@@ -19,12 +19,12 @@
                 : (typeof CURRENT_SEASON !== 'undefined' ? CURRENT_SEASON : 7);
             const s = (typeof SEASONS !== 'undefined' && SEASONS[seasonNum]) ? SEASONS[seasonNum] : null;
             const fallbackKey = (typeof DEFAULT_API_KEY !== 'undefined') ? DEFAULT_API_KEY : undefined;
-            if (s && s.sheetId) return { id: s.sheetId, key: s.apiKey || fallbackKey, label: s.label || '第七屆' };
+            if (s && s.sheetId) return { id: s.sheetId, key: s.apiKey || fallbackKey, label: s.label || '第一屆' };
         } catch (e) { /* fallback */ }
         return {
             id: '1APUuzy6Dcbi1sWGUVvrbrluEvKsktRvPYygASofekKQ',
             key: (typeof DEFAULT_API_KEY !== 'undefined') ? DEFAULT_API_KEY : undefined,
-            label: '第七屆'
+            label: '第一屆'
         };
     }
 

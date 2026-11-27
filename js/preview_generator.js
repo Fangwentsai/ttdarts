@@ -182,7 +182,7 @@ renderMatchResult(${gameCodeLower}Matches, matchMeta, drinkingBonus, awayPlayers
     //
     // admin 從 Sheets 讀到的日期是 B 欄的「8/19」這種 M/D，沒有年份。
     // 舊版只拿 season6Start 比大小、又沒處理缺年份的情況，任何 M/D 都會算出
-    // Invalid Date，比較結果永遠 false，於是整個第七屆的頁面標題都被寫成
+    // Invalid Date，比較結果永遠 false，於是整個第一屆的頁面標題都被寫成
     //「第五季」。改成讀 config.js 的 SEASONS 註冊表：
     //   有完整年份 → 用 startDate 找最後一個「已經開打」的賽季
     //   只有 M/D  → 用 CURRENT_SEASON，因為 admin 寫的一定是當季比賽
@@ -260,7 +260,7 @@ renderMatchResult(${gameCodeLower}Matches, matchMeta, drinkingBonus, awayPlayers
         if (!homeTeam) return '比賽場地';
 
         const venues = {
-            // 第七屆隊伍與主場對照（完全對齊 Google Sheet 登記名稱）
+            // 第一屆隊伍與主場對照（完全對齊 Google Sheet 登記名稱）
             '匪類里民一直喝': 'R8串燒 Metro Bar',
             '有點傻': 'No.5 飛鏢Bar',
             '酒空組': '逃生入口Bar',

@@ -1144,7 +1144,7 @@ tr.clickable-match:active {
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
     border-bottom: 2px solid #0a111d;
 }
-/* ===== 分組（第七屆起兩組並行）=====
+/* ===== 分組（第一屆起兩組並行）=====
    一次只顯示一組，用上方頁籤切換，避免 60 場全部攤開。
    配色沿用全站既有的 #101a2c 主色與 .team-btn 樣式，不另立一套。 */
 .group-tabs {

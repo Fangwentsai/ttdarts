@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>第七季排名榜 | 台北新北飛鏢比賽 - TTDarts</title>
-    <meta name="description" content="查看台北新北地區飛鏢聯賽「TTDarts」第七季最新排名！即時更新的團隊積分、勝負紀錄，掌握雙北飛鏢聯賽戰況。">
+    <title>第一季排名榜 | 台北新北飛鏢比賽 - TTDarts</title>
+    <meta name="description" content="查看台北新北地區飛鏢聯賽「TTDarts」第一季最新排名！即時更新的團隊積分、勝負紀錄，掌握雙北飛鏢聯賽戰況。">
     <meta name="keywords" content="台北飛鏢比賽排名,新北飛鏢比賽排名,飛鏢聯賽排行榜,TTDarts排名,雙北飛鏢排名,永和飛鏢成績">
-    <link rel="canonical" href="https://dev.ttdarts.com/pages/rankS7.html">
+    <link rel="canonical" href="https://dev.ttdarts.com/pages/rankS1.html">
     
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://dev.ttdarts.com/pages/rankS7.html">
-    <meta property="og:title" content="第七季排名榜 | 台北新北飛鏢比賽 - TTDarts">
-    <meta property="og:description" content="查看台北新北地區飛鏢聯賽第七季最新排名！即時更新的團隊積分、勝負紀錄。">
+    <meta property="og:url" content="https://dev.ttdarts.com/pages/rankS1.html">
+    <meta property="og:title" content="第一季排名榜 | 台北新北飛鏢比賽 - TTDarts">
+    <meta property="og:description" content="查看台北新北地區飛鏢聯賽第一季最新排名！即時更新的團隊積分、勝負紀錄。">
     <meta property="og:image" content="https://dev.ttdarts.com/images/season5.webp">
     
     <!-- GTM 已移至延遲載入腳本（body 底部） -->
@@ -35,7 +35,7 @@
     
     <link rel="stylesheet" href="styles/rank.css">
     <script>
-        const seasonOverride = 's7';
+        const seasonOverride = 's1';
         console.log('設置 seasonOverride =', seasonOverride);
     </script>
     <style>
@@ -51,8 +51,8 @@
 <body>
     <div class="container">
         <h2 class="rank-title">隊伍排名</h2>
-        <!-- 第七屆分兩組，各自排名。試算表 O:V 仍是 12 隊一份，
-             組別由 config/config.js 的 SEASONS[7].groups 反查，不在試算表另開欄位——
+        <!-- 第一屆分兩組，各自排名。試算表 O:V 仍是 12 隊一份，
+             組別由 config/config.js 的 SEASONS[1].groups 反查，不在試算表另開欄位——
              隊伍屬於哪組是固定的，多一欄只會多一個會不同步又不報錯的地方。 -->
         <div class="league-tabs" id="rankLeagueTabs"></div>
         <div class="rank-table-container">
@@ -168,7 +168,7 @@
             let current = ORDER[0];
 
             function groups() {
-                try { return (SEASONS && SEASONS[7] && SEASONS[7].groups) || {}; } catch (e) { return {}; }
+                try { return (SEASONS && SEASONS[1] && SEASONS[1].groups) || {}; } catch (e) { return {}; }
             }
 
             function render() {

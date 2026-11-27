@@ -305,7 +305,7 @@ async function loadMatches() {
 
                 // A:H 欄位格式（跟 schedule 頁籤表頭一致）：
                 // A=遊戲編號, B=日期, C=客場, D=客場分數, E=vs(略過), F=主場分數, G=主場, H=比賽地點
-                // 這份資料以前誤用 O:V（第七屆這個範圍其實是團隊排名表，不是賽程），
+                // 這份資料以前誤用 O:V（第一屆這個範圍其實是團隊排名表，不是賽程），
                 // 導致「近期比賽／上週戰況」永遠抓到排名列、日期全部解析失敗。
                 const seasonMeta = (typeof getSeason === 'function' && typeof CURRENT_SEASON !== 'undefined')
                     ? getSeason(CURRENT_SEASON) : null;

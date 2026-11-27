@@ -4,16 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>第七季賽程表 | 台北新北飛鏢比賽 - TTDarts</title>
-    <meta name="description" content="查看台北新北地區最受歡迎的飛鏢聯賽「TTDarts」第七季完整賽程表。每週比賽時間、對戰組合一目了然，歡迎雙北飛鏢愛好者關注！">
+    <title>第一季賽程表 | 台北新北飛鏢比賽 - TTDarts</title>
+    <meta name="description" content="查看台北新北地區最受歡迎的飛鏢聯賽「TTDarts」第一季完整賽程表。每週比賽時間、對戰組合一目了然，歡迎雙北飛鏢愛好者關注！">
     <meta name="keywords" content="台北飛鏢比賽賽程,新北飛鏢比賽賽程,飛鏢聯賽賽程表,TTDarts賽程,雙北飛鏢,永和飛鏢比賽時間">
-    <link rel="canonical" href="https://dev.ttdarts.com/pages/scheduleS7.html">
+    <link rel="canonical" href="https://dev.ttdarts.com/pages/scheduleS1.html">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://dev.ttdarts.com/pages/scheduleS7.html">
-    <meta property="og:title" content="第七季賽程表 | 台北新北飛鏢比賽 - TTDarts">
-    <meta property="og:description" content="查看台北新北地區飛鏢聯賽第七季完整賽程表，每週比賽時間、對戰組合一目了然！">
+    <meta property="og:url" content="https://dev.ttdarts.com/pages/scheduleS1.html">
+    <meta property="og:title" content="第一季賽程表 | 台北新北飛鏢比賽 - TTDarts">
+    <meta property="og:description" content="查看台北新北地區飛鏢聯賽第一季完整賽程表，每週比賽時間、對戰組合一目了然！">
     <meta property="og:image" content="https://dev.ttdarts.com/images/season5.webp">
 
     <!-- GTM 已移至延遲載入腳本（body 底部） -->
@@ -44,12 +44,12 @@
     </script>
     <!-- 明確指定只加載 s6 的數據 -->
     <script>
-        const seasonOverride = 's7';
+        const seasonOverride = 's1';
         console.log('設置 seasonOverride =', seasonOverride);
 
         // 頁面加載完成後檢查篩選按鈕
         document.addEventListener('DOMContentLoaded', function () {
-            console.log('scheduleS7.html 頁面加載完成，開始檢查篩選按鈕');
+            console.log('scheduleS1.html 頁面加載完成，開始檢查篩選按鈕');
             const teamButtons = document.querySelectorAll('.team-btn');
             console.log('頁面載入時找到篩選按鈕數量:', teamButtons.length);
 
@@ -71,11 +71,11 @@
             }
         }
     </style>
-    <title>第七屆賽程 | TTDarts</title>
+    <title>第一屆賽程 | TTDarts</title>
 </head>
 
 <body>
-    <!-- 加入 banner 圖片 - WebP 格式 (等有第七季圖片再開啟)
+    <!-- 加入 banner 圖片 - WebP 格式 (等有第一季圖片再開啟)
     <div class="banner">
         <img src="images/season6.webp" alt="Banner" class="banner-image" loading="lazy">
     </div>
@@ -111,14 +111,14 @@
          * 不如讓它照常填，這裡再把資料列「搬」進各組表格——用搬的不用複製，
          * main.js 綁在列上的日期／詳情點擊事件才會跟著過去，不需要重綁。
          *
-         * 分組來源是 config/config.js 的 SEASONS[7].groups，不是試算表欄位：
+         * 分組來源是 config/config.js 的 SEASONS[1].groups，不是試算表欄位：
          * 隊伍屬於哪一組是固定的，從隊名反查即可，多開一欄反而有不同步的風險。
          */
         (function () {
             const ORDER = ['掉鏢組', '靶外組'];
             // config.js 用 const 宣告 SEASONS，在瀏覽器裡不會掛到 window 上
             function groups() {
-                try { return (SEASONS && SEASONS[7] && SEASONS[7].groups) || {}; } catch (e) { return {}; }
+                try { return (SEASONS && SEASONS[1] && SEASONS[1].groups) || {}; } catch (e) { return {}; }
             }
             function groupOf(team) {
                 for (const [g, ts] of Object.entries(groups())) if (ts.includes(team)) return g;

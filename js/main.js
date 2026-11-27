@@ -1439,10 +1439,10 @@ async function loadRankData(page) {
 
         // 【修改這裡】把 isS5OrS6 傳遞下去，讓 updateTeamRankings 知道如何解析
         updateTeamRankings(rankData.values.slice(1), isNewRankLayout);
-        // 有分組的賽季（目前只有第七屆）要把 12 隊拆成掉鏢組/靶外組分頁顯示，
-        // 這段邏輯原本只寫在 pages/rankS7.html 自己的內嵌 <script> 裡，
+        // 有分組的賽季（目前只有第一屆）要把 12 隊拆成掉鏢組/靶外組分頁顯示，
+        // 這段邏輯原本只寫在 pages/rankS1.html 自己的內嵌 <script> 裡，
         // 但那段 script 是透過 innerHTML 注入到 SPA 的，瀏覽器不會執行，
-        // 所以首頁 #rankS7 這個多數人在用的入口一直是看到 12 隊平舖一列、沒有分頁籤。
+        // 所以首頁 #rankS1 這個多數人在用的入口一直是看到 12 隊平舖一列、沒有分頁籤。
         applyTeamGroupTabs(season);
 
         // 載入個人排名
@@ -1699,7 +1699,7 @@ function updateTeamRankings(data, isS5OrS6 = false) {
 }
 
 // 隊伍排名分組頁籤（適用於 S7 及未來分組賽季）
-// 移植自 pages/rankS7.html 自己的內嵌 <script>：把 updateTeamRankings 畫出來的
+// 移植自 pages/rankS1.html 自己的內嵌 <script>：把 updateTeamRankings 畫出來的
 // 12 隊平舖列表，依 season.groups 拆成掉鏢組/靶外組分頁顯示、組內重新編號。
 // 沒有分組設定的舊賽季呼叫這個函式會直接跳過，維持原本的平舖排名。
 function applyTeamGroupTabs(season) {

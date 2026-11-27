@@ -1353,7 +1353,7 @@ function computePlayerStats(gameData) {
             //    這份統計會直接 POST 給 GAS 寫進試算表 data 分頁，所以錯的是
             //    試算表而不是頁面——頁面的 type 是 preview_generator 的
             //    getSetType() 產的，那支一直是對的。兩條路徑各算各的才會對不起來。
-            //    結果：第七屆 116 位出賽 10 局以上的選手有 107 位拆分錯誤。
+            //    結果：第一屆 116 位出賽 10 局以上的選手有 107 位拆分錯誤。
             //
             //    現在直接共用 getSetType()，不要再維護第二份規則。
             const isCR = previewGenerator.getSetType(i) !== '01';

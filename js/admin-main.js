@@ -1138,7 +1138,7 @@ async function saveToGoogleSheetsWithHTML(gameData) {
         };
         
         // Google Apps Script Web App URL
-        const scriptURL = 'TODO_TTDARTS_GAS_URL';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwc0hluYss4hWb4dDGzSi9sQy4Cy8eEtuPN4C5pa4eLq2FE1J5PKQZAEFWoTGpfAthsmg/exec';
         
         console.log('發送請求到：', scriptURL);
         console.log('HTML 工作表名稱：', sheetsData.htmlSheetName);
@@ -1255,7 +1255,7 @@ async function saveToGoogleSheets(gameData) {
         console.log('準備保存資料：', gameData);
         
         // Google Apps Script Web App URL
-        const scriptURL = 'TODO_TTDARTS_GAS_URL';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwc0hluYss4hWb4dDGzSi9sQy4Cy8eEtuPN4C5pa4eLq2FE1J5PKQZAEFWoTGpfAthsmg/exec';
         
         console.log('發送請求到：', scriptURL);
         

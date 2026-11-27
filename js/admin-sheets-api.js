@@ -19,7 +19,7 @@ const SHEETS_CONFIG = {
 };
 
 // Google Apps Script URL (用於保存資料)
-const SCRIPT_URL = 'TODO_TTDARTS_GAS_URL';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwc0hluYss4hWb4dDGzSi9sQy4Cy8eEtuPN4C5pa4eLq2FE1J5PKQZAEFWoTGpfAthsmg/exec';
 
 /** 開啟除錯日誌（發布模式下關閉以維持控制台乾淨） */
 const ENABLE_SHEETS_DEBUG_LOGS = false;

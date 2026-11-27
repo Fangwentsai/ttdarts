@@ -194,7 +194,7 @@ async function confirmBind(team, player, cSeq) {
 
         // 走跟「新增隊員」相同的路徑：GAS 代寫回 GitHub。
         // no-cors 收不到回應，所以下面的成功提示是樂觀更新——與新增隊員一致。
-        const GAS_URL = 'TODO_TTDARTS_GAS_URL';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwc0hluYss4hWb4dDGzSi9sQy4Cy8eEtuPN4C5pa4eLq2FE1J5PKQZAEFWoTGpfAthsmg/exec';
         await fetch(GAS_URL, {
             method: 'POST',
             mode: 'no-cors',

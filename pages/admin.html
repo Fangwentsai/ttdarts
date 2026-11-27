@@ -494,7 +494,7 @@
         const newJson = JSON.stringify(playerJsonData, null, 2);
 
         // 透過 GAS 寫回 GitHub
-        const GAS_URL = 'TODO_TTDARTS_GAS_URL';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwc0hluYss4hWb4dDGzSi9sQy4Cy8eEtuPN4C5pa4eLq2FE1J5PKQZAEFWoTGpfAthsmg/exec';
 
         try {
             // 發送 POST 至 GAS (使用 mode: 'no-cors' 徹底消除 Google echo 302/404 代理伺服器的 Console 警告)

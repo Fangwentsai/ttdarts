@@ -305,21 +305,6 @@
         </div>
     </section>
 
-    <!-- 季後賽詳細資訊模態窗口 -->
-    <div id="playoffsModal" class="match-modal" onclick="if(event.target === this) { closePlayoffsModal(); }">
-        <div class="match-modal-content">
-            <iframe src="pages/s7_playoffs.html?v=20261118" class="match-iframe"></iframe>
-        </div>
-    </div>
-
-    <!-- 獎勵榮譽榜模態窗口 -->
-    <div id="rewardModal" class="match-modal" onclick="if(event.target === this) { closeRewardModal(); }">
-        <div class="match-modal-content">
-            <button class="modal-close" onclick="closeRewardModal(); event.stopPropagation();">✕</button>
-            <iframe src="pages/s5_reward.html?v=20251224" class="match-iframe"></iframe>
-        </div>
-    </div>
-
     <!-- 添加主要JavaScript，確保頁面功能正常 - 使用 defer 延遲載入 -->
     <!-- 賽季設定必須先於 main.js 載入（defer 會依序執行）-->
     <script src="config/config.js?v=20261127" defer></script>

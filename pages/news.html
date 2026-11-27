@@ -31,8 +31,6 @@
 
     <!-- 預載入關鍵資源以改善 LCP -->
     <!-- 預載入第一張輪播圖片（LCP 元素）- WebP 格式 -->
-    <link rel="preload" as="image" href="../images/s7_playoffs.webp"
-        imagesrcset="../images/s7_playoffs.webp 1600w" imagesizes="100vw" fetchpriority="high">
 
     <!-- DNS 預解析，加速第三方資源載入 -->
     <link rel="dns-prefetch" href="https://www.googletagmanager.com">
@@ -856,6 +854,10 @@
                 font-size: 12px;
             }
         }
+        /* 只放一張 Logo，不輪播：整張顯示、不裁切，隱藏標題與圓點 */
+        .photo-carousel .carousel-container { background: #0a111d; }
+        .photo-carousel .carousel-image { object-fit: contain !important; object-position: center !important; }
+        .photo-carousel .carousel-overlay { display: none !important; }
     </style>
 </head>
 
@@ -867,9 +869,6 @@
             <a href="javascript:void(0)" onclick="window.loadContent(SEASONS[CURRENT_SEASON].schedulePage)"><span
                     class="nav-arrow">▸</span>賽程</a>
             <a href="javascript:void(0)" onclick="window.loadContent(SEASONS[CURRENT_SEASON].rankPage)"><span class="nav-arrow">▸</span>排名</a>
-            <a href="javascript:void(0)"
-                onclick="const ns = document.getElementById('news-section'); if(ns) { window.scrollTo({top: ns.getBoundingClientRect().top + window.pageYOffset - 65, behavior: 'smooth'}); }"><span
-                    class="nav-arrow">▸</span>戰報</a>
             <a href="javascript:void(0)" onclick="window.open('pages/admin.html', '_blank')"><span
                     class="nav-arrow">▸</span>後台</a>
         </div>
@@ -883,43 +882,19 @@
                 </div>
                 <!-- 為圖片設置明確尺寸以減少 CLS -->
                 <!-- 第一張圖片：直接設定 src，立即顯示（LCP 優化）-->
-                <img id="carousel-image" src="../images/s7_playoffs.webp" alt="TTDarts第七屆團隊季後賽賽制"
+                <img id="carousel-image" src="../images/logo.png" alt="TTDarts"
                     class="carousel-image" width="800" height="400" loading="eager" fetchpriority="high"
                     style="object-position: center 50%;">
                 <!-- 第二張圖片：延遲載入 -->
                 <img id="carousel-image-next" src="" alt="賽事照片輪播" class="carousel-image" width="800" height="400"
                     loading="lazy">
                 <div class="carousel-overlay">
-                    <div class="carousel-title">第七屆團隊季後賽賽制公開</div>
+                    <div class="carousel-title">TTDarts</div>
                     <div class="carousel-dots" id="carousel-dots"></div>
                 </div>
             </div>
         </div>
         <!-- 照片輪播區塊 -->
-
-        <!-- 第五季成績公告 Banner (CSS 版本，避免圖片失真) - 暫時隱藏 -->
-        <button class="reward-banner" onclick="window.openRewardModal();" style="display: none !important;">
-            <div class="deco-glow"></div>
-            <div class="deco-glow-right"></div>
-            <div class="icon-trophy-left">🎖️</div>
-            <div class="text-group">
-                <div class="sub-title">TTDarts</div>
-                <div class="main-title">第五屆比賽結果</div>
-            </div>
-            <div class="icon-trophy">🏆</div>
-        </button>
-
-        <!-- 季後賽 Banner：季後賽期間常駐，點了開季後賽頁。
-             用 CSS 版而不是圖片，縮放不會失真、改屆數只要改這裡的文字。
-             季後賽結束後整段註解掉即可。 -->
-        <button class="playoffs-banner" onclick="window.openPlayoffsModal()" aria-label="查看第七屆季後賽">
-            <div class="deco-line"></div>
-            <div class="text-group">
-                <div class="sub-title">TTDarts</div>
-                <div class="main-title">第七屆季後賽</div>
-            </div>
-            <div class="icon-crown">👑</div>
-        </button>
 
         <!-- 賽事動態區塊 (頁籤整合：近期比賽 / 上週戰況) -->
         <div class="matches-section match-tab-container">
@@ -949,35 +924,8 @@
         <div class="rankings">
             <div class="ranking-section">
                 <h2 class="section-title">團隊總分排行👑</h2>
-                <!-- 第七屆分兩組進行，各自排名。按鈕切換要看哪一組。
-                     隊名與分數等第七屆開打後由賽果更新。 -->
-                <div class="league-tabs">
-                    <button class="league-tab active" data-league="掉鏢組">掉鏢組</button>
-                    <button class="league-tab" data-league="靶外組">靶外組</button>
-                </div>
-                <table class="ranking-table" data-league="掉鏢組">
-                    <tr><th>排名</th><th>隊名</th><th>總分</th>
-                    </tr>
-                    <tr><td>1</td><td>軟飯揪團中</td><td>329</td></tr>
-                    <tr><td>2</td><td>匪類里民一直喝</td><td>221</td></tr>
-                    <tr><td>3</td><td>人生揪難亮</td><td>190</td></tr>
-                    <tr><td>4</td><td>酒空組</td><td>185</td></tr>
-                    <tr><td>5</td><td>Tonight29發財隊</td><td>171</td></tr>
-                    <tr><td>6</td><td>傑克紅心</td><td>146</td></tr>
-                    <tr><td>1</td><td>逃生Zoo口</td><td>323</td></tr>
-                    <tr><td>2</td><td>哈哈隊</td><td>244</td></tr>
-                    <tr><td>3</td><td>有點傻</td><td>222</td></tr>
-                    <tr><td>4</td><td>嘻嘻隊</td><td>205</td></tr>
-                    <tr><td>5</td><td>傑克黑桃</td><td>175</td></tr>
-                </table>
-                <table class="ranking-table" data-league="靶外組" hidden>
+                <table class="ranking-table">
                     <tr><th>排名</th><th>隊名</th><th>總分</th></tr>
-                    <tr><td>1</td><td>逃生Zoo口</td><td>-</td></tr>
-                    <tr><td>2</td><td>有點傻</td><td>-</td></tr>
-                    <tr><td>3</td><td>嘻嘻隊</td><td>-</td></tr>
-                    <tr><td>4</td><td>哈哈隊</td><td>-</td></tr>
-                    <tr><td>5</td><td>傑克黑桃</td><td>-</td></tr>
-                    <tr><td>6</td><td>Tonight29恭喜隊</td><td>-</td></tr>
                 </table>
             </div>
 
@@ -990,26 +938,9 @@
                         <th>姓名</th>
                         <th>勝場數</th>
                     </tr>
-                    <tr><td>靶外</td><td>逃生Zoo口</td><td>小倫</td><td>48</td></tr>
-                    <tr><td>掉鏢</td><td>Tonight29發財隊</td><td>猴猴</td><td>42</td></tr>
-                    <tr><td>掉鏢</td><td>人生揪難亮</td><td>小蘇</td><td>33</td></tr>
-                    <tr><td>靶外</td><td>哈哈隊</td><td>華華</td><td>32</td></tr>
-                    <tr><td>靶外</td><td>嘻嘻隊</td><td>淦</td><td>32</td></tr>
                 </table>
 
-                <h3 class="section-title">Top Lady 🌹</h3>
-                <table class="ranking-table">
-                    <tr>
-                        <th>隊名</th>
-                        <th>姓名</th>
-                        <th>勝場數</th>
-                    </tr>
-                    <tr><td>逃生Zoo口</td><td>小喬</td><td>31</td></tr>
-                    <tr><td>Tonight29恭喜隊</td><td>薇薇</td><td>21</td></tr>
-                    <tr><td>Tonight29發財隊</td><td>Keira</td><td>20</td></tr>
-                    <tr><td>有點傻</td><td>Joy</td><td>19</td></tr>
-                    <tr><td>人生揪難亮</td><td>宜竫</td><td>15</td></tr>
-                </table>
+                
             </div>
 
             <div class="ranking-section">
@@ -1021,608 +952,9 @@
                         <th>姓名</th>
                         <th>先攻機率</th>
                     </tr>
-                    <tr><td>掉鏢</td><td>軟飯揪團中</td><td>小象</td><td>20.00%</td></tr>
-                    <tr><td>掉鏢</td><td>傑克紅心</td><td>小劉</td><td>23.81%</td></tr>
-                    <tr><td>掉鏢</td><td>酒空組</td><td>傑西</td><td>25.00%</td></tr>
-                    <tr><td>靶外</td><td>有點傻</td><td>小承</td><td>27.27%</td></tr>
-                    <tr><td>靶外</td><td>傑克黑桃</td><td>Ray</td><td>28.57%</td></tr>
                 </table>
             </div>
         </div>
-        <!-- 新聞區塊 -->
-        <div class="news-section" id="news-section" data-ad-client-ignore="true">
-            <h2 class="section-title">賽事新聞</h2>
-            <div class="news-content" id="newsContent">
-                <div class="news-item collapsible">
-                    <div class="news-header expanded">
-                        <div class="news-date">2026/11/18</div>
-                        <div class="news-title">🏆 第七屆冠軍戰：軟飯揪團中 19:17 逃生Zoo口，13 戰全勝封王，最後兩局四人賽定江山</div>
-                    </div>
-                    <div class="news-text expanded">
-                        各位鏢友，11/17 打完，第七屆團隊季後賽落幕。<strong>軟飯揪團中以 19:17 擊敗逃生Zoo口，13 戰全勝拿下冠軍 NT$8,000</strong>，整季一場未輸。而逃生Zoo口這 13 場唯一的一敗，就發生在這場冠軍戰。<br><br>
-
-                        <strong>🥇 冠軍戰 軟飯揪團中 19:17 逃生Zoo口（比賽成績 18:12）</strong><br>
-                        場地在逃生入口Bar，主隊逃生Zoo口握有 5 分飲酒加成，等於軟飯揪團中必須在比賽成績上先贏 6 分才保得住勝利——而最後他們剛好贏 6 分。<br>
-                        過程比分數看起來緊張得多。<strong>打到 SET14 結束，逃生Zoo口以 12:10 領先</strong>，只要再守下一局就能帶著飲酒加成收下冠軍。<br>
-                        結果最後兩局是四人賽：<strong>SET15（四人賽 1101，4 分）、SET16（四人賽 Cricket，4 分），軟飯揪團中全收</strong>，比分直接從 10:12 翻成 18:12。<strong>這兩局任何一局掉了，冠軍就易主</strong>——若 SET16 失手，最終會是 22:14 由逃生Zoo口捧杯。<br>
-                        軟飯揪團中這場<strong>12 個人全部上場，沒有人超過 3 勝</strong>：阿旮 4局3勝、樂源小宇 4局3勝領軍，瓜瓜、Allen 各 2 勝，大瀚、小賴出賽一局全收。這個「沒有單點、全員分擔」的樣子，整季都是這樣。<br>
-                        逃生Zoo口十三人輪番上陣，小倫 6局3勝、建龍 5局3勝、菜雞 5局2勝，但 Lucas、阿樂、晨晨、阿誠、禹辰、阿廷掛零的人數偏多。<br><br>
-
-                        <strong>🥉 季軍戰 有點傻 20:16 哈哈隊（比賽成績 19:11）</strong><br>
-                        同一晚在 Vivi Bar，有點傻客場拿下季軍 NT$3,000，而且劇本跟冠軍戰幾乎一樣——<strong>SET14 打完 11:11 平手，最後兩局四人賽也是被一邊全收</strong>，有點傻一口氣拿 8 分，19:11 作收。<br>
-                        <strong>小飛打滿 8 局拿 5 勝、Louis 7局5勝</strong>，羿珩 4局3勝、Ben 5局3勝，七個人上場全部都有勝場。哈哈隊這邊信宏 2局2勝，但華華打了 5 局掛零。<br>
-                        有點傻例行賽是 3勝6敗1和、靶外組第三，季後賽打出 2勝1敗拿下季軍，是這屆最會打淘汰賽的隊伍。<br><br>
-
-                        <strong>📊 第七屆團隊季後賽最終名次</strong><br>
-                        🥇 <strong>冠軍　軟飯揪團中</strong>　NT$ 8,000（13 戰全勝）<br>
-                        🥈 <strong>亞軍　逃生Zoo口</strong>　NT$ 5,000（11勝1敗1和）<br>
-                        🥉 <strong>季軍　有點傻</strong>　NT$ 3,000<br>
-                        　4　殿軍　哈哈隊<br>
-                        🍺 <strong>第二段冠軍　人生揪難亮</strong>　NT$ 2,000<br><br>
-
-                        <strong>🍺 飲酒獎金（已結算）</strong><br>
-                        40 分三隊並列第一：<strong>軟飯揪團中、匪類里民一直喝、傑克紅心</strong>，各 NT$2,000；35 分兩隊：<strong>逃生Zoo口、哈哈隊</strong>，各 NT$1,000。總額 8,000 與原本的獎金相同。<br><br>
-
-                        <strong>🏅 例行賽個人獎</strong><br>
-                        🎯 <strong>聯賽勝場王　小倫</strong>（逃生Zoo口．48 勝）<br>
-                        🌹 <strong>Top Lady　小喬</strong>（逃生Zoo口．31 勝）<br>
-                        💀 <s style="opacity:.6">地獄倒霉鬼　小象（軟飯揪團中．先攻率 20.00%）</s><br><br>
-
-                        <strong>👑 最後一場：個人季後賽 11/24</strong><br>
-                        地點依規則是團隊季後賽冠軍隊伍的主場，所以是<strong>樂源 a.k.a 兩杯</strong>。正取 16 人：各隊勝場最高 12 人 ＋ Top Lady ＋ 其餘選手勝場前三，完整名單在季後賽頁面的「個人季後賽」頁籤。<br><br>
-
-                        <em>總結：軟飯揪團中從 8/18 開幕打到 11/17，13 場比賽沒有輸過一次。而封王的那一刻，是靠最後兩局四人賽、在落後 2 分的情況下連拿 8 分換來的。🎯🍺</em>
-                    </div>
-                </div>
-                <div class="news-item collapsible">
-                    <div class="news-header">
-                        <div class="news-date">2026/11/12</div>
-                        <div class="news-title">🎯 第七屆四強戰報：冠軍戰是全季唯二沒輸過的兩隊，11/17 必有一隊吃下本屆第一敗</div>
-                    </div>
-                    <div class="news-text">
-                        各位鏢友，11/10 四強（G67~G69）打完，冠軍戰的組合出爐了——<strong>軟飯揪團中 vs 逃生Zoo口</strong>。<br>
-                        這兩隊有個共通點：<strong>打到現在都還沒輸過。</strong>軟飯揪團中例行賽 10勝0敗，季後賽兩場再贏，<strong>12 戰全勝</strong>；逃生Zoo口例行賽 9勝1和、季後賽兩勝，<strong>12 戰 11勝1和</strong>，那一和是第五週對有點傻。他們分屬兩組，整季一次都沒碰過面。<br>
-                        也就是說，<strong>11/17 這場打完，其中一隊會吞下本屆第一敗</strong>。而例行賽他們的總分是 257 比 258，差 1 分。<br><br>
-
-                        <strong>🍚 軟飯揪團中 22:14，這一輪最接近的一場</strong><br>
-                        G67 主場迎戰哈哈隊，<strong>比賽成績只有 16:14</strong>。整季 12 場裡，只有開幕戰 G01（15:15，靠飲酒加成才贏）比這更膠著，其餘十場的比賽成績分差全都在 6 分以上。加上勝場與 5 分飲酒加成才拉開成 22:14。<br>
-                        樂源小宇 4局3勝最佳，Connie、瓜瓜、阿旮、大頭、藍鳥各 2 勝，<strong>九個人輪番上陣但沒有人超過 3 勝</strong>，整場靠平均分配咬下來。哈哈隊這邊浩子 6局4勝領軍，黃渤、華華各 6局3勝，Mark 4局2勝，打得並不差。<br><br>
-
-                        <strong>💯 逃生Zoo口 26:10，小倫打滿 8 局</strong><br>
-                        G68 主場對有點傻，逃生Zoo口 <strong>20:10</strong> 拿下，總分 26:10。<strong>小倫打滿 8 局拿 5 勝</strong>，小喬 6局4勝、乳來 7局4勝，<strong>阿廷 3局3勝、晨晨、隼、Molly 各出賽一局全收</strong>，板凳照樣有貢獻。<br>
-                        有點傻八強扳倒掉鏢組第二的那股氣勢沒能延續，小飛、邱昱各打滿 7 局拿 3 勝，Ben 2局2勝，但十個人上場有五個掛零。他們接下來打季軍戰。<br><br>
-
-                        <strong>🍻 人生揪難亮作客拿下第二段冠軍</strong><br>
-                        G69 在 Vivi Bar，人生揪難亮<strong>比賽成績 18:12</strong> 大勝嘻嘻隊，不過嘻嘻隊有 5 分飲酒加成，最終總分 <strong>19:17</strong>，只差 2 分。<strong>第二段冠軍 NT$2,000 由人生揪難亮拿下。</strong><br>
-                        小蘇 7局5勝、<strong>蘇ㄟ 3局3勝</strong>、宗燁 5局3勝，宜竫、亮亮各 2 勝。嘻嘻隊 Kaman 4局3勝、小佑 5局3勝，但首輪打爆傑克紅心的火力沒有再現。<br>
-                        人生揪難亮例行賽是掉鏢組第五、3勝7敗，季後賽第二段兩場全勝收下獎金。<br><br>
-
-                        <strong>📋 11/17 最後一天</strong><br>
-                        主場一樣看上一輪的季後賽勝分。<br>
-                        <strong>冠軍戰　軟飯揪團中（22）vs 逃生Zoo口（26）</strong>　→ 逃生Zoo口主場．<strong>逃生入口Bar</strong>　冠軍 NT$8,000／亞軍 NT$5,000<br>
-                        <strong>季軍戰　哈哈隊（14）vs 有點傻（10）</strong>　→ 哈哈隊主場．<strong>Vivi Bar</strong>　季軍 NT$3,000<br>
-                        同一天之後，第七屆團隊賽就結束了。個人季後賽 <strong>11/24</strong>，地點是團隊季後賽冠軍隊伍的主場，等 11/17 冠軍戰打完才會確定。<br><br>
-
-                        <em>總結：一支 12 戰全勝，一支 12 戰不敗，例行賽差 1 分、整季沒交手過，11/17 在逃生入口Bar 分勝負。🎯🍺</em>
-                    </div>
-                </div>
-                <div class="news-item collapsible">
-                    <div class="news-header">
-                        <div class="news-date">2026/11/4</div>
-                        <div class="news-title">🎯 第七屆季後賽八強戰報：四強剩一支掉鏢組隊伍，例行賽 3 勝的有點傻客場扳倒第二種子</div>
-                    </div>
-                    <div class="news-text">
-                        各位鏢友，11/3 季後賽第一輪（G61~G66）打完。四強名單出爐——<strong>軟飯揪團中、哈哈隊、逃生Zoo口、有點傻</strong>。看出哪裡不對勁了嗎？<strong>四強裡有三隊來自靶外組，掉鏢組只剩軟飯揪團中一支。</strong>例行賽掉鏢組第二、第三、第四名全在第一輪出局。<br><br>
-
-                        <strong>🃏 有點傻 20:16，例行賽 3 勝的隊伍客場踢掉第二種子</strong><br>
-                        G64 是這一輪最大的意外。有點傻作客 R8串燒 Metro Bar，<strong>比賽成績 19:11 拿下匪類里民一直喝</strong>，加計加成總分 20:16 晉級。<br>
-                        有點傻例行賽的戰績是 <strong>3勝6敗1和</strong>，是八支晉級隊伍裡勝場最少的一支（靠總分 172 擠進靶外組第三）；匪類里民一直喝則是 6勝4敗、掉鏢組第二。<br>
-                        這場有點傻只派 8 個人，<strong>小飛 8局6勝、邱昱 8局5勝，兩人都打滿單場 8 局上限</strong>，Louis 5局3勝接應，前三棒就吃下 14 勝。匪類這邊輪了 13 個人，但最高只有柯柯、林吟、小余的 2 勝，分數沒集中起來。<br><br>
-
-                        <strong>🧍 Tonight29恭喜隊四個人打完全場 30 局</strong><br>
-                        G65，恭喜隊作客 No.5 飛鏢Bar 對人生揪難亮，<strong>整場只有 4 名選手出賽</strong>——嘉宸、柏暐、強哥各打滿 8 局，29小安 6 局，四個人湊滿全場 30 個出賽人次。<br>
-                        以這種人數撐完一整場還拿下 12 分，柏暐 4 勝、29小安 3 勝、嘉宸 3 勝。人生揪難亮主場 24:12 晉級第二段決賽，小蘇 7局5勝、蘇ㄟ 3局3勝、婠婠 3局2勝。<br><br>
-
-                        <strong>💯 逃生Zoo口 22:14，比賽成績只贏 2 分</strong><br>
-                        G63 是這一輪最膠著的一場。<strong>比賽成績 16:14</strong>，逃生Zoo口只領先 2 分，加上勝場與 5 分飲酒加成才拉開到 22:14。<br>
-                        發財隊的<strong>猴猴照樣打滿 8 局拿 5 勝</strong>，是全場最高，阿哲、凱哥、Keira、Ivan 各 2 勝，整隊咬到最後。逃生Zoo口這場靠板凳撐起來——<strong>菜雞 5局4勝是全隊最佳</strong>，潘潘 2局2勝、Molly 1局1勝，例行賽勝場王小倫 7局3勝、Top Lady 小喬 5局3勝，兩位主力都沒打出平常的水準。<br><br>
-
-                        <strong>🍚 軟飯揪團中 31:5，12 人全員上陣</strong><br>
-                        G61 主場迎戰傑克黑桃，軟飯揪團中以 <strong>25:5</strong> 拿下，總分 31:5，是這一輪最大分差。<strong>12 個人全部有出賽</strong>，Aaron 3局3勝、小小宇 3局3勝、Connie 2局2勝、藍鳥 2局2勝出賽全收，阿旮、Allen、樂源小宇各 4局3勝。<br>
-                        連例行賽拿下地獄倒霉鬼的小象也上了 1 局，而且贏了。傑克黑桃七人上陣，Terry、小建、九紋龍、阿翰各 1 勝。<br><br>
-
-                        <strong>😄 哈哈隊 25:11，前三棒全勝開局</strong><br>
-                        G62 主場對酒空組，哈哈隊 19:11 拿下，總分 25:11。<strong>Vivi 2局2勝、阿國 3局3勝、美美 2局2勝，三個人出賽即全收</strong>；華華 6局3勝、David 7局3勝、怪頭 5局3勝撐住中後段。酒空組阿堯 6局3勝、小宇 5局3勝，傑西打滿 7 局拿 2 勝。<br><br>
-
-                        <strong>🍻 嘻嘻隊 27:9，Kaman 五戰全勝</strong><br>
-                        G66，嘻嘻隊作客 JACK BAR（照勝分規則本該是嘻嘻隊主場，但 Vivi Bar 當天已排了 QF2，所以主場改由傑克紅心擔任），比賽成績 <strong>21:9</strong>。<strong>Kaman 5局5勝、光頭 4局4勝</strong>兩人全勝，淦 5局4勝、阿琪、阿朋各 3 勝。傑克紅心本屆最後一場仍未能收下勝利。<br><br>
-
-                        <strong>📋 11/10 第二輪對戰</strong><br>
-                        四強主場看上一輪的季後賽勝分，拿比較高分的那一隊作主。<br>
-                        <strong>SF1　軟飯揪團中（31）vs 哈哈隊（25）</strong>　→ 軟飯揪團中主場．<strong>樂源 a.k.a 兩杯</strong><br>
-                        <strong>SF2　逃生Zoo口（22）vs 有點傻（20）</strong>　→ 逃生Zoo口主場．<strong>逃生入口Bar</strong><br>
-                        <strong>LF　　人生揪難亮（24）vs 嘻嘻隊（27）</strong>　→ 嘻嘻隊主場．<strong>Vivi Bar</strong>（第二段決賽，冠軍 NT$2,000）<br>
-                        SF2 的勝分只差 2 分，是四強兩組裡比較接近的一組。冠軍戰與季軍戰 <strong>11/17</strong>，個人季後賽 <strong>11/24</strong>（地點為團隊季後賽冠軍隊伍主場，冠軍戰後確定）。<br><br>
-
-                        <em>總結：掉鏢組八強折了三隊，例行賽戰績最差的有點傻反而站上四強。11/10 開打，賽制圖已更新。🎯🍺</em>
-                    </div>
-                </div>
-                <div class="news-item collapsible">
-                    <div class="news-header">
-                        <div class="news-date">2026/10/28</div>
-                        <div class="news-title">🎯 第七屆 10/27 最終輪週報：軟飯揪團中全季 10 戰全勝，分組第一卻以 1 分之差讓給逃生Zoo口</div>
-                    </div>
-                    <div class="news-text">
-                        各位鏢友，第七屆例行賽（G55~G60）全部打完。最後一輪留下了一個本季最漂亮的巧合——<strong>軟飯揪團中十場全勝，一場沒輸過也沒和過，總分 257 分；逃生Zoo口 9勝1和，總分 258 分。</strong>兩隊分屬不同組，誰也沒碰過面，但全聯盟總分榜的第一名，就這樣以 1 分之差落在不是全勝的那一隊身上。<br><br>
-
-                        <strong>🍚 軟飯揪團中 25:5，十戰全勝收尾</strong><br>
-                        G55 作客逃生入口Bar，軟飯揪團中以 25:5 拿下酒空組，加上勝場與飲酒加成總分 <strong>31:5</strong>，是本季最後一輪的最大分差。<strong>阿旮、Allen、樂源小宇各打 4 局全勝</strong>，大頭 3局3勝、Connie 3局3勝——<strong>一場裡有五個人出賽即全收</strong>。酒空組這場只拿 5 分，是他們本季單場最低，瘦子打滿 5 局、阿堯 5 局，各只收 1 勝。<br>
-                        例行賽收工，軟飯揪團中 <strong>10勝0敗0和</strong>，是本屆唯一一支零失手的隊伍。<br><br>
-
-                        <strong>💯 逃生Zoo口 24:6，258 分登上全聯盟總分第一</strong><br>
-                        G58 作客 JACK BAR，逃生Zoo口 24:6 收下傑克黑桃，總分推到 <strong>258 分</strong>，是本屆十二隊裡唯一突破 250 分的紀錄保持者——而這 258 分的來源是 9勝1和，那一和來自第五週 G28 對有點傻。<br>
-                        <strong>小喬 6局6勝、小倫 8局7勝</strong>，Lucas、Linda、阿樂、阿廷出賽全收，整場只有 6 分外流。傑克黑桃十個人上場，只有小建 2 勝、小虎 1 勝、小郭 1 勝、Terry 1 勝。<br><br>
-
-                        <strong>👑 兩座個人獎同一場揭曉，兩個人都超額達標</strong><br>
-                        上週算出來的門檻是「各拿 4 勝就鎖定」，而 G58 這一場兩人都做到了，還有剩。<br>
-                        <strong>聯賽勝場王：小倫，48 勝</strong>（66 局）。最後一場打滿 8 局拿 7 勝，比追兵猴猴的 42 勝多出 6 勝。<br>
-                        <strong>Top Lady：小喬，31 勝</strong>（38 局）。最後一場 6 局全勝，而 31 勝這個數字放進全聯盟勝場榜是<strong>第六名</strong>，勝率 81.58% 在出賽 30 局以上的選手裡排在最前面。<br>
-                        另外 <strong>💀 地獄倒霉鬼</strong>由軟飯揪團中的小象拿下，先攻率 20.00% 全聯盟最低——這獎有專屬卡套，加上到客場店家首次 shot 招待。<br><br>
-
-                        <strong>🃏 有點傻 2 分之差翻上靶外組第三</strong><br>
-                        G60，嘻嘻隊主場迎戰有點傻。比賽成績是<strong>有點傻 16:14 領先，但嘻嘻隊靠 5 分飲酒加成把總分倒轉成 19:17</strong>，拿下這場。阿倫 7局4勝、淦 7局4勝、小耿 4局3勝是嘻嘻隊的主力。<br>
-                        不過有點傻雖然輸了這一場，17 分仍把總分堆到 <strong>172 分</strong>，而同一輪只拿 11 分的傑克黑桃停在 <strong>170 分</strong>——<strong>兩隊差 2 分，靶外組第三、第四當場對調</strong>。順帶一提，有點傻這季的戰績是 3勝6敗1和，傑克黑桃是 5勝5敗0和；本聯賽排名看總分不看勝敗，所以會出現這種勝場較少卻排在前面的情況。<br><br>
-
-                        <strong>😄 哈哈隊 25:5，一路從中段爬到靶外組第二</strong><br>
-                        G59，哈哈隊作客 Vivi Bar 以 25:5 大勝 Tonight29恭喜隊，總分 <strong>31:5</strong>。<strong>浩子 5局5勝、美美 3局3勝、傑森 3局3勝、范姜 2局2勝、超哥 1局1勝</strong>——<strong>八個人上場有五個全勝</strong>，怪頭 6局5勝。這 31 分把哈哈隊從上週的 158 分直接推到 <strong>189 分</strong>，坐上靶外組第二。恭喜隊薇薇、強哥都打滿 8 局，分別拿 1 勝、2 勝，總分 129 分。<br><br>
-
-                        <strong>🍻 匪類里民一直喝 17:13，第二名穩穩入袋</strong><br>
-                        G56，匪類里民一直喝主場拿下人生揪難亮，總分 <strong>23:13</strong>，全季 205 分收在掉鏢組第二。小余 5局4勝最佳，柯柯 4局3勝、Jeff 5局3勝接應。人生揪難亮上銘 5局3勝，總分 147 分。<br><br>
-
-                        <strong>🎲 Tonight29發財隊 18:12，猴猴打滿 8 局拿 6 勝</strong><br>
-                        G57，發財隊主場收下傑克紅心，總分 <strong>19:17</strong>——注意這場比賽成績是 18:12，但傑克紅心有 5 分飲酒加成，最後只差 2 分。<strong>猴猴 8局6勝</strong>，是他本季最後一場也是最高勝數的一場，小黃鴨 4局4勝、阿哲 7局4勝。傑克紅心 Kevin 6局3勝，全季 0勝9敗1和、137 分收尾。<br><br>
-
-                        <strong>📊 第七屆例行賽最終排名</strong><br>
-                        <strong>掉鏢組</strong>：1. 軟飯揪團中 257 ／ 2. 匪類里民一直喝 205 ／ 3. 酒空組 174 ／ 4. Tonight29發財隊 157 ／ 5. 人生揪難亮 147 ／ 6. 傑克紅心 137<br>
-                        <strong>靶外組</strong>：1. 逃生Zoo口 258 ／ 2. 哈哈隊 189 ／ 3. 有點傻 172 ／ 4. 傑克黑桃 170 ／ 5. 嘻嘻隊 161 ／ 6. Tonight29恭喜隊 129<br>
-                        兩組各取前四進勝部季後賽，第五、第六名也還是有比賽打，不是收工。<br><br>
-
-                        <strong>🍺 飲酒獎金：三隊 40 分並列第一</strong><br>
-                        飲酒點數最後是<strong>軟飯揪團中、匪類里民一直喝、傑克紅心三隊同列 40 分</strong>（各 10 場有 8 場拿到），<strong>逃生Zoo口與哈哈隊 35 分</strong>（7/10 場）並列其後。三隊並列第一等於直接包辦前三名，原本的「冠軍 5,000／亞軍 3,000」套不進來，隊長會議也沒預先討論到這種狀況，因此改採 <strong>40 分每隊 2,000、35 分每隊 1,000</strong>，總額 8,000 與原獎金完全相同。<br>
-                        這裡也有個對比值得一提：傑克紅心例行賽 0勝9敗1和、總分全聯盟最低，但<strong>飲酒點數並列第一</strong>，整季 10 場有 8 場把飲酒分拿滿。<br><br>
-
-                        <strong>🏆 季後賽開打：11/3 八強</strong><br>
-                        季後賽頁面已經上線，首頁第一張圖點進去就是，裡面有完整賽制圖、每一組的對戰與主場、團隊獎金，以及個人季後賽的 16 人入選名單（上方頁籤切換）。<br>
-                        八強主場為例行賽勝分較高的一方；四強起改看上一輪的季後賽勝分，若晉級的兩隊勝分相同，則由上一場飲酒點數較多的隊伍主場。個人季後賽 <strong>11/24</strong>（地點為團隊季後賽冠軍隊伍主場，冠軍戰後確定）。<br><br>
-
-                        <em>總結：例行賽十週結束，軟飯揪團中把全勝打完，逃生Zoo口用 258 分守住總分第一，靶外組第三第四在最後一輪差 2 分對調。接下來進淘汰制，分數歸零重新算。11/3 開打。🎯🍺</em>
-                    </div>
-                </div>
-                <div class="news-item collapsible">
-                    <div class="news-header">
-                        <div class="news-date">2026/10/21</div>
-                        <div class="news-title">🎯 第七屆 10/20 第九週週報：軟飯揪團中、逃生Zoo口鎖定分組第一，靶外組二到六名全亂</div>
-                    </div>
-                    <div class="news-text">
-                        各位鏢友，第七屆第九週（G49~G54）戰報送到。本季只剩最後一輪，這週有兩件事定了下來——<strong>兩組的第一名都已經算得出來，誰也追不上了</strong>；但靶外組後面五隊反而打成一團，每一隊都還可能排到第二，也都還可能掉到第六。<br><br>
-
-                        <strong>🍚 軟飯揪團中 28:8，九場不敗鎖定掉鏢組第一</strong><br>
-                        G51，軟飯揪團中主場以 28:8 拿下匪類里民一直喝，總分推到 <strong>226 分</strong>，<strong>九場打完 8勝0敗1和，仍是全聯盟唯一未嘗敗績的隊伍</strong>。<br>
-                        更重要的是這場過後分組第一正式定了：最後一輪單場最多拿 36 分，第二名匪類里民一直喝 182 分就算全拿也只到 218，<strong>追不上 226</strong>。瓜瓜、小小宇各 3局全勝，小賴、大瀚、藍鳥也都是出賽即全收，十二個人輪番上場把分數堆起來。匪類這場 8 分是他們本季單場最低，總分 182 分，不過前四也已經確定。<br><br>
-
-                        <strong>💯 逃生Zoo口 26:10，同樣鎖定靶外組第一</strong><br>
-                        G52，逃生Zoo口主場以 26:10 收下嘻嘻隊，總分來到 <strong>233 分</strong>，是本季唯一突破 230 分的隊伍，分組第一同樣提前落袋——第二名傑克黑桃 159 分全拿也只到 195。<br>
-                        小倫 8局拿 5 勝、小喬 6局 5 勝，兩人這場的表現也把兩座個人獎推到觸手可及的距離（下面細說）。阿廷 3局全勝，板凳上的隼、禹辰、晨晨、Molly、阿誠各自出賽一局也都收下，整隊十二人都有貢獻。<br><br>
-
-                        <strong>🤝 酒空組 18:18 傑克紅心，本季第二場同分收場</strong><br>
-                        G49 是這週最特別的一場。最終比分 <strong>18:18 平手</strong>，是本季第二場打到同分的比賽（前一場是第五週 G28 有點傻對逃生Zoo口）。比賽成績其實是酒空組 17:13 領先，傑克紅心靠 5 分飲酒加成把總分追平。<br>
-                        傑克紅心這場十二個人輪流上陣，老師 4局3勝、小魚、念念、宇辰、耀楠各拿 2 勝，是他們本季少數打得這麼平均的一場，總分來到 120 分。酒空組傑西、阿堯、羊羊各 3 勝，總分 169 分。<br><br>
-
-                        <strong>🎲 Tonight29發財隊 20:16，阿哲、猴猴同步8局5勝</strong><br>
-                        G50，發財隊客場拿下人生揪難亮。阿哲與猴猴雙雙打滿 8 局、同拿 5 勝——<strong>8 局是本屆單場出賽上限</strong>（規則：1-4、6-9、11-12、13-14 各上一次，加上 5、10、15、16），兩人等於一場不缺。光頭政 6局4勝接應。發財隊總分 138 分，人生揪難亮 134 分，兩隊只差 4 分，而最後一輪他們沒有碰頭。<br><br>
-
-                        <strong>🃏 有點傻 21:15，Louis、小飛聯手搶分</strong><br>
-                        G53，有點傻客場拿下哈哈隊。Louis 7局5勝、小飛 6局5勝，兩人同步繳出 5 勝；Joy 也有 6局4勝，前三棒全部 4 勝起跳。有點傻總分 155 分。哈哈隊這場信宏 6局3勝最佳，總分 158 分，兩隊在靶外組只差 3 分。<br><br>
-
-                        <strong>♠️ 傑克黑桃 24:12，五人3勝起跳爬上靶外組第二</strong><br>
-                        G54，傑克黑桃客場拿下 Tonight29恭喜隊，總分 <strong>159 分</strong>，暫時站上靶外組第二。小建 5局4勝領軍，Stan、Terry、小郭各 3 勝，九紋龍 2 勝——<strong>五個人 3 勝起跳</strong>，又是一場沒有靠單點的勝利。恭喜隊薇薇 6局4勝，總分 124 分。<br><br>
-
-                        <strong>🔒 已經確定的名次</strong><br>
-                        最後一輪單場上限 36 分，把所有可能性跑完之後，這幾件事已經不會再變：<br>
-                        <strong>軟飯揪團中確定掉鏢組第一</strong>（226 分，第二名全拿也只到 218）。<br>
-                        <strong>逃生Zoo口確定靶外組第一</strong>（233 分，第二名全拿也只到 195）。<br>
-                        <strong>匪類里民一直喝確定前四</strong>，最終會落在第二或第三。<br>
-                        其餘名次都還沒定：掉鏢組酒空組是第二到第五，Tonight29發財隊與人生揪難亮是第三到第六。靶外組更誇張——<strong>傑克黑桃、哈哈隊、有點傻、嘻嘻隊四隊都還可能排到第二，也都還可能掉到第六</strong>，Tonight29恭喜隊則是第三到第六。最後一輪三場比完才會知道。<br><br>
-
-                        <strong>👑 勝場王與 Top Lady：兩座獎都差 4 勝，而且同隊同場</strong><br>
-                        這兩座個人獎的門檻算出來剛好一樣，而且候選人都在同一支隊伍、同一場比賽。<br>
-                        <strong>勝場王</strong>：小倫 <strong>41 勝</strong>領先，猴猴 36 勝。華華（32）、小蘇（31）、淦（28）就算最後一場打滿 8 局全勝也追不到 41，<strong>已經確定無法超車</strong>。唯一還有機會的是猴猴——他最多再加 8 勝到 44。所以<strong>小倫最後一場只要拿下 4 勝，勝場王就鎖定了</strong>（3 勝可保並列）。他最近三場是 7、7、5 勝。<br>
-                        <strong>Top Lady</strong>：小喬 <strong>25 勝</strong>領先，薇薇 20 勝、Keira 19 勝。Joy（16）、宜竫（14）已追不上。<strong>小喬同樣是拿 4 勝就確定</strong>（對薇薇需 4 勝、對 Keira 需 3 勝）。她最近兩場是 6 勝、5 勝。<br>
-                        巧的是小倫與小喬都在逃生Zoo口，最後一輪作客傑克黑桃——<strong>同一場比賽同時決定兩座個人獎</strong>。而猴猴與 Keira 也同隊，一起在 Tonight29發財隊對傑克紅心那場。<br><br>
-
-                        <strong>🙏 感謝熱心回報：個人 CR 勝率的統計瑕疵已修正</strong><br>
-                        這週要特別感謝一位不知名的熱心老師，回報個人成績頁的 Cricket 勝率看起來怪怪的——有人明明贏過 Cricket，勝率卻顯示 0%。追下去發現是真的有問題，在此跟大家說明。<br>
-                        <strong>問題出在哪</strong>：系統在判斷每一局算「01」還是「Cricket」時，只認 SET6~10，漏掉了另外三個 Cricket 賽制——<strong>SET13（Cricket 雙人賽）、SET14（Team Cricket）、SET16（四人賽 Cricket）</strong>，這三種全被誤算進 01。<br>
-                        <strong>影響範圍</strong>：第七屆出賽 10 局以上的 116 位選手裡，有 <strong>107 位</strong>的 01／CR 拆分是錯的；其中 <strong>16 位</strong>明明在 Cricket 贏過球，勝率卻顯示 0.00%。第六屆也有較輕微的同類問題。<br>
-                        <strong>沒有受影響的部分</strong>：總勝場、總勝率、先攻率、團隊總分、各項排行榜<strong>全部都是正確的</strong>，只有 01 與 CR 這兩欄的拆分會跑掉。勝場王、Top Lady、團隊排名都不受影響。<br>
-                        <strong>現在已經修好了</strong>：第六、七屆共 180 場比賽的數據全部重新計算並更新完畢，產生資料的程式也一併修正，之後登錄的新比賽不會再出錯。舉個例子，傑克紅心的 Kevin 原本顯示 Cricket 0.00%，更正後是 <strong>6勝/16局＝37.50%</strong>。<br>
-                        如果大家看自己或隊友的成績還覺得哪裡怪怪的，歡迎繼續回報，有人盯著數字才抓得到這種問題。<br><br>
-
-                        <strong>📅 最終輪（10/27）</strong><br>
-                        G55~G60 是本季最後一輪。掉鏢組：軟飯揪團中迎戰酒空組、人生揪難亮對匪類里民一直喝、傑克紅心對 Tonight29發財隊。靶外組：逃生Zoo口對傑克黑桃、Tonight29恭喜隊對哈哈隊、嘻嘻隊對有點傻——靶外組這三場直接決定二到六名怎麼排。<br><br>
-
-                        <em>總結：兩組龍頭提前坐定，但後面完全沒收工。靶外組四隊的名次還在第二到第六之間晃，兩座個人獎也都卡在 4 勝的門檻上。最後一輪 10/27，一次打完。🎯🍺</em>
-                    </div>
-                </div>
-                <div class="news-item collapsible">
-                    <div class="news-header">
-                        <div class="news-date">2026/10/14</div>
-                        <div class="news-title">🎯 第七屆 10/13 第八週週報：軟飯揪團中、逃生Zoo口雙雙亮燈晉級，而且都是29:7</div>
-                    </div>
-                    <div class="news-text">
-                        各位鏢友，第七屆第八週（G43~G48）戰報送到。本季剩最後兩週，而這一週兩組的龍頭同時把季後賽門票拿到手——巧的是，<strong>兩隊贏的比分一模一樣，都是 29:7</strong>。<br><br>
-
-                        <strong>🍚 軟飯揪團中客場29:7，八場不敗直接亮燈</strong><br>
-                        G44，軟飯揪團中作客 Tonight29發財隊拿下 29:7，總分推到 <strong>198 分</strong>，<strong>八場打完仍是 7勝0敗1和，全聯盟唯一未嘗敗績</strong>。<br>
-                        這場過後他們的季後賽席次也正式確定——掉鏢組剩下的對手裡，只有匪類里民一直喝和酒空組還有機會超過 198 分，最多兩隊，<strong>軟飯揪團中最差也是第三，前四穩了</strong>。這場阿旮、大頭雙雙 4局全勝，Allen 與樂源小宇各 5局4勝，Connie 3局全勝，火力照樣是整排輸出。<br><br>
-
-                        <strong>💯 逃生Zoo口主場29:7，小倫7勝連莊、小喬全勝搶下Top Lady榜首</strong><br>
-                        G46，逃生Zoo口主場同樣以 29:7 收下 Tonight29恭喜隊，總分來到 <strong>207 分</strong>，是本季第一支突破 200 分的隊伍，季後賽門票同樣到手。<br>
-                        個人部分這場有兩個亮點：<strong>小倫 8局拿 7 勝，連兩週都繳出 7 勝</strong>，個人勝場累積到 36 勝，把第二名猴猴（31 勝）拉開到 5 勝；而<strong>小喬 6局全勝</strong>，一口氣把勝場從 14 推到 <strong>20 勝</strong>，<strong>越過薇薇與 Keira（各 16 勝）搶下 Top Lady 榜首</strong>，上週她還在第三。<br><br>
-
-                        <strong>🎯 小蘇 7戰全勝，本季第二人</strong><br>
-                        G45，人生揪難亮客場 21:15 拿下傑克紅心，而這場的主角毫無懸念——<strong>小蘇出賽 7 局全數收下</strong>，是本季第二位單場 7 戰全勝的選手（前一位是第二週 G11 的小飛），也追平本季單場最多勝紀錄。他的個人勝場因此衝到 28 勝，排進全聯盟第四。隊友蘇ㄟ也是 3局全勝。人生揪難亮總分 118 分，追平 Tonight29發財隊。<br>
-                        傑克紅心這邊 Kevin、宇辰各拿 3 勝，總分 102 分。<br><br>
-
-                        <strong>⚖️ 匪類里民一直喝 23:13：贏的局數一樣多，分數卻差 10 分</strong><br>
-                        G43 是本週最適合拿來講規則的一場。匪類里民一直喝主場 23:13 擊敗酒空組，但攤開細節會發現——<strong>兩隊各贏 8 局，勝場數完全打平</strong>，比賽成績卻是 17:13。<br>
-                        原因在 SET 的權重不同：SET5、SET10 各值 3 分，SET11~14 各 2 分，SET15、16 更是各 4 分，其餘才是 1 分。贏在哪幾局，比贏幾局更重要。這場匪類再加上 5 分飲酒加成，最終拉開到 10 分。king 5局4勝領軍，Jeff 3局全勝。匪類總分 <strong>174 分</strong>穩居掉鏢組第二，酒空組 151 分第三。<br><br>
-
-                        <strong>♠️ 傑克黑桃 21:15，五人同時拿下 3 勝以上</strong><br>
-                        G47，傑克黑桃客場拿下有點傻。九紋龍 4局全勝，Terry、青楓、小郭、Stan 各拿 3 勝——<strong>一場五個人 3 勝起跳</strong>，沒有靠單點扛。總分 135 分，從第五名爬到靶外組第三。有點傻 134 分緊接在後。<br><br>
-
-                        <strong>😄 哈哈隊 22:14，兩分的差距被飲酒加成放大</strong><br>
-                        G48，哈哈隊客場拿下嘻嘻隊。比分看起來差 8 分，但<strong>比賽成績其實只有 16:14、相差兩分</strong>，是這週打得最緊的一場，加上 5 分飲酒加成才拉開。Mark 8局4勝，華華、浩子各 3 勝。哈哈隊總分 143 分守住靶外組第二，嘻嘻隊 132 分。<br><br>
-
-                        <strong>📊 排名：兩張門票已定，剩下的還在搶</strong><br>
-                        掉鏢組軟飯揪團中 198 分亮燈，匪類里民一直喝 174 分、酒空組 151 分接在後面；Tonight29發財隊與人生揪難亮<strong>同以 118 分並列第四</strong>，而他們下週正好碰頭。<br>
-                        靶外組逃生Zoo口 207 分亮燈，後面哈哈隊 143、傑克黑桃 135、有點傻 134、嘻嘻隊 132，<strong>四隊依然塞在 11 分之內</strong>，上週的排序這週又洗了一次牌。<br><br>
-
-                        <strong>🔢 季後賽安全分數更新：門票剩兩張</strong><br>
-                        上週算過一次，這週重算。剩兩場、單場上限 36 分，所以每隊最多還能再拿 72 分。兩組的安全線這次都落在 <strong>191 分</strong>——到了這個分數，不管別人怎麼打都篤定進前四。<br>
-                        <strong>軟飯揪團中（198 分）與逃生Zoo口（207 分）都已經越線</strong>，所以這週才說是亮燈。<br>
-                        還在追的部分：匪類里民一直喝 174 分，<strong>再拿 17 分</strong>就確定，等於兩場裡有一場正常發揮即可；酒空組 151 分需要 <strong>40 分</strong>。<br>
-                        靶外組則是四隊全都還在射程內——哈哈隊 143（還需 48）、傑克黑桃 135（56）、有點傻 134（57）、嘻嘻隊 132（59），兩場滿分 72 分，<strong>這四隊誰都有機會靠自己把事情解決</strong>。<br>
-                        掉鏢組的最後一張門票則特別一點：Tonight29發財隊與人生揪難亮同以 118 分並列，而他們下週正好直接對決，這張票大概會在那一場先定調。<br><br>
-
-                        <strong>👑 個人勝場 / 🌹 Top Lady / 💀 地獄倒霉鬼</strong><br>
-                        個人勝場：小倫 36 勝持續領先，猴猴 31 勝、華華 30 勝、小蘇 28 勝、淦 26 勝依序在後。<br>
-                        Top Lady 換人：小喬 20 勝登頂，薇薇與 Keira 各 16 勝並列第二，宜竫 13 勝、小芬 12 勝。<br>
-                        地獄倒霉鬼（本季累計先攻率）：軟飯揪團中小象 20.00%、傑克紅心小劉 23.81%、酒空組傑西 25.00%、逃生Zoo口小喬 26.92%、傑克黑桃 Ray 28.57%。<br><br>
-
-                        <strong>📅 下週（10/20）倒數第二輪</strong><br>
-                        G49~G54 登場，兩場特別值得盯：<strong>同分 118 的 Tonight29發財隊與人生揪難亮直接對決</strong>，贏的一方等於朝掉鏢組第四名跨一大步；另一場是匪類里民一直喝作客軟飯揪團中，匪類想保住第二就得在不敗之師的主場拿分。靶外組方面逃生Zoo口主場迎戰嘻嘻隊，有點傻作客哈哈隊，傑克黑桃則到 Tonight29恭喜隊作客——這三場直接牽動第二到第五名的排序。<br><br>
-
-                        <em>總結：兩張季後賽門票先發出去了，剩下的名額還要再打兩週。掉鏢組第四名變成同分對決，靶外組四隊擠在 11 分內，接下來每一分都算數。🎯🍺</em>
-                    </div>
-                </div>
-                <div class="news-item collapsible">
-                    <div class="news-header">
-                        <div class="news-date">2026/10/7</div>
-                        <div class="news-title">🎯 第七屆 10/06 第七週週報：軟飯揪團中七場不敗轟出31分本季新高，匪類里民一直喝三度倒在17:19</div>
-                    </div>
-                    <div class="news-text">
-                        各位鏢友，第七屆第七週（G37~G42）戰報送到。這週六場全部分出勝負，沒有半場平手。其中一場寫下本季新高，一場三度出現同一個比分，還有一場是遲來兩個月的復仇。<br><br>
-
-                        <strong>🍚 軟飯揪團中轟出 31 分，刷新本季單場最高</strong><br>
-                        G38 軟飯揪團中主場轟出 <strong>31 分</strong>，刷新本季單場最高紀錄，前一個紀錄是逃生Zoo口的 30 分。<br>
-                        更可怕的是軟飯揪團中的狀態——<strong>七場打完 6勝0敗1和，是全聯盟唯一還沒輸過的隊伍</strong>，而那唯一的「和」還只是開季 G1 比賽成績 15:15 打平，最終比分其實是 20:15 贏下來的。這場樂源小宇 5局全勝、阿旮與 Allen 各 4局全勝、Connie 3局全勝，<strong>一場四個人零失手，本季頭一遭</strong>。總分 <strong>169 分</strong>，掉鏢組龍頭沒人碰得到。<br><br>
-
-                        <strong>🎯 全季只有兩隊把軟飯揪團中逼到兩分內</strong><br>
-                        話說回來，軟飯揪團中這七場也不是一路輕鬆。被咬得最緊的兩場都只差兩分——G15 對匪類里民一直喝，以及第五週 G26 對傑克紅心，<strong>這兩隊是本季唯二把龍頭拉進兩分之內的球隊</strong>。這週重逢沒能再現那場的壓迫感，傑克紅心總分 87 分，老師 6局2勝是全隊最佳。<br><br>
-
-                        <strong>🔥 17:19，匪類里民一直喝第三次倒在同一個比分</strong><br>
-                        G39 發財隊主場 19:17 擋下匪類里民一直喝，兩分之差是本週最小差距——而這個比分，匪類已經看過三次了。<br>
-                        攤開本季七場：四場勝仗分別贏 14、12、12、18 分，場場痛宰；三場敗仗則是 G7、G15、G39，<strong>比分全部都是 17:19，全部輸兩分</strong>。贏就贏十幾分，輸就只差兩分，這隊的勝負像是只有兩種模式。<br>
-                        這場他們比賽成績 12:18 落後 6 分，靠 5 分飲酒加成硬追到剩 2 分，酒拿好拿滿還是沒能翻盤。阿哲、猴猴雙雙 7局5勝撐住主場。匪類 151 分守住掉鏢組第二，發財隊 111 分。<br><br>
-
-                        <strong>💯 逃生Zoo口 25:11 復仇成功，小倫8局7勝登頂</strong><br>
-                        G40 這場有前情提要：全季七場，<strong>唯一讓逃生Zoo口沒把勝利帶走的就是有點傻</strong>——第五週 G28，有點傻以比賽成績 17:13 壓過對手，最終 18:18 收場，是逃生Zoo口的唯一失手。<br>
-                        這週重逢，逃生Zoo口客場 25:11 討了回來。小倫 8局拿 7 勝、其中 6 局握有先攻，<strong>追平本季單場最多勝紀錄</strong>（小飛 G11 的 7/7、華華 G17 的 7/8）；個人勝場也因此推到 29 勝，<strong>正式超車猴猴（28 勝）站上榜首</strong>。逃生Zoo口總分 <strong>178 分</strong>，有點傻 119 分退到靶外組第三。<br><br>
-
-                        <strong>🍶 酒空組 27:9，小宇、傑西全勤零失手</strong><br>
-                        G37 酒空組主場 27:9 收下人生揪難亮，總分 <strong>138 分</strong>。這隊的特色是輸得極少——七場只吞 1 敗，但也吃了 2 和，4勝1敗2和的成績單讓他們卡在掉鏢組第三。虎哥 6局4勝領軍，小宇與傑西各出賽 3 局全數收下。人生揪難亮小蘇 7局3勝已是全隊最佳，總分 97 分。<br><br>
-
-                        <strong>🌹 Tonight29恭喜隊 21:15，薇薇五戰全勝追平Top Lady榜首</strong><br>
-                        G41 恭喜隊客場拿下嘻嘻隊，嘉宸 8局6勝、小豪 7局5勝；但這場最值得記的是薇薇——<strong>5 局全勝</strong>，一口氣把個人勝場追到 16 勝，<strong>追平 Keira 並列 Top Lady 榜首</strong>。恭喜隊總分 105 分，嘻嘻隊 118 分。<br><br>
-
-                        <strong>😄 哈哈隊 22:14，四人全部4勝起跳搶回靶外組第二</strong><br>
-                        G42 哈哈隊客場拿下傑克黑桃，Mark 7局6勝、David 與華華各 7局5勝、怪頭 6局4勝，<strong>先發四人全部 4 勝起跳</strong>，沒有單點爆發、靠整排火力平均輸出。總分 <strong>121 分</strong>重回靶外組第二，傑克黑桃 114 分。<br><br>
-
-                        <strong>📊 排名：掉鏢組被推開，靶外組擠成一團</strong><br>
-                        掉鏢組的龍頭之爭這週單方面散場——軟飯揪團中 169、匪類里民一直喝 151，差距從上週的 4 分一口氣拉到 <strong>18 分</strong>；酒空組 138 分第三。<br>
-                        靶外組則完全相反：逃生Zoo口 178 分一枝獨秀，但後面的哈哈隊 121、有點傻 119、嘻嘻隊 118、傑克黑桃 114，<strong>四隊塞在 7 分之內</strong>，Tonight29恭喜隊 105 分也還構得著。<br><br>
-
-                        <strong>🔢 季後賽安全分數：兩隊都快亮燈了</strong><br>
-                        季後賽勝部兩組各取前四，進八強單淘汰；沒搶到前四的後兩名也還有仗打——兩組共四隊另外打第二段單淘汰，爭 2,000 獎金。現在剩三場，單場最多能拿 36 分（比賽成績 30 ＋ 勝場加成 1 ＋ 飲酒加成 5）。<br>
-                        重點是：<strong>同一場的 36 分是兩隊分的</strong>，後面的隊伍不可能同時都吃滿，所以真正的安全線比「理論最高分」低很多。算下來——<br>
-                        <strong>逃生Zoo口（178 分）剩三場只要再拿 15 分</strong>，就篤定晉級。他們本季最低的一場都有 18 分，等於別整組翻車，10/13 那週就可能直接亮燈。<br>
-                        <strong>軟飯揪團中（169 分）需要 30 分</strong>，平均一場 24.1 分，三場裡有兩場正常發揮就夠了。<br>
-                        別忘了<strong>輸球也有分</strong>（比賽成績照算），所以這兩個數字比看起來好達成得多。<br>
-                        其餘各隊的安全線也算得出來：掉鏢組大約落在 198 分、靶外組大約 195 分，後面幾隊都還在射程內，接下來三場每一分都有意義。<br><br>
-
-                        <strong>👑 個人勝場 / 🌹 Top Lady / 💀 地獄倒霉鬼</strong><br>
-                        個人勝場易主：小倫 29 勝超車猴猴（28 勝），華華 27 勝、淦 23 勝、乳來 22 勝依序在後。<br>
-                        Top Lady 並列榜首：Keira 與薇薇同為 16 勝，小喬 14 勝第三，宜竫、Joy 各 11 勝。<br>
-                        地獄倒霉鬼（本季累計先攻率）：傑克紅心小劉 17.65% 仍是全季最低，傑克黑桃青楓與軟飯揪團中小象同為 20.00%，有點傻 Andi 27.78%、傑克黑桃小郭 28.00%。<br><br>
-
-                        <strong>📅 下週（10/13）六場全開</strong><br>
-                        G43~G48 沒有休賽，而且掉鏢組前三名全部有戲：酒空組作客匪類里民一直喝，第三名直接挑戰第二名；不敗的軟飯揪團中則要到 Tonight29 作客發財隊，看這條不敗紀錄還撐不撐得住。靶外組方面逃生Zoo口主場迎戰 Tonight29恭喜隊，哈哈隊與嘻嘻隊在 Vivi Bar 碰頭——後面這場直接決定靶外組二到四名怎麼排。<br><br>
-
-                        <em>總結：軟飯揪團中的不敗路還在延長，逃生Zoo口也把靶外組拉開一大截，但兩隊都還差臨門一腳才算篤定。剩三週，靶外組那 7 分塞四隊的位置，大概每週都會換人坐。🎯🍺</em>
-                    </div>
-                </div>
-                <div class="news-item collapsible">
-                    <div class="news-header">
-                        <div class="news-date">2026/9/30</div>
-                        <div class="news-title">🎯 第七屆 09/29 第六週週報：休賽歸來火力全開！逃生Zoo口單場30:6痛宰哈哈隊</div>
-                    </div>
-                    <div class="news-text">
-                        各位鏢友，休賽一週回來，第七屆第六週（G31~G36）戰報送到！這週六場清一色都是客隊拿下勝利，掉鏢組龍頭之爭雙雙大勝、靶外組逃生Zoo口更是繳出本季最誇張的比分，戰況完全沒有因為休兵一週而降溫。<br><br>
-
-                        <strong>🍶 酒空組主場收下勝場，喵喵單場4勝救援成功</strong><br>
-                        G31，酒空組主場以 20:15 擊敗 Tonight29發財隊，總分推進到 111 分，掉鏢組第三名坐得更穩了；主場的喵喵這場5局拿下4勝，是這場最穩的輸出來源。發財隊的猴猴、阿哲雖然雙雙打出8局4勝，但團隊還是輸了這場，個人勝場榜的位置倒是沒受影響。<br><br>
-
-                        <strong>🔥 匪類里民一直喝主場再下一城，king一人扛下半場</strong><br>
-                        G32，匪類里民一直喝主場以 27:9 大勝傑克紅心，總分衝到 <strong>134 分</strong>，繼續死咬著龍頭軟飯揪團中；不過這場真正的主角其實是輸球的傑克紅心——king 一個人打出7局6勝，是這週全聯盟最亮眼的個人成績，可惜隊友沒能跟上，只能眼睜睜看對手把分數帶走。<br><br>
-
-                        <strong>🍺 軟飯揪團中客場痛宰人生揪難亮</strong><br>
-                        G33，軟飯揪團中客場以 28:8 拿下人生揪難亮，總分來到 <strong>138 分</strong>，穩坐掉鏢組龍頭；阿旮、樂源小宇、大頭三人聯手開火，分別打出4勝以上的成績，龍頭之爭跟匪類里民一直喝的差距些微拉開到 4 分，下週兩隊碰頭前都還得繼續互瞪。<br><br>
-
-                        <strong>💯 逃生Zoo口主場30:6，本季最誇張比分誕生，小倫單場全勝</strong><br>
-                        G34，逃生Zoo口主場以 30:6 痛宰哈哈隊，這個比分似曾相識——第二週逃生Zoo口客場也曾用同樣的 30:6 收拾過 Tonight29恭喜隊，這隊顯然對這個數字情有獨鍾。總分正式衝上 <strong>153 分</strong>，靶外組跟第二名的差距拉開到 45 分；小倫這場5局全勝零失手，直接把個人勝場推到 22 勝，逼近榜首猴猴。<br><br>
-
-                        <strong>🎀 嘻嘻隊客場再下一城，淦、Kaman雙雙4勝</strong><br>
-                        G35，嘻嘻隊客場以 25:11 拿下傑克黑桃，總分來到 103 分，靶外組排名持續往前推進；淦跟Kaman這場同步打出5局4勝，兩人聯手把客隊的分數穩穩帶走。<br><br>
-
-                        <strong>🃏 有點傻驚險守擂，Louis扛住客場氣勢</strong><br>
-                        G36，有點傻客場以 19:17 力克 Tonight29恭喜隊，總分來到 108 分，穩坐靶外組第二；這場打得比分數看起來更拉鋸，客場的Louis這場6局拿下4勝，是穩住局面的關鍵人物。<br><br>
-
-                        <strong>📊 本週排名亮點：</strong><br>
-                        掉鏢組龍頭之爭依舊緊繃——軟飯揪團中 138、匪類里民一直喝 134，兩隊這週雙雙大勝、差距沒有縮小也沒有擴大太多，接下來每一場還是關鍵戰；酒空組 111 分守住第三。靶外組逃生Zoo口 153 分持續遙遙領先，有點傻 108 分守住第二，嘻嘻隊、傑克黑桃、哈哈隊擠在百分左右纏鬥。<br><br>
-
-                        <strong>👑 個人勝場榜：猴猴單獨領先，小倫急起直追</strong><br>
-                        猴猴推進到 <strong>23 勝</strong>，暫時甩開華華獨自站上榜首；逃生Zoo口的小倫靠這週的全勝表現衝到 22 勝，跟哈哈隊華華（22 勝）並列第二，緊咬著猴猴不放；嘻嘻隊的淦以 21 勝排第四。<br><br>
-
-                        <strong>🌹 Top Lady：Keira 持續獨走</strong><br>
-                        Keira 這週個人勝場來到 <strong>14 勝</strong>，持續坐穩 Top Lady 榜首；薇薇、Joy 並列第二（11 勝），宜竫、小喬並列第四（10 勝）。<br><br>
-
-                        <strong>💀 地獄倒霉鬼：傑克黑桃包辦榜上多席</strong><br>
-                        傑克紅心的小劉以 17.65% 先攻率持續榜首；傑克黑桃這週一口氣佔了三個名額——青楓（20%）、小郭（23.81%）、小建（27.27%），這隊的先攻運氣看來真的不太妙。<br><br>
-
-                        <strong>📅 下週（10/06）繼續開打</strong><br>
-                        沒有休賽，下週G37~G42準時登場，掉鏢組龍頭之爭跟靶外組纏鬥戰持續延燒，下週見真章！<br><br>
-
-                        <em>總結：休兵一週完全沒讓大家手軟，掉鏢組兩強繼續互不相讓，逃生Zoo口的30:6把靶外組拉開一大截，季末還早，好戲繼續看下去！🎯🍺</em>
-                    </div>
-                </div>
-                <div class="news-item collapsible">
-                    <div class="news-header">
-                        <div class="news-date">2026/9/16</div>
-                        <div class="news-title">🎯 第七屆 09/15 第五週週報：匪類里民一直喝狂飆逼近龍頭！有點傻大戰逃生Zoo口打成18:18平手</div>
-                    </div>
-                    <div class="news-text">
-                        各位鏢友，第七屆第五週（G25~G30）戰報送到！這週最大新聞是<strong>掉鏢組龍頭之爭縮到只剩 3 分</strong>，逃生Zoo口的不敗金身也在這週出現了第一個平手記號，戰況一週比一週緊繃。<br><br>
-
-                        <strong>🍻 人生揪難亮主場開趴，蘇ㄟ一個人打了場個人秀</strong><br>
-                        G25，人生揪難亮主場以 24:12 拿下酒空組，總分推進到 80 分，掉鏢組第四名坐得穩穩的；主場的蘇ㄟ這場只要站上投擲線就贏，6局6勝零失手，是這場最不能惹的人。酒空組這週手感明顯降溫，總分停在 91 分，第三名的位置有點坐不安穩了。<br><br>
-
-                        <strong>🍺 軟飯揪團中驚險守擂，小賴穩、阿旮冷</strong><br>
-                        G26，軟飯揪團中客場以 19:17 力克傑克紅心，總分來到 <strong>110 分</strong>，繼續穩坐掉鏢組龍頭——只是這次贏得有點驚險，後面追兵已經貼上來了。客場的小賴這場3戰全勝，戰績值得信賴；同隊的阿旮就沒那麼順，4局只拿1勝，手感明顯欠佳，看來這週的好運都被小賴借走了。<br><br>
-
-                        <strong>🔥 匪類里民一直喝主場痛宰發財隊，猴猴罕見熄火</strong><br>
-                        G27，匪類里民一直喝主場以 24:12 大勝 Tonight29發財隊，總分狂飆到 <strong>107 分</strong>，跟龍頭軟飯揪團中只剩 <strong>3 分</strong> 之差！掉鏢組龍頭之爭進入貼身肉搏戰。這場個人勝場榜並列榜首的猴猴打得罕見辛苦，8局只拿2勝；反觀主場的R8阿廷穩定輸出7局4勝，這波追分火力全開。下週休賽，匪類里民要等到09/29才能挑戰傑克紅心，繼續這股氣勢。<br><br>
-
-                        <strong>🤝 有點傻大戰逃生Zoo口，本季首見平手，好搭檔小飛小齊同場飆分</strong><br>
-                        G28，有點傻與逃生Zoo口客場主場打成 18:18，是本季第一場打平的比賽！逃生Zoo口總分來到 <strong>123 分</strong>，靶外組跟全聯盟領先優勢依舊穩固，但這場平手也證明了這隊不是打不倒的；有點傻總分推進到 89 分，跟傑克黑桃並列靶外組第三。這場最有默契的莫過於好搭檔小飛跟小齊，兩人同步打出7局5勝的成績，不愧是感情好到隊伍都跟著一起換的兩人組。<br><br>
-
-                        <strong>🎀 嘻嘻隊客場拿下勝場，阿琪6局4勝笑著收工</strong><br>
-                        G29，嘻嘻隊客場以 20:15 收下 Tonight29恭喜隊，總分來到 78 分，靶外組排名持續往前推進；阿琪這場6局拿下4勝，贏多輸少地帶隊拿下客場分數，這種穩定輸出的隊友誰不想要一個。<br><br>
-
-                        <strong>🃏 傑克黑桃再下一城，Stan一人單場5勝、華華難得放假</strong><br>
-                        G30，傑克黑桃客場以 21:15 拿下哈哈隊，總分衝上 89 分，跟有點傻並列靶外組第三；這場的關鍵先生是傑克黑桃的Stan，6局拿下5勝一人扛起客場勝利。個人勝場榜並列榜首的華華這場手感稍微降溫，6局拿2勝，跟上一場的猴猴同病相憐，看來這週連兩大勝場王都在放風的路上；哈哈隊總分仍有93分，靶外組第二的位置暫時還是穩的。<br><br>
-
-                        <strong>📊 本週排名亮點：</strong><br>
-                        掉鏢組龍頭之爭差距縮到剩 3 分——軟飯揪團中 110、匪類里民一直喝 107，接下來每一場都是關鍵戰；酒空組 91 分守住第三，但後面沒有安全距離。靶外組逃生Zoo口 123 分依然遙遙領先，哈哈隊 93 分穩坐第二，傑克黑桃、有點傻同分 89 打得難分難解。<br><br>
-
-                        <strong>👑 個人勝場榜：華華猴猴持續並肩，新面孔擠進前五</strong><br>
-                        華華、猴猴雙雙推進到 <strong>19 勝</strong>，繼續並列榜首；小倫緊追在後（17 勝），匪類里民一直喝的 R8阿廷與嘻嘻隊的淦同樣以 17 勝擠進前五，兩人都是這週的新面孔，榜單開始出現變化。<br><br>
-
-                        <strong>🌹 Top Lady：Keira 持續獨走</strong><br>
-                        Keira 這週個人勝場來到 <strong>11 勝</strong>，持續坐穩 Top Lady 榜首；薇薇緊追在後（10 勝），Joy、宜竫並列第三（9 勝）。<br><br>
-
-                        <strong>💀 地獄倒霉鬼：哈哈隊 Mark 擠進整季最衰榜</strong><br>
-                        哈哈隊的 Mark 以整季 25% 先攻率新上榜；傑克紅心的小胖（13.33%）、小劉（17.65%）依然穩坐前兩名，先攻運氣長期都不站在這幾隊這邊。<br><br>
-
-                        <strong>📅 提醒：下週（09/22）休賽一週</strong><br>
-                        各位鏢友記得，下週沒有比賽，大家可以趁機休息一下、練練手感，09/29 再回來廝殺！<br><br>
-
-                        <em>總結：第五週把掉鏢組龍頭之爭燒得更旺了，逃生Zoo口的平手紀錄也讓靶外組多了一絲懸念，季末還遠得很，好戲才剛開始，下週休賽正好讓大家喘口氣，09/29 再開打見真章！🎯🍺</em>
-                    </div>
-                </div>
-                <div class="news-item collapsible">
-                    <div class="news-header">
-                        <div class="news-date">2026/9/9</div>
-                        <div class="news-title">🎯 第七屆 09/08 第四週週報：逃生Zoo口衝破百分大關！酒空、匪類里民雙雙客場踢館</div>
-                    </div>
-                    <div class="news-text">
-                        各位鏢友，第七屆第四週（G19~G24）戰報送到！這週最大亮點是<strong>靶外組出現本季第一支破百球隊</strong>，掉鏢組前三名則是擠成一團的基隆路，精彩程度直接升級。<br><br>
-
-                        <strong>⚔️ 酒空組客場踢館成功</strong><br>
-                        G19，酒空組客場以 23:13 收拾 Tonight29發財隊，手感火燙、攻勢一波接一波，總分衝到 79 分，直接卡進掉鏢組前三。<br><br>
-
-                        <strong>🔥 匪類里民一直喝，客場再上一課</strong><br>
-                        G20，匪類里民一直喝客場以 24:12 大勝傑克紅心。這隊最近走路都有風，總分推進到 <strong>83 分</strong>，穩坐掉鏢組第二，只落後龍頭軟飯揪團中 8 分，追分火力全開。<br><br>
-
-                        <strong>🍺 軟飯揪團中主場再下一城</strong><br>
-                        G21，軟飯揪團中主場以 27:9 拿下人生揪難亮，這幾週穩定輸出的實力繼續展現，總分來到 <strong>91 分</strong>，繼續坐穩掉鏢組龍頭寶座，而且是遙遙領先的那種穩。<br><br>
-
-                        <strong>💯 逃生Zoo口主場開趴，本季第一支破百球隊誕生</strong><br>
-                        G22，逃生Zoo口主場以 25:11 拿下哈哈隊，總分正式突破 <strong>105 分</strong>，是目前全聯盟唯一破百的隊伍！靶外組第二名哈哈隊 78 分緊追在後，這個差距已經不是「領先」，是「遙遙領先的領先」。<br><br>
-
-                        <strong>🃏 傑克黑桃客場強勢踢館</strong><br>
-                        G23，傑克黑桃客場以 23:13 拿下嘻嘻隊，總分來到 68 分，靶外組排名穩定往前推進，這波客場之旅收穫滿滿。<br><br>
-
-                        <strong>🎉 Tonight29恭喜隊客場硬吃一場</strong><br>
-                        G24，Tonight29恭喜隊客場以 21:15 收下有點傻，是本週比分最接近的一場，雙方拉鋸到最後，恭喜隊笑到最後笑得最開心。<br><br>
-
-                        <strong>📊 本週排名亮點：</strong><br>
-                        掉鏢組前三名擠成一團——軟飯揪團中 91、匪類里民一直喝 83、酒空組 79，三隊分差都在個位數到十位數之間，接下來每一場都可能洗牌；靶外組逃生Zoo口 105 分一騎絕塵，身後哈哈隊、有點傻、傑克黑桃打得再兇也很難望其項背。<br><br>
-
-                        <strong>👑 個人勝場榜：華華猴猴繼續並肩作戰</strong><br>
-                        華華、猴猴雙雙停在 <strong>17 勝</strong>，連續好幾週維持並列狀態，誰都不讓誰；小倫緊追在後（15 勝），小余、阿倫並列第四（14 勝）。<br><br>
-
-                        <strong>🌹 Top Lady：Keira 單週衝出重圍拿下第一</strong><br>
-                        Keira 這週個人勝場衝上 <strong>9 勝</strong>，正式登頂 Top Lady 榜首；薇薇、Joy 並列第二（8 勝），小喬第三（7 勝），女力對決一週一個樣。<br><br>
-
-                        <strong>💀 地獄倒霉鬼：小胖、小劉難兄難弟並列最衰</strong><br>
-                        傑克紅心的小胖、小劉兩人同樣 15.38% 先攻率並列榜首，運氣是真的不太站在他們這邊；青楓（20%）緊追在後。<br><br>
-
-                        <em>總結：第四週戰況一週比一週精彩，逃生Zoo口的百分大關立起一座新指標，掉鏢組三強亂鬥還在持續延燒，下週見真章！🎯🍺</em>
-                    </div>
-                </div>
-                <div class="news-item collapsible">
-                    <div class="news-header">
-                        <div class="news-date">2026/9/3</div>
-                        <div class="news-title">🎯 第七屆 09/01 第三週週報：酒空組逆風翻盤衝上第三！哈哈隊華華勝場狂飆17勝獨走</div>
-                    </div>
-                    <div class="news-text">
-                        各位鏢友，第七屆第三週（G13~G18）順利落幕！<br>
-                        這週最大亮點是掉鏢組前三名擠成一團，靶外組也悄悄換了老二，戰況比預期還要膠著！<br><br>
-
-                        <strong>⚔️ 酒空組主場打了場逆風翻盤秀</strong><br>
-                        G13，酒空組主場以 22:14 守下客場來襲的傑克紅心。<br>
-                        總分衝到 <strong>56 分</strong>，直接空降掉鏢組第 3——這波是本週最有戲的排名跳槽！<br><br>
-
-                        <strong>🍀 Tonight29發財隊穩穩收下勝場</strong><br>
-                        G14，Tonight29發財隊主場以 20:15 拿下人生揪難亮。<br>
-                        猴猴持續坐穩個人勝場榜第 2 名（14 勝），隊伍總分來到 52 分。<br><br>
-
-                        <strong>🍺 軟飯揪團中客場硬是搶下一分</strong><br>
-                        G15，軟飯揪團中客場以 19:17 驚險拿下匪類里民一直喝（主場）。<br>
-                        連續兩週守住掉鏢組第一寶座，總分 <strong>64 分</strong> 遙遙領先；匪類里民緊追在後拿下 59 分，兩隊接下來的直球對決肯定精彩！<br><br>
-
-                        <strong>🔥 逃生Zoo口繼續坐穩聯盟一哥</strong><br>
-                        G16，逃生Zoo口客場以 25:11 大勝嘻嘻隊（主場）。<br>
-                        總分推進到 <strong>80 分</strong>，靶外組暨全聯盟斷層領先，這隊本季目前為止還沒有對手擋得住。<br><br>
-
-                        <strong>👑 哈哈隊華華一個人單騎衝上勝場王</strong><br>
-                        G17，哈哈隊客場以 21:15 拿下有點傻（主場）。<br>
-                        隊伍總分來到 67 分升上靶外組第 2；華華這週手感依舊神準，不管紅心藏得多刁鑽，說中就中，個人勝場更是狂飆到 <strong>17 勝</strong>，把整個排行榜甩開一大截，目前完全是獨走狀態！<br><br>
-
-                        <strong>🃏 傑克黑桃主場火力全開</strong><br>
-                        G18，傑克黑桃主場以 25:11 收下客場來的 Tonight29恭喜隊。<br>
-                        直接殺進靶外組競爭行列，總分 45 分並列第 4、5 名。<br><br>
-
-                        <strong>📊 本週排名亮點：</strong><br>
-                        掉鏢組前三：軟飯揪團中 64、匪類里民一直喝 59、酒空組 56——三強差距縮到只剩個位數，接下來每一場都是關鍵戰！<br>
-                        靶外組：逃生Zoo口 80 分持續獨走，哈哈隊 67 分緊追在後。<br><br>
-
-                        <em>總結：第三週戰況一路開打一路洗牌，掉鏢組前段班擠成一團，靶外組換人當老二，下一週又有得看了 🎯🍺</em>
-                    </div>
-                </div>
-                <div class="news-item collapsible">
-                    <div class="news-header">
-                        <div class="news-date">2026/8/27</div>
-                        <div class="news-title">🎯 第七屆 08/25 第二週週報：逃生Zoo口狂轟30分登頂！軟飯揪團中與逃生Zoo口雙雙問鼎組別龍頭</div>
-                    </div>
-                    <div class="news-text">
-                        各位鏢友，第七屆第二週（G07~G12）圓滿落幕！<br>
-                        這週戰況高潮迭起，無論是鏢靶上的準心碰撞，還是店家間的飲酒較量都相當有看頭！<br><br>
-
-                        <strong>🔥 本週火熱焦點：逃生Zoo口展現驚人火力！</strong><br>
-                        G10，逃生Zoo口客場以 30:6 擊敗 Tonight29恭喜隊。<br>
-                        逃生Zoo口全隊手感火燙，加上飲酒加成單場爆砍 35 分，總積分推進至 55 分，高居靶外組與全聯盟第一！<br>
-                        Tonight29恭喜隊雖然面對對手絕佳手感暫時落後，但全隊氣氛依然融洽，期待下週回主場重整旗鼓！<br><br>
-
-                        <strong>🍺 軟飯揪團中單週灌進30分強勢登頂掉鏢組！</strong><br>
-                        G08，軟飯揪團中主場以 25:11 拿下 Tonight29發財隊。<br>
-                        軟飯團隊搭配極佳，比賽與喝酒加成雙雙進帳，總分衝上 45 分成功登頂掉鏢組榜首！<br>
-                        發財隊猴猴與 Keira 本週依舊展現勝場王等級的輸出，隊伍底蘊深厚，隨時準備發起反擊！<br><br>
-
-                        <strong>⚔️ 酒空組主場守城！一分一毫極限拉鋸戰</strong><br>
-                        G07，酒空組主場 19:17 驚險勝出匪類里民一直喝。<br>
-                        酒空這週靠著穩健鏢技在飛鏢對決中守下勝利！匪類里民雖然在飛鏢局數以微幅差距落後，但展現豪邁酒量拿下 5 分飲酒加成，總分 42 分緊追掉鏢組龍頭！<br><br>
-
-                        <strong>🃏 另外三場精彩對決：</strong><br>
-                        • <strong>G09 人生揪難亮 21:15 傑克紅心</strong>——人生揪難亮主場打出流暢節奏拿下本季首勝！傑克紅心展現韌性並帶走飲酒加成。<br>
-                        • <strong>G11 有點傻 27:9 傑克黑桃</strong>——小飛手感持續加溫累積至 10 勝，帶領有點傻衝上靶外組第三；傑克黑桃主場也打出多局好鏢。<br>
-                        • <strong>G12 哈哈隊 24:12 嘻嘻隊</strong>——Vivi Bar 內戰由哈哈隊拿下勝場與飲酒加成，華華勝場同步達到 10 勝！<br><br>
-
-                        <strong>👑 個人勝場榜速報：</strong><br>
-                        小飛、華華、猴猴三位頂尖高手同步累積至 <strong>10 勝</strong> 並列勝場王！Top Lady 方面由 Keira 與 +0 以 <strong>5 勝</strong> 並列第一，精彩的女力較量才剛要升溫！<br><br>
-
-                        <em>總結：第二週過後各組排名大洗牌，比賽張力越來越高！期待第三週（09/01）各隊帶來更精彩的表現！🎯🍺</em>
-                    </div>
-                </div>
-                <div class="news-item collapsible">
-                    <div class="news-header">
-                        <div class="news-date">2026/8/20</div>
-                        <div class="news-title">🎯 第七屆 08/18 開幕週週報：匪類里民與逃生Zoo口展現猛烈火力！新賽季正式熱血開打</div>
-                    </div>
-                    <div class="news-text collapsed">
-                        各位鏢友，第七屆正式揭開序幕！<br>
-                        這季分為「掉鏢組」與「靶外組」雙軌開打，第一週大家戰意滿滿，好多隊伍一開局就展現出極佳的手感與團體默契！<br><br>
-
-                        <strong>🔥 本週火熱焦點：匪類里民手感發燙！</strong><br>
-                        G02，匪類里民一直喝 25:11 拿下人生揪難亮。<br>
-                        匪類里民這週手感簡直熱到發燙！湯湯、King、R8阿廷、小野從個人賽一路到團體賽，鏢鏢精準。<br>
-                        人生揪難亮雖然首週遇到對手超水準發揮，但幾局比分其實相當拉鋸，相信下週找回節奏後，隨時能展現強力反彈實力！<br><br>
-
-                        <strong>🦁 逃生Zoo口開幕戰氣勢如虹！</strong><br>
-                        G04，逃生Zoo口 25:11 贏得與傑克黑桃的對決。<br>
-                        逃生Zoo口這場展現出驚人的團隊凝聚力，乳來、小倫、誠、Molly 在個人賽與多人局都有亮眼演出，開局就衝上靶外組榜首！<br>
-                        傑克黑桃雖然這場暫時落後，但全隊韌性十足，下週調整好狀態絕對大有可為。<br><br>
-
-                        <strong>🍺 軟飯揪團中默契發揮拿下首勝！</strong><br>
-                        G01，軟飯揪團中 20:15 戰勝酒空組。<br>
-                        軟飯這週在三人賽與雙人賽的搭配展現極佳默契，關鍵局數都能穩穩抓下。<br>
-                        倒是酒空組這週在喝酒關卡竟然迷之低調、沒拿到喝酒加成，不過雙方在飛鏢比賽得分上其實打成平手（15:15 平分秋色），下週酒空們酒量開起、狀態熱開，肯定精彩可期！<br><br>
-
-                        <strong>🃏 另外三場精彩對決：</strong><br>
-                        • <strong>G03 Tonight29發財隊 21:15 傑克紅心</strong>——`+0` 帶領發財隊在客場打出流暢配合取勝，傑克紅心主場也打出許多精彩好鏢！<br>
-                        • <strong>G05 Vivi哈哈隊 22:14 Tonight29恭喜隊</strong>——怪頭與 Lin 展現老牌勁旅的穩健準心，恭喜隊也展現極強韌性咬住比分。<br>
-                        • <strong>G06 Vivi嘻嘻 22:14 有點傻</strong>——Vivi嘻嘻搭配飲酒加成穩穩守住主場，有點傻在客場也展現出不俗的戰力！<br><br>
-
-                        <strong>📊 第一週組別榜首：</strong><br>
-                        🥇 <strong>掉鏢組龍頭</strong>：匪類里民一直喝（25分）<br>
-                        🥇 <strong>靶外組龍頭</strong>：逃生Zoo口（25分）<br><br>
-
-                        <em>總結：新賽季第一週大家就展現滿滿活力！勝不驕敗不餒，喝得開心、打得過癮，期待下週各隊帶來更多精彩對決！🎯🍺</em>
-                    </div>
-                </div>
-                <!-- 第六屆歷史戰報彙整 (點擊後非同步動態載入 data/news_s6.html) -->
-                <div class="news-item collapsible" id="season6ArchiveCard">
-                    <div class="news-header" data-season-archive="6" onclick="if(window.loadSeasonArchive) window.loadSeasonArchive(6, this)">
-                        <div class="news-date">2026/7/15</div>
-                        <div class="news-title">🏆 第六屆戰報彙整 (G01 ~ 季後賽全集)</div>
-                    </div>
-                    <div class="news-text collapsed" id="season6ArchiveContent">
-                        <div style="padding:20px 15px; text-align:center; color:#666; font-size:14px;">⏳ 點擊載入第六屆完整賽事戰報...</div>
-                    </div>
-                </div>
-
-                <!-- 第五屆歷史戰報彙整 (點擊後非同步動態載入 data/news_s5.html) -->
-                <div class="news-item collapsible" id="season5ArchiveCard">
-                    <div class="news-header" data-season-archive="5" onclick="if(window.loadSeasonArchive) window.loadSeasonArchive(5, this)">
-                        <div class="news-date">2026/1/20</div>
-                        <div class="news-title">🏆 第五屆戰報彙整 (G01 ~ 季後賽全集)</div>
-                    </div>
-                    <div class="news-text collapsed" id="season5ArchiveContent">
-                        <div style="padding:20px 15px; text-align:center; color:#666; font-size:14px;">⏳ 點擊載入第五屆完整賽事戰報...</div>
-                    </div>
-                </div>
-            </div>
         </div>
 
     <!-- 延遲載入 GTM / AdSense -->
@@ -1654,45 +986,7 @@
         // 保險機制
         setTimeout(loadGoogleAnalytics, 4000);
     </script>
-    <!-- 季後賽 Modal（news.html 自己的） -->
-    <div id="newsPlayoffsModal" onclick="if(event.target===this) closeNewsPlayoffsModal()" style="
-        display:none;
-        position:fixed; top:0; left:0; right:0; bottom:0; z-index:9999;
-        background:rgba(0,0,0,0.85);
-        justify-content:center; align-items:center;
-    ">
-        <div style="position:relative; width:90%; max-width:460px; height:85vh; background:#0f0f0f; border-radius:8px; overflow:hidden;">
-            <button onclick="closeNewsPlayoffsModal()" style="
-                position:absolute; top:10px; right:10px; z-index:10;
-                width:34px; height:34px; border-radius:50%;
-                background:rgba(0,0,0,0.7); border:2px solid #C9A063;
-                color:#C9A063; font-size:20px; font-weight:bold; cursor:pointer;
-                display:flex; align-items:center; justify-content:center; line-height:1;
-            ">&times;</button>
-            <iframe id="newsPlayoffsIframe" src="" style="width:100%; height:100%; border:none;"></iframe>
-        </div>
-    </div>
-
-    <script>
-    function openNewsPlayoffsModal() {
-        var modal = document.getElementById('newsPlayoffsModal');
-        var iframe = document.getElementById('newsPlayoffsIframe');
-        // 動態載入，防止浏覽器快取
-        iframe.src = 's7_playoffs.html?v=' + Date.now();
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
-    function closeNewsPlayoffsModal() {
-        var modal = document.getElementById('newsPlayoffsModal');
-        var iframe = document.getElementById('newsPlayoffsIframe');
-        modal.style.display = 'none';
-        iframe.src = ''; // 釋放資源
-        document.body.style.overflow = '';
-    }
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeNewsPlayoffsModal();
-    });
-    </script>
+    
 
     
 

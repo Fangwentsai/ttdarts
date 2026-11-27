@@ -3123,11 +3123,11 @@ function initializePhotoCarousel() {
     };
 
     carouselImageTitles = {
-        's7_playoffs.webp': '第七屆團隊季後賽賽制公開'
+        'logo.png': 'TTDarts'
     };
 
     // 季後賽賽制圖固定第一張，不參與隨機排序
-    carouselImages = ['/images/s7_playoffs.webp', ...season6Images];
+    carouselImages = ['/images/logo.png'];
 
     // 檢查DOM元素是否存在
     const carouselImage = document.getElementById('carousel-image');
@@ -3243,7 +3243,7 @@ function updateCarouselTitle(src) {
 
 // 輪播第一張是季後賽賽制圖，點下去開季後賽頁；其餘是活動照片，不給點。
 // 掛在 updateCarouselTitle 裡，因為每次換圖都會經過它。
-const CAROUSEL_LINKS = { 's7_playoffs.webp': 'openPlayoffsModal' };
+const CAROUSEL_LINKS = {};
 
 function updateCarouselLink(fileName) {
     const box = document.querySelector('.carousel-container');

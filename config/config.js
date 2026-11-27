@@ -14,7 +14,7 @@
 //               舊制 K:Q（K 隊名、L 勝、M 敗、N 和、O 積分、P 飲酒加成、Q 總分）
 //               新制 O:V（O 排名、P 隊名、Q 勝、R 敗、S 和、T 積分、U 飲酒加成、V 總分）
 
-const DEFAULT_API_KEY = 'AIzaSyC-FZGPTfchBh2FQGGc8KyLEX1ZDxmadX4';
+const DEFAULT_API_KEY = 'AIzaSyDvrSO2DQKL1gWc1cLqTJO_7pdk67LFGKs';
 
 const SEASONS = {
     // TODO(ttdarts): 換成新聯盟的試算表 ID；label / startDate / endDate / groups 依新聯盟填寫。

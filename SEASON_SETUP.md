@@ -73,7 +73,7 @@ const CURRENT_SEASON = 7;   // 當季：news 頁與 sitemap 優先級看這個
 2. **開放讀取權限**：共用 → 一般存取權 → 「知道連結的任何人」+「檢視者」。沒開的話網站會拿到 403，賽程和排名頁會是空的。
 
 > 💡 驗證權限是否正確：把下面網址的 `SHEET_ID` 換掉，用瀏覽器打開，看得到 JSON 就對了。
-> `https://sheets.googleapis.com/v4/spreadsheets/SHEET_ID/values/schedule!A1:B2?key=AIzaSyC-FZGPTfchBh2FQGGc8KyLEX1ZDxmadX4`
+> `https://sheets.googleapis.com/v4/spreadsheets/SHEET_ID/values/schedule!A1:B2?key=AIzaSyDvrSO2DQKL1gWc1cLqTJO_7pdk67LFGKs`
 
 ### Step 2：註冊新賽季
 

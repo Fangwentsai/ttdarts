@@ -23,7 +23,7 @@ const https = require('https');
 const CONFIG = {
   season: 6,
   sheetId: '1qc08K2zPsHm9g5Deku-yshYfggosTZdWIyFg7nqEEOM',
-  apiKey: 'AIzaSyC-FZGPTfchBh2FQGGc8KyLEX1ZDxmadX4',
+  apiKey: 'AIzaSyDvrSO2DQKL1gWc1cLqTJO_7pdk67LFGKs',
   // GAS Web App URL（用於寫入資料）
   gasWebAppUrl: 'https://script.google.com/macros/s/AKfycbwJ3xPlfON7pkmeVKzpQImQhnlzpMz6Fn4Z1E7PwXVBZBvlncA7VCQ3tITyq9x8puAu/exec',
   gameResultDir: path.join(__dirname, '../game_result/season6'),

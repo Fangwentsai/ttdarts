@@ -2,7 +2,7 @@
   "name": "exit-league",
   "version": "1.0.0",
   "private": true,
-  "description": "條通盃飛鏢聯賽官網",
+  "description": "TTDarts官網",
   "dependencies": {
     "sharp": "^0.35.0"
   }

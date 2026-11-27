@@ -572,7 +572,7 @@ function updateNewsHtml(teamRankings, playerRankings, topLadies, unluckyPlayers)
   const newsHtml = `                <div class="news-item collapsible">
                     <div class="news-header expanded">
                         <div class="news-date">${newsDate}</div>
-                        <div class="news-title">🎯 第六屆條通盃飛鏢聯賽 ${gRange} 週報：${topTeam.team || ''}持續領跑，${topPlayer.team || ''} ${topPlayer.name || ''}勝場稱王！</div>
+                        <div class="news-title">🎯 第六屆TTDarts ${gRange} 週報：${topTeam.team || ''}持續領跑，${topPlayer.team || ''} ${topPlayer.name || ''}勝場稱王！</div>
                     </div>
                     <div class="news-text expanded">
                         各位選手與飛鏢同好們，本週賽事（${gRange}）圓滿結束！讓我們回顧本週戰況：

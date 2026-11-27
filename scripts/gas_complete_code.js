@@ -775,7 +775,7 @@ function checkWeekComplete(ss, currentGameNum) {
     if (completedGames.length === GAMES_PER_WEEK && missingGames.length === 0) {
       MailApp.sendEmail(NOTIFY_EMAIL,
         '🎯 本週 ' + GAMES_PER_WEEK + ' 場比賽全部完成！G' + weekStart + '~G' + weekEnd,
-        '排行榜已自動更新到 dev.ttdarts.com。\n\n完成場次：' + completedGames.join(', ') + '\n\n請告訴 AI「寫戰報」來生成本週的戰報新聞。\n\n— 條通盃飛鏢聯賽自動化系統'
+        '排行榜已自動更新到 dev.ttdarts.com。\n\n完成場次：' + completedGames.join(', ') + '\n\n請告訴 AI「寫戰報」來生成本週的戰報新聞。\n\n— TTDarts自動化系統'
       );
       Logger.log('📧 已寄送完成通知到 ' + NOTIFY_EMAIL);
 
@@ -973,7 +973,7 @@ function deleteFileFromGitHub(filePath, commitMessage) {
 // 戰報自動生成系統
 // =====================================================
 
-var BATTLE_REPORT_SYSTEM_PROMPT = '你是「條通盃飛鏢聯賽」飛鏢聯賽的週報戰報撰寫員。這是一個已經進行到第六季尾聲的飛鏢聯賽。\n\n'
+var BATTLE_REPORT_SYSTEM_PROMPT = '你是「TTDarts」飛鏢聯賽的週報戰報撰寫員。這是一個已經進行到第六季尾聲的飛鏢聯賽。\n\n'
   + '## 風格要求（最重要！）\n'
   + '- 口語化、接地氣：像朋友在聊天\n'
   + '- 吐槽以隊伍為主，不要針對個人洗臉，點到為止\n'
@@ -1363,7 +1363,7 @@ function generateAndPublishReport(ss, weekStart, weekEnd) {
         '戰報已自動發布到 dev.ttdarts.com/pages/news.html\n\n'
         + '--- 戰報預覽 ---\n\n'
         + reportText.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '')
-        + '\n\n— 條通盃飛鏢聯賽自動化系統'
+        + '\n\n— TTDarts自動化系統'
       );
       Logger.log('📧 戰報預覽 email 已寄出');
     } catch (mailErr) {

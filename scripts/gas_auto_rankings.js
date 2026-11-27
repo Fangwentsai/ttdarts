@@ -415,7 +415,7 @@ function checkWeekComplete(ss, currentGameNum) {
       var body = '排行榜已自動更新到 dev.ttdarts.com。\n\n' +
         '完成場次：' + completedGames.join(', ') + '\n\n' +
         '請告訴 AI「寫戰報」來生成本週的戰報新聞。\n\n' +
-        '— 條通盃飛鏢聯賽自動化系統';
+        '— TTDarts自動化系統';
       
       MailApp.sendEmail(NOTIFY_EMAIL, subject, body);
       Logger.log('📧 已寄送完成通知到 ' + NOTIFY_EMAIL);

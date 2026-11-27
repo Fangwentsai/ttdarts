@@ -756,7 +756,7 @@ function checkWeekComplete(ss, currentGameNum) {
     if (completedGames.length === GAMES_PER_WEEK && missingGames.length === 0) {
       MailApp.sendEmail(NOTIFY_EMAIL,
         '🎯 本週 ' + GAMES_PER_WEEK + ' 場比賽全部完成！G' + weekStart + '~G' + weekEnd,
-        '排行榜已自動更新到 dev.ttdarts.com。\n\n完成場次：' + completedGames.join(', ') + '\n\n— 條通盃飛鏢聯賽自動化系統'
+        '排行榜已自動更新到 dev.ttdarts.com。\n\n完成場次：' + completedGames.join(', ') + '\n\n— TTDarts自動化系統'
       );
     }
   } catch (e) {

@@ -1,4 +1,4 @@
-# 條通盃飛鏢聯賽 — 每週操作手冊
+# TTDarts — 每週操作手冊
 
 > 版本：2026/04 | 適用：第六屆
 
@@ -72,7 +72,7 @@ cp game_result/season6/g60.html game_result/season6/g61.html
 
 ```html
 <!-- 1. 頁面標題和 meta -->
-<title>條通盃飛鏢聯賽 第六屆 G61 賽果：XXX vs. OOO｜飛鏢聯賽戰報</title>
+<title>TTDarts 第六屆 G61 賽果：XXX vs. OOO｜飛鏢聯賽戰報</title>
 
 <!-- 2. 比賽日期 -->
 <h2 class="match-date">4/14</h2>

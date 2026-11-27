@@ -65,12 +65,12 @@ class GameResultPreviewGenerator {
     <link rel="icon" href="../../images/favicon.ico" type="image/x-icon">
   
     <link rel="stylesheet" href="../../styles/common/game_result.css">
-    <link rel="stylesheet" href="../../styles/common/match-result.css?v=20260930_1">
+    <link rel="stylesheet" href="../../styles/common/match-result.css?v=20261127">
 </head>
 <body>
     <div class="container" id="matchResult"></div>
 
-<script src="../../js/game_result.js?v=20260919_1"></script>
+<script src="../../js/game_result.js?v=20261127"></script>
 <script>
 // ${gameCode} 比賽數據
 ${matchesJS}

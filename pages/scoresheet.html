@@ -212,12 +212,12 @@
 
         td {
             border: 1px solid #000;
-            height: 9mm;
+            height: 8.5mm;
             padding: 0;
         }
 
         /* 三人／四人賽需要兩排欄位，列高加大 */
-        tr.tall td { height: 14mm; }
+        tr.tall td { height: 13mm; }
 
         /* ========== 出賽限制分組 ==========
            粗框圈起來的組別內同一人只能出賽一次
@@ -230,8 +230,7 @@
            先前試過用 JS 量座標疊一層外框，螢幕上正確，但列印／匯出 PDF 時
            版面會依 A4 重排，座標失準就整個錯位（--print-to-pdf 也不會觸發
            beforeprint）。純 CSS 沒有這個問題，任何輸出方式都一致。 */
-        tr.grp-start td { border-top: 2.5px solid #000; }
-        tr.grp-end td { border-bottom: 2.5px solid #000; }
+
 
         /* 選手欄：單人賽整欄一格，多人賽一律兩欄兩排，
            讓每格有 25mm 左右可以寫中文名字 */
@@ -298,9 +297,11 @@
             vertical-align: middle;
         }
 
-        .box {
-            width: 6mm;
-            height: 6mm;
+        /* 勝負長條：主隊的放最左、客隊的放最右，兩條離得越遠越不會被讀反。
+           長條比小方框好畫，填的人隨手畫一筆就算數。 */
+        .bar {
+            width: 15mm;
+            height: 5mm;
             border: 1.6px solid #000;
             display: inline-block;
             vertical-align: middle;
@@ -311,11 +312,19 @@
             line-height: 1;
         }
 
-        /* 先攻欄底色，跟勝方區隔 */
-        .fa { background: #ececec; }
+        /* ========== 三黑統計表 ========== */
+        .awards {
+            display: flex;
+            gap: 3mm;
+            margin-top: 2mm;
+        }
 
-        /* 表頭的先攻欄是淺灰底，字要改黑色才看得見（預設的白字會消失） */
-        th.fa { color: #000; }
+        .awards table { flex: 1; }
+
+        .awards td { height: 6.5mm; }
+
+
+        .awards th.cap { text-align: left; padding-left: 1.5mm; }
 
         /* ========== 底部計分 ========== */
         .totals {
@@ -402,7 +411,7 @@
                     <div class="url">dev.ttdarts.com　<span>掃描 QR 看賽程和排名（重點是趕快填表）</span></div>
                 </div>
             </div>
-            <div class="hint">■ 請用深色筆<u>塗滿</u>方框，不要打勾或畫叉<br>■ 請寫報名時的隊員名，字跡請盡量工整<br>■ <u>粗框內同一人限出賽一次</u>：SET1~4、6~9、11~12、13~14</div>
+            <div class="hint">■ 每局<u>勝方</u>在長條內畫一筆即可<br>■ 請寫報名時的隊員名，字跡請盡量工整<br>■ 三黑表請填<u>阿拉伯數字</u>，沒有就留白</div>
         </div>
 
         <div class="meta">
@@ -412,128 +421,108 @@
             <div class="field"><span class="label">客隊</span><span class="blank"></span></div>
         </div>
 
-        <div class="roster">
-            <div class="roster-box">
-                <div class="cap">主隊出賽人員</div>
-                <div class="roster-grid">
-                    <div></div><div></div><div></div>
-                    <div></div><div></div><div></div>
-                    <div></div><div></div><div></div>
-                    <div></div><div></div><div></div>
-                </div>
-            </div>
-            <div class="roster-box">
-                <div class="cap">客隊出賽人員</div>
-                <div class="roster-grid">
-                    <div></div><div></div><div></div>
-                    <div></div><div></div><div></div>
-                    <div></div><div></div><div></div>
-                    <div></div><div></div><div></div>
-                </div>
-            </div>
-        </div>
-
         <div class="tablewrap">
             <table>
                 <colgroup>
-                    <col style="width:29.5%">
-                    <col style="width:6.5%">
-                    <col style="width:6.5%">
-                    <col style="width:15%">
-                    <col style="width:6.5%">
-                    <col style="width:6.5%">
-                    <col style="width:29.5%">
+                    <col style="width:11%">
+                    <col style="width:30%">
+                    <col style="width:18%">
+                    <col style="width:30%">
+                    <col style="width:11%">
                 </colgroup>
                 <thead>
                     <tr>
+                        <th>主勝</th>
                         <th>主隊選手</th>
-                        <th class="fa">主<small>先攻</small></th>
-                        <th>主<small>勝</small></th>
                         <th>SET</th>
-                        <th>客<small>勝</small></th>
-                        <th class="fa">客<small>先攻</small></th>
                         <th>客隊選手</th>
+                        <th>客勝</th>
                     </tr>
                 </thead>
                 <tbody id="rows"></tbody>
             </table>
         </div>
 
+        <div class="awards">
+            <table>
+                <colgroup><col style="width:46%"><col style="width:18%"><col style="width:18%"><col style="width:18%"></colgroup>
+                <tr><th class="cap">主隊三黑統計</th><th>HAT</th><th>白馬</th><th>床</th></tr>
+                <tbody class="award-rows"></tbody>
+            </table>
+            <table>
+                <colgroup><col style="width:46%"><col style="width:18%"><col style="width:18%"><col style="width:18%"></colgroup>
+                <tr><th class="cap">客隊三黑統計</th><th>HAT</th><th>白馬</th><th>床</th></tr>
+                <tbody class="award-rows"></tbody>
+            </table>
+        </div>
+
         <div class="totals">
             <table style="flex:1">
-                <tr><td class="lbl">比賽得分</td><td></td></tr>
-                <tr><td class="lbl">喝酒點數</td><td></td></tr>
-                <tr><td class="lbl">最終得分</td><td></td></tr>
-                <tr class="sign"><td class="lbl">客隊簽名</td><td></td></tr>
+                <tr><td class="lbl">主隊勝局數</td><td></td></tr>
+                <tr><td class="lbl">勝隊加分</td><td></td></tr>
+                <tr><td class="lbl">本場積分</td><td></td></tr>
+                <tr class="sign"><td class="lbl">主隊簽名</td><td></td></tr>
             </table>
             <table style="flex:1">
-                <tr><td class="lbl">比賽得分</td><td></td></tr>
-                <tr><td class="lbl">喝酒點數</td><td></td></tr>
-                <tr><td class="lbl">最終得分</td><td></td></tr>
-                <tr class="sign"><td class="lbl">主隊簽名</td><td></td></tr>
+                <tr><td class="lbl">客隊勝局數</td><td></td></tr>
+                <tr><td class="lbl">勝隊加分</td><td></td></tr>
+                <tr><td class="lbl">本場積分</td><td></td></tr>
+                <tr class="sign"><td class="lbl">客隊簽名</td><td></td></tr>
             </table>
         </div>
 
         <div class="footnote">
-            <b>最終得分 ＝ 比賽得分 ＋ 勝隊 +1（和局雙方皆不加）＋ 飲酒加成 +5</b><br>
-            左欄為主隊、右欄為客隊　│　核對：兩隊<b>比賽得分</b>合計 30 分，<b>最終得分</b>合計 36 分（和局 35 分）
+            <b>本場積分 ＝ 勝局數（每局 1 分）＋ 勝隊 +2</b>　│　核對：兩隊<b>勝局數</b>合計 15<br>
+            HAT＝Hat Trick（三鏢紅心）、白馬＝White Horse、床＝3 In The Bed　│　填該選手本場的次數
         </div>
     </div>
 
     <script>
-        // set 編號 → [類型說明, 選手數, 該局分數]
+        // 條通聯盟 15 局：[人數, 項目, 賽制, 備註]
         const SETS = [
-            ['501 (OI/MO) 女子優先', 1, 1],
-            ['501 (DI/DO)', 1, 1],
-            ['701 (OI/MO)', 1, 1],
-            ['701 (OI/MO, 25/50)', 1, 1],
-            ['三人賽 701 骰子賽', 3, 3],
-            ['Cricket 女子優先', 1, 1],
-            ['Cricket', 1, 1],
-            ['HALF-IT', 1, 1],
-            ['HALF-IT', 1, 1],
-            ['三人賽 Cricket 骰子賽', 3, 3],
-            ['701 雙人賽', 2, 2],
-            ['701 雙人賽 FREEZE', 2, 2],
-            ['Cricket 雙人賽', 2, 2],
-            ['Team Cricket', 2, 2],
-            ['四人賽 1101', 4, 4],
-            ['四人賽 Cricket', 4, 4]
+            [1, 'Count Up', '', 'Rt 9.99'],
+            [1, '501', 'DI/DO', '紅心不可開結'],
+            [2, 'Half It', '', ''],
+            [1, '501', 'OI/OO', '女子賽・Rt 9.99'],
+            [1, 'Cricket', '', ''],
+            [2, 'VS ARCHERY', '', '射箭・Rt 19.99'],
+            [4, '901', 'OI/OO', ''],
+            [1, '701', 'OI/MO', ''],
+            [2, 'Cricket', '', 'Rt 19.99'],
+            [2, 'HIDDEN CR', '', '寶箱'],
+            [1, 'HYPER JUMP', '', 'Rt 9.99'],
+            [1, '501 硬式', 'OI/DO', '25/50'],
+            [2, '701 TEAM FREEZE', 'OI/OO', '雪分'],
+            [2, '701', 'OI/OO', 'Rt 19.99'],
+            [4, 'Cricket', '', '']
         ];
 
+        // 單人、雙人一排；四人賽兩欄兩排
         const slots = n => n === 1
             ? '<div class="slots"><div class="slot"></div></div>'
             : '<div class="slots multi">' +
               Array.from({ length: n }, (_, i) => `<div class="slot" data-p="P${i + 1}"></div>`).join('') +
               '</div>';
 
-        // 出賽限制分組：同一組內同一人只能出賽一次
-        const GROUPS = [[1, 4], [6, 9], [11, 12], [13, 14]];
-        const grpClass = set => {
-            const g = GROUPS.find(([a, b]) => set >= a && set <= b);
-            if (!g) return '';
-            if (set === g[0]) return 'grp-start';
-            if (set === g[1]) return 'grp-end';
-            return 'grp-mid';
-        };
+        const label = n => ({ 1: '單人', 2: '雙人', 4: '四人' })[n];
 
-        document.getElementById('rows').innerHTML = SETS.map(([type, n, pt], i) => `
-            <tr class="${n > 2 ? 'tall ' : ''}${grpClass(i + 1)}">
+        document.getElementById('rows').innerHTML = SETS.map(([n, game, rule, note], i) => `
+            <tr class="${n > 2 ? 'tall' : ''}">
+                <td class="markcell"><span class="bar"></span></td>
                 <td class="players">${slots(n)}</td>
-                <td class="markcell fa"><span class="box"></span></td>
-                <td class="markcell"><span class="box"></span></td>
                 <td class="setinfo">
                     <span class="no">SET${i + 1}</span>
-                    <span class="type">${type}</span>
-                    <span class="pt">${pt} 分</span>
+                    <span class="type">${label(n)} ${game}${rule ? ' ' + rule : ''}</span>
+                    ${note ? `<span class="pt">${note}</span>` : ''}
                 </td>
-                <td class="markcell"><span class="box"></span></td>
-                <td class="markcell fa"><span class="box"></span></td>
                 <td class="players">${slots(n)}</td>
+                <td class="markcell"><span class="bar"></span></td>
             </tr>
         `).join('');
 
-        // 分組外框改由 CSS 的 tr.grp-start / tr.grp-end 處理，不再用 JS 量座標。
+        // 三黑統計表：每隊 8 列（姓名 + 三個次數格）
+        const awardRow = '<tr><td class="players"><div class="slot"></div></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>';
+        document.querySelectorAll('.award-rows').forEach(tb => { tb.innerHTML = awardRow.repeat(8); });
     </script>
 </body>
 

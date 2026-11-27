@@ -22,7 +22,7 @@
             if (s && s.sheetId) return { id: s.sheetId, key: s.apiKey || fallbackKey, label: s.label || '第一屆' };
         } catch (e) { /* fallback */ }
         return {
-            id: '1APUuzy6Dcbi1sWGUVvrbrluEvKsktRvPYygASofekKQ',
+            id: '1gXWx_QRm_MZkLvrnecBi0x5QpL2XmsoXZXPGYbUD_nc',
             key: (typeof DEFAULT_API_KEY !== 'undefined') ? DEFAULT_API_KEY : undefined,
             label: '第一屆'
         };

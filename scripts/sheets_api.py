@@ -8,7 +8,7 @@ import json, sys, urllib.parse, urllib.request
 sys.path.insert(0, __file__.rsplit('/', 1)[0])
 from google_oauth import access_token
 
-SHEET_ID = '1APUuzy6Dcbi1sWGUVvrbrluEvKsktRvPYygASofekKQ'
+SHEET_ID = '1gXWx_QRm_MZkLvrnecBi0x5QpL2XmsoXZXPGYbUD_nc'  # TT 試算表
 BASE = 'https://sheets.googleapis.com/v4/spreadsheets/'
 
 

@@ -70,7 +70,7 @@ html = html.replace(
 const newNews = `                <div class="news-item collapsible">
                     <div class="news-header expanded">
                         <div class="news-date">2026/4/1</div>
-                        <div class="news-title">🎯 第六屆難找的聯賽：Vivi哈哈隊突破200分大關穩居龍頭！十三么小齊正式超越猴猴登頂勝場王！</div>
+                        <div class="news-title">🎯 第六屆條通盃飛鏢聯賽：Vivi哈哈隊突破200分大關穩居龍頭！十三么小齊正式超越猴猴登頂勝場王！</div>
                     </div>
                     <div class="news-text expanded">
                         各位選手與飛鏢同好們，本週賽事結束，戰況依舊激烈，各項排行榜也出現了令人驚豔的變化！讓我們來看看本週焦點：

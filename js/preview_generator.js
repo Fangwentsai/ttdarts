@@ -43,8 +43,8 @@ class GameResultPreviewGenerator {
         const gameCodeLower = gameCode.toLowerCase();
         const season = this.getSeasonFromDate(gameInfo.date);
         const seasonNum = this.getSeasonNumber(gameInfo.date);
-        const title = `難找的聯賽 ${season} ${gameCode} 賽果：${gameInfo.awayTeam} vs. ${gameInfo.homeTeam}｜飛鏢聯賽戰報`;
-        const description = `查看 難找的聯賽 飛鏢${seasonNum}季 ${gameCode} 的詳細賽果。本場比賽由${gameInfo.awayTeam}對決${gameInfo.homeTeam}，包含 701 、 Cricket 與多人賽的完整數據分析與戰報。`;
+        const title = `條通盃飛鏢聯賽 ${season} ${gameCode} 賽果：${gameInfo.awayTeam} vs. ${gameInfo.homeTeam}｜飛鏢聯賽戰報`;
+        const description = `查看 條通盃飛鏢聯賽 飛鏢${seasonNum}季 ${gameCode} 的詳細賽果。本場比賽由${gameInfo.awayTeam}對決${gameInfo.homeTeam}，包含 701 、 Cricket 與多人賽的完整數據分析與戰報。`;
         const keywords = `飛鏢聯賽, YHDARTS, 賽果, ${gameInfo.awayTeam}, ${gameInfo.homeTeam}, 飛鏢比賽, dart league, match result, phoenix darts, dartslive`;
 
         // 生成比賽數據的 JavaScript 對象（傳入 gameCode 確保變量名正確）

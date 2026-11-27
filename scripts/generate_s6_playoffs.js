@@ -72,7 +72,7 @@ let html = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>難找的聯賽 第六屆季後賽戰報</title>
+<title>條通盃飛鏢聯賽 第六屆季後賽戰報</title>
 <style>
   :root {
     --bg-color: #0F0F0F;
@@ -385,7 +385,7 @@ let html = `<!DOCTYPE html>
 
 <div class="container" style="margin: 0 auto;">
   <div class="header">
-    <h1>難找的聯賽</h1>
+    <h1>條通盃飛鏢聯賽</h1>
     <p>第六屆個人季後賽戰報</p>
     <p style="font-size: 14px;">最後更新時間：\${dateStr}</p>
   </div>
@@ -464,7 +464,7 @@ html += `  </div>
   </div>
 
   <div class="footer">
-    © 2026 難找的聯賽. All rights reserved.
+    © 2026 條通盃飛鏢聯賽. All rights reserved.
   </div>
 </div>
 

@@ -2395,7 +2395,7 @@ async function preloadResources(page = 'news') {
 
     // 共用圖片（立即加載）- 使用 WebP 格式
     const commonImages = [
-        'images/banner.png'
+        'images/logo.png'
     ];
 
     // 頁面特定的圖片（按需加載）
@@ -3060,7 +3060,7 @@ let carouselInterval = null;
 let carouselImagePositions = {};
 // 每張圖的輪播標題；沒列的用預設標題（頒獎照）
 let carouselImageTitles = {};
-const carouselDefaultTitle = '難找的聯賽第六屆頒獎典禮';
+const carouselDefaultTitle = '條通盃飛鏢聯賽第六屆頒獎典禮';
 
 // 取得照片的 object-position（預設 center 30%）
 function getCarouselObjectPosition(src) {
